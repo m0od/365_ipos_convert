@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve myproject
+After=network.target
+
+[Service]
+User=blackwings
+Group=nginx
+WorkingDirectory=/home/blackwings/365ipos
+Environment="PATH=/home/blackwings/365ipos/bin"
+ExecStart=/home/blackwings/365ipos/bin/uwsgi --ini 365ipos.ini
+
+[Install]
+WantedBy=multi-user.target

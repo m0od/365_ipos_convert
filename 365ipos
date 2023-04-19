@@ -1,0 +1,30 @@
+server {
+    listen 80;
+    server_name adapter.pos365.vn;
+    client_body_timeout 150s;
+    proxy_connect_timeout       1500;
+    proxy_send_timeout          1500;
+    proxy_read_timeout          1500;
+    send_timeout                1500;
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/home/blackwings/365ipos/365ipos.sock;
+        uwsgi_read_timeout 150s;
+        uwsgi_send_timeout 150s;
+    }
+}
+
+server {
+    listen 6060;
+    client_body_timeout 150s;
+    proxy_connect_timeout       1500;
+    proxy_send_timeout          1500;
+    proxy_read_timeout          1500;
+    send_timeout                1500;
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/home/blackwings/365ipos/365ipos.sock;
+        uwsgi_read_timeout 150s;
+        uwsgi_send_timeout 150s;
+    }
+}

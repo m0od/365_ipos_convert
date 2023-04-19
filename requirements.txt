@@ -1,0 +1,9 @@
+flask
+flask_sqlalchemy
+mysqlclient
+pytz
+wheel
+uwsgi
+celery
+requests
+redis
