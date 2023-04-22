@@ -1,25 +1,26 @@
 import requests
 #
-# js = {'Code': '1sdfsdf23123', 'PurchaseDate': '2023-04-18 20:25:00', 'Status': 2, 'Discount': 20400, 'VAT': 0, 'Total': 115600, 'TotalPayment': 115600, 'OrderDetails': [{'Code': 'MT14L', 'Name': 'Mango Milk L', 'Price': 56000, 'Quantity': 1}, {'Code': '50I', 'Name': '50% I', 'Price': 0, 'Quantity': 1}, {'Code': 'TOP8L', 'Name': 'White Pearls*', 'Price': 10000, 'Quantity': 1}, {'Code': '70S', 'Name': '70% S', 'Price': 0, 'Quantity': 1}, {'Code': 'MT9L', 'Name': 'Hazelnut Milk Tea L', 'Price': 56000, 'Quantity': 1}, {'Code': 'TOP5L', 'Name': 'Pearls*', 'Price': 7000, 'Quantity': 1}, {'Code': 'TOP4L', 'Name': 'Grass Jelly*', 'Price': 7000, 'Quantity': 1}], 'AdditionalServices': [{'Name': 'Phí dịch vụ', 'Value': 0}, {'Name': 'Phí hoa hồng', 'Value': 0}, {'Name': 'Phí marketing', 'Value': 0}], 'PaymentMethods': [{'Name': 'ATM', 'Value': 115600}]}
-# h = {
-#     'content-type': 'application/json',
-#     'retailer': 'retry',
-#     'authorization': 'cf0f760c3c11b65139beaecd6e0dd12f80bc34a177704ffc497d2bf816d1ac2d'
-# }
-# requests.post('http://adapter.pos365.vn:6000/orders', headers=h, json=js)
-import json
-f = open('bak', 'r')
-s = f.read().strip()
-f.close()
-s = s.split('\n')
-x = []
-for line in s:
-    l = line.split('	')[6].replace("'",'"')
-    # print(l)
-    js = json.loads(l)
-    # print(js['Code'], js['PurchaseDate'])
-    if js['Code'] not in x:
-        x.append(js['Code'])
-    else:
-        print(js)
-print(len(x))
+js = {'Code': '133714', 'Status': 2, 'PurchaseDate': '2023-01-05 21:31:42', 'Total': 791600, 'TotalPayment': 791600, 'VAT': 71964, 'Discount': 1187400, 'OrderDetails': [{'Code': '221113225842', 'Name': 'Giày da nam hiệu KANGLONG hàng mới 100%. Size 42', 'Price': 1979000, 'Quantity': 1}, {'Code': '1229190003', 'Name': 'Túi giấy hiệu Aokang hàng mới 100%', 'Price': 0, 'Quantity': 1}], 'PaymentMethods': [{'Name': 'THẺ', 'Value': 791600}]}
+h = {
+    'content-type': 'application/json',
+    'retailer': 'aokang_aeonhd',
+    'authorization': '407f86411bd52a7ed956f07579109ce42638d7c6acee0336bfd839745e1bde37'
+}
+requests.post('https://adapter.pos365.vn/aeon_orders', headers=h, json=js)
+# import json
+# f = open('bak', 'r')
+# s = f.read().strip()
+# f.close()
+# s = s.split('\n')
+# x = []
+# for line in s:
+#     l = line.split('	')[6].replace("'",'"')
+#     # print(l)
+#     js = json.loads(l)
+#     # print(js['Code'], js['PurchaseDate'])
+#     if js['Code'] not in x:
+#         x.append(js['Code'])
+#         requests.post('https://adapter.pos365.vn/orders', headers=h, json=js)
+#     else:
+#         print(js)
+# print(len(x))

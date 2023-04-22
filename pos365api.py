@@ -88,6 +88,8 @@ class API(object):
         except Exception as e:
             return {'status': 1, 'message': str(e)}
 
+    def return_save(self, order):
+        return False
 
     def order_get(self, code):
         try:

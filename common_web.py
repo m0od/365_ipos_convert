@@ -1,9 +1,9 @@
 import hashlib
 import json
 import uuid
-from common_celery import convert
+from common_celery import convert, aeon_convert
 from datetime import datetime
-from flask import request, Blueprint, abort, render_template, Response
+from flask import request, Blueprint, abort, render_template, Response, send_file
 from flask_sqlalchemy import SQLAlchemy
 
 from model import TenAntConfig, Log, TenAntProduct, TenAntPayment
@@ -110,13 +110,6 @@ def get_payment():
 @common.route('/setup', methods=['GET', 'POST'])
 def setup():
     if request.method == 'GET':
-        l = Log()
-        l.rid = str(uuid.uuid4())
-        try:
-            db.session.add(l)
-            db.session.commit()
-        except:
-            db.session.rollback()
         token = request.args.get('token')
         if token == 'kt365aA@123':
             return render_template('setup.html')
@@ -164,8 +157,13 @@ def setup():
 
 @common.route('/orders', methods=['POST'])
 def orders():
-    branch = request.headers.get('Retailer').lower()
-    token = request.headers.get('Authorization').lower()
+    try:
+        branch = request.headers.get('Retailer').lower()
+        if branch is None: return abort(403)
+        token = request.headers.get('Authorization').lower()
+        if token is None: return abort(403)
+    except:
+        return abort(403)
     cfg = TenAntConfig.query.filter_by(branch=branch).first()
     if cfg is None or cfg.token != token:
         return abort(403)
@@ -209,6 +207,59 @@ def orders():
         return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
 
 
+@common.route('/aeon_orders', methods=['POST'])
+def aeon_orders():
+    try:
+        branch = request.headers.get('Retailer').lower()
+        if branch is None: return abort(403)
+        token = request.headers.get('Authorization').lower()
+        if token is None: return abort(403)
+    except:
+        return abort(403)
+    cfg = TenAntConfig.query.filter_by(branch=branch).first()
+    if cfg is None or cfg.token != token:
+        return abort(403)
+    try:
+        content = request.json
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"{branch} {now} -> {content}")
+        log = Log()
+        log.branch = branch
+        log.code = content.get('Code')
+        log.content = str(content)
+        log.log_date = datetime.now()
+        try:
+            db.session.add(log)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        if content.get('Code') is None or len(str(content.get('Code').strip())) == 0:
+            raise MissingInformationException('Thiếu thông tin mã đơn hàng (Code)')
+        if content.get('PurchaseDate') is None or len(str(content.get('PurchaseDate').strip())) == 0:
+            raise MissingInformationException('Thiếu thông tin ngày bán (PurchaseDate)')
+        if content.get('PaymentMethods') is None or type(content.get('PaymentMethods')) != list:
+            return MissingInformationException('Thiếu thông tin PTTT (PaymentMethods)')
+        for pm in content.get('PaymentMethods'):
+            if type(pm) != dict:
+                raise MissingInformationException('Thông tin PTTT không hợp lệ')
+        if content.get('AdditionalServices') is not None:
+            if type(content.get('AdditionalServices')) != list:
+                raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
+            for service in content.get('AdditionalServices'):
+                if type(service) != dict:
+                    raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
+        result = aeon_convert.delay(cfg.domain, cfg.id, cfg.cookie, content, cfg.user, cfg.password)
+        log.rid = str(result.id)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        return {"result_id": result.id}
+    except Exception as e:
+        return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
+
+
+
 @common.route("/result/<id>", methods=['GET'])
 def task_result(id):
     task = convert.AsyncResult(id)
@@ -236,3 +287,7 @@ def task_result(id):
         }
         response = Response(json.dumps(response), status=400, mimetype='application/json')
     return response
+
+# @common.route('/bigsur', methods=['GET'])
+# def big_sur():
+#     return send_file('bigsur/InstallAssistant.pkg', as_attachment=True)

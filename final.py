@@ -39,7 +39,7 @@ def init_utils(app):
         if not app.debug:
             try:
                 functions = app.view_functions[request.endpoint]
-                if functions.__name__ in ['setup', 'orders', 'task_result']:
+                if functions.__name__ in ['setup', 'orders', 'task_result', 'aeon_orders']:
                     return
                 if request.remote_addr not in ['127.0.0.1', '103.35.65.114']:
                     abort(404)
