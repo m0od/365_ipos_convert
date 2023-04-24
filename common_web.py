@@ -1,11 +1,11 @@
 import hashlib
 import json
 import uuid
+from sqlalchemy import or_
 from common_celery import convert, aeon_convert
-from datetime import datetime
-from flask import request, Blueprint, abort, render_template, Response, send_file
+from datetime import datetime, timedelta
+from flask import request, Blueprint, abort, render_template, Response, send_file, jsonify
 from flask_sqlalchemy import SQLAlchemy
-
 from model import TenAntConfig, Log, TenAntProduct, TenAntPayment
 from pos365api import API
 
@@ -41,6 +41,10 @@ def update_log():
     log = Log.query.filter_by(rid=rid).first()
     if log is not None:
         log.result = result
+        if result.startswith("{'status': False"):
+            log.status = False
+        else:
+            log.status = True
         try:
             db.session.commit()
         except:
@@ -88,7 +92,6 @@ def get_payment():
                 'status': True,
                 'AccountId': al.accountId
             }
-
         return {'status': False}
     elif request.method == 'POST':
         accId = request.args.get('accId')
@@ -107,6 +110,28 @@ def get_payment():
     return abort(404)
 
 
+@common.route('/fetch_log', methods=['GET'])
+def fetch_log():
+    token = request.args.get('token')
+    if token != 'kt365aA@123':
+        return abort(404)
+    now = datetime.now()
+    now = now.replace(minute=now.minute//10*10, second=0, microsecond=0)
+    begin = now - timedelta(minutes=20)
+    end = now - timedelta(minutes=10)
+    logs = Log.query.filter(Log.log_date >= begin, Log.log_date < end,
+                            or_(Log.status == None, Log.status == False))
+    logs = logs.join(TenAntConfig, TenAntConfig.id == Log.configId)
+    logs = logs.add_columns(TenAntConfig.token)
+    logs = logs.all()
+    ret = []
+    for l in logs:
+        ret.append({
+            'retailer': l.Log.branch,
+            'token': l.token,
+            'content': json.loads(l.Log.content.replace("'", '"'))
+        })
+    return jsonify(ret)
 @common.route('/setup', methods=['GET', 'POST'])
 def setup():
     if request.method == 'GET':
@@ -121,39 +146,41 @@ def setup():
         domain = request.form.get('domain')
         user = request.form.get('user')
         password = request.form.get('password')
-        cfg = TenAntConfig.query.filter_by(branch=branch).first()
         api = API(domain=domain, user=user, password=password)
         session = api.auth()
-        if cfg is None:
-            cfg = TenAntConfig()
-            try:
-                db.session.add(cfg)
-            except:
-                db.session.rollback()
-        cfg.branch = branch
-        cfg.domain = domain
-        cfg.user = user
-        cfg.password = password
-        cfg.token = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
-        try:
-            db.session.commit()
-        except:
-            db.session.rollback()
-        cfg.cookie = session
-        for k, v in api.account_list()['accounts'].items():
-            pm = TenAntPayment.query.filter(TenAntPayment.configId == cfg.id, TenAntPayment.name == k).first()
-            if pm is None:
-                pm = TenAntPayment()
-                pm.name = k
-                pm.accountId = v
-                pm.configId = cfg.id
+        if session is not None:
+            cfg = TenAntConfig.query.filter_by(branch=branch).first()
+            if cfg is None:
+                cfg = TenAntConfig()
                 try:
-                    db.session.add(pm)
-                    db.session.commit()
+                    db.session.add(cfg)
                 except:
                     db.session.rollback()
-        return {'status': True, 'retailer': cfg.branch, 'token': cfg.token}
-
+            cfg.cookie = session
+            cfg.branch = branch
+            cfg.domain = domain
+            cfg.user = user
+            cfg.password = password
+            cfg.token = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+            for k, v in api.account_list()['accounts'].items():
+                pm = TenAntPayment.query.filter(TenAntPayment.configId == cfg.id, TenAntPayment.name == k).first()
+                if pm is None:
+                    pm = TenAntPayment()
+                    pm.name = k
+                    pm.accountId = v
+                    pm.configId = cfg.id
+                    try:
+                        db.session.add(pm)
+                        db.session.commit()
+                    except:
+                        db.session.rollback()
+            return {'status': True, 'retailer': cfg.branch, 'token': cfg.token}
+        else:
+            return {'status': False, 'message': 'Login Pos 365 Failed'}
 
 @common.route('/orders', methods=['POST'])
 def orders():
@@ -172,6 +199,7 @@ def orders():
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print(f"{branch} {now} -> {content}")
         log = Log()
+        log.configId = cfg.id
         log.branch = branch
         log.code = content.get('Code')
         log.content = str(content)
@@ -224,6 +252,7 @@ def aeon_orders():
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print(f"{branch} {now} -> {content}")
         log = Log()
+        log.configId = cfg.id
         log.branch = branch
         log.code = content.get('Code')
         log.content = str(content)
@@ -235,8 +264,6 @@ def aeon_orders():
             db.session.rollback()
         if content.get('Code') is None or len(str(content.get('Code').strip())) == 0:
             raise MissingInformationException('Thiếu thông tin mã đơn hàng (Code)')
-        if content.get('PurchaseDate') is None or len(str(content.get('PurchaseDate').strip())) == 0:
-            raise MissingInformationException('Thiếu thông tin ngày bán (PurchaseDate)')
         if content.get('PaymentMethods') is None or type(content.get('PaymentMethods')) != list:
             return MissingInformationException('Thiếu thông tin PTTT (PaymentMethods)')
         for pm in content.get('PaymentMethods'):
@@ -287,7 +314,3 @@ def task_result(id):
         }
         response = Response(json.dumps(response), status=400, mimetype='application/json')
     return response
-
-# @common.route('/bigsur', methods=['GET'])
-# def big_sur():
-#     return send_file('bigsur/InstallAssistant.pkg', as_attachment=True)

@@ -17,10 +17,12 @@ class Log(db.Model):
     __bind_key__ = 'ipos365'
     __tablename__ = 'log'
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    configId = db.Column(db.Integer, default=None)
     branch = db.Column(db.Text, default=None)
     code = db.Column(db.Text, default=None)
     content = db.Column(db.Text, default=None)
     rid = db.Column(db.VARCHAR, default=None)
+    status = db.Column(db.Boolean, default=None)
     result = db.Column(db.Text, default=None)
     log_date = db.Column(db.DateTime, default=None)
 

@@ -16,20 +16,22 @@ background = Celery('Background converter', backend=RESULT_BACKEND, broker=CELER
 
 @background.task(bind=True)
 def convert(self, domain, cfgId, ck, content, user, password):
-    # print(content)
     content['Id'] = 0
     content['Code'] = content['Code'].replace('_DEL', '')
     content['Total'] = abs(content['Total'])
     content['TotalPayment'] = abs(content['TotalPayment'])
-    while True:
+    count = 0
+    while count < 5:
         api = API(domain, ck, user, password)
         al = api.account_list()
         if al['status'] is False:
             session = api.auth()
-            try:
-                requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': session})
-            except:
-                pass
+            if session is not None:
+                ck = session
+                try:
+                    requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': session})
+                except:
+                    pass
         try:
             try:
                 pd = datetime.strptime(content['PurchaseDate'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=None)
@@ -58,9 +60,14 @@ def convert(self, domain, cfgId, ck, content, user, password):
                                     pms.append({'AccountId': res.get('AccountId'), 'Value': v})
                                 else:
                                     res = api.account_save(p_name)
-                                    pms.append({'AccountId': res.get('Id'), 'Value': v})
-                                    requests.post(f'{LOCAL_URL}/payment',
-                                                  params={'cfgId': cfgId, 'name': p_name, 'accId': res.get('Id')})
+                                    if res.get('status') is True:
+                                        pms.append({'AccountId': res.get('Id'), 'Value': v})
+                                        requests.post(f'{LOCAL_URL}/payment',
+                                                      params={'cfgId': cfgId, 'name': p_name, 'accId': res.get('Id')})
+                                    else:
+                                        ret = {'status': False, 'result': res.get('err')}
+                                        log(self.request.id, ret)
+                                        return ret
                     content['MoreAttributes'] = json.dumps({'PaymentMethods': pms})
             if content.get('AdditionalServices') is not None:
                 try:
@@ -80,15 +87,21 @@ def convert(self, domain, cfgId, ck, content, user, password):
                     if type(ods[i]) == dict:
                         p_code = ods[i].get('Code')
                         p_name = ods[i].get('Name') is None and ods[i].get('Code') or ods[i].get('Name')
+                        p_price = ods[i].get('Price')
                         res = requests.get(f'{LOCAL_URL}/product',
                                            params={'cfgId': cfgId, 'code': p_code}).json()
                         if res.get('status') is True:
                             ods[i].update({'ProductId': res.get('Id')})
                         else:
-                            ps = api.product_save(p_code, p_name)
-                            ods[i].update({'ProductId': ps.get('Id')})
-                            requests.post(f'{LOCAL_URL}/product',
-                                          params={'cfgId': cfgId, 'code': p_code, 'pid': ps['Id']}).json()
+                            ps = api.product_save(p_code, p_name, p_price)
+                            if ps.get('status'):
+                                ods[i].update({'ProductId': ps.get('Id')})
+                                requests.post(f'{LOCAL_URL}/product',
+                                              params={'cfgId': cfgId, 'code': p_code, 'pid': ps['Id']}).json()
+                            else:
+                                ret = {'status': False, 'result': ps.get('err')}
+                                log(self.request.id, ret)
+                                return ret
                 content['OrderDetails'] = ods
         except Exception as e:
             ret = {'status': False, 'result': str(e)}
@@ -111,17 +124,24 @@ def convert(self, domain, cfgId, ck, content, user, password):
             return ret
         elif res['status'] == 3:
             id = api.order_get(content['Code'])
-            if id is not None:
-                content.update({'Id': id})
+            if id['status'] is True:
+                content.update({'Id': id['id']})
+            else:
+                ret = {'status': False, 'result': id['err']}
+                log(self.request.id, ret)
+                return ret
         elif int(content.get('Status')) == 2:
             ret = {'status': True, 'result': res['message']}
             log(self.request.id, ret)
             return ret
         if int(content.get('Status')) == 3:
-            while True:
-                id = api.order_get(content['Code'])
-                if id is not None: break
-            content.update({'Id': id})
+            id = api.order_get(content['Code'])
+            if id['status']:
+                content.update({'Id': id['id']})
+            else:
+                ret = {'status': False, 'result': id['err']}
+                log(self.request.id, ret)
+                return ret
             res = api.order_void(id)
             if res['status'] == 0:
                 requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': res.get('ck')})
@@ -134,28 +154,44 @@ def convert(self, domain, cfgId, ck, content, user, password):
                 ret = {'status': True, 'result': str(res['message'])}
                 log(self.request.id, ret)
                 return ret
+        count += 1
+    ret = {'status': False, 'result': 'Over 5 times'}
+    log(self.request.id, ret)
+    return ret
+    # except Exception as e_final:
+    #     ret = {'status': False, 'result': str(e_final)}
+    #     log(self.request.id, ret)
+    #     return ret
 
 
 @background.task(bind=True)
 def aeon_convert(self, domain, cfgId, ck, content, user, password):
-    # print(content)
     content['Id'] = 0
     content['Total'] = content['Total']
     content['TotalPayment'] = content['TotalPayment']
-    while True:
+    count = 0
+    while count < 5:
         api = API(domain, ck, user, password)
         al = api.account_list()
         if al['status'] is False:
             session = api.auth()
-            try:
-                requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': session})
-            except:
-                pass
+            if session is not None:
+                ck = session
+                try:
+                    requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': session})
+                except:
+                    pass
         try:
             try:
                 pd = datetime.strptime(content['PurchaseDate'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=None)
                 pd = pd.astimezone(timezone('Etc/Gmt+0'))
                 content.update({'PurchaseDate': str(pd)})
+            except:
+                pass
+            try:
+                pd = datetime.strptime(content['ReturnDate'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=None)
+                pd = pd.astimezone(timezone('Etc/Gmt+0'))
+                content.update({'ReturnDate': str(pd)})
             except:
                 pass
             if content.get('PaymentMethods') is not None or type(content.get('PaymentMethods')) == list:
@@ -179,9 +215,14 @@ def aeon_convert(self, domain, cfgId, ck, content, user, password):
                                     pms.append({'AccountId': res.get('AccountId'), 'Value': v})
                                 else:
                                     res = api.account_save(p_name)
-                                    pms.append({'AccountId': res.get('Id'), 'Value': v})
-                                    requests.post(f'{LOCAL_URL}/payment',
-                                                  params={'cfgId': cfgId, 'name': p_name, 'accId': res.get('Id')})
+                                    if res.get('status') is True:
+                                        pms.append({'AccountId': res.get('Id'), 'Value': v})
+                                        requests.post(f'{LOCAL_URL}/payment',
+                                                      params={'cfgId': cfgId, 'name': p_name, 'accId': res.get('Id')})
+                                    else:
+                                        ret = {'status': False, 'result': res.get('err')}
+                                        log(self.request.id, ret)
+                                        return ret
                     content['MoreAttributes'] = json.dumps({'PaymentMethods': pms})
             if content.get('AdditionalServices') is not None:
                 try:
@@ -201,17 +242,49 @@ def aeon_convert(self, domain, cfgId, ck, content, user, password):
                     if type(ods[i]) == dict:
                         if ods[i].get('ProductId') == 0: continue
                         p_code = ods[i].get('Code')
+                        p_price = ods[i].get('Price')
                         p_name = ods[i].get('Name') is None and ods[i].get('Code') or ods[i].get('Name')
                         res = requests.get(f'{LOCAL_URL}/product',
                                            params={'cfgId': cfgId, 'code': p_code}).json()
                         if res.get('status') is True:
                             ods[i].update({'ProductId': res.get('Id')})
                         else:
-                            ps = api.product_save(p_code, p_name)
-                            ods[i].update({'ProductId': ps.get('Id')})
-                            requests.post(f'{LOCAL_URL}/product',
-                                          params={'cfgId': cfgId, 'code': p_code, 'pid': ps['Id']}).json()
+                            ps = api.product_save(p_code, p_name, p_price)
+                            if ps.get('status'):
+                                ods[i].update({'ProductId': ps.get('Id')})
+                                requests.post(f'{LOCAL_URL}/product',
+                                              params={'cfgId': cfgId, 'code': p_code, 'pid': ps['Id']}).json()
+                            else:
+                                ret = {'status': False, 'result': ps.get('err')}
+                                log(self.request.id, ret)
+                                return ret
+                            # ods[i].update({'ProductId': ps.get('Id')})
+                            # requests.post(f'{LOCAL_URL}/product',
+                            #               params={'cfgId': cfgId, 'code': p_code, 'pid': ps['Id']}).json()
                 content['OrderDetails'] = ods
+            if content.get('ReturnDetails') is not None or type(content.get('ReturnDetails')) == list:
+                rds = content.get('ReturnDetails')
+                for i in range(len(rds)):
+                    if type(rds[i]) == dict:
+                        if rds[i].get('ProductId') == 0: continue
+                        p_code = rds[i].get('Code')
+                        p_price = rds[i].get('Price')
+                        p_name = rds[i].get('Name') is None and rds[i].get('Code') or rds[i].get('Name')
+                        res = requests.get(f'{LOCAL_URL}/product',
+                                           params={'cfgId': cfgId, 'code': p_code}).json()
+                        if res.get('status') is True:
+                            rds[i].update({'ProductId': res.get('Id')})
+                        else:
+                            ps = api.product_save(p_code, p_name, p_price)
+                            if ps.get('status'):
+                                rds[i].update({'ProductId': ps.get('Id')})
+                                requests.post(f'{LOCAL_URL}/product',
+                                              params={'cfgId': cfgId, 'code': p_code, 'pid': ps['Id']}).json()
+                            else:
+                                ret = {'status': False, 'result': ps.get('err')}
+                                log(self.request.id, ret)
+                                return ret
+                content['ReturnDetails'] = rds
         except Exception as e:
             ret = {'status': False, 'result': str(e)}
             log(self.request.id, ret)
@@ -220,10 +293,11 @@ def aeon_convert(self, domain, cfgId, ck, content, user, password):
             'AccountId': None,
             'OrderDetailBuilder': True
         })
-        order = {
-            'Order': content.copy()
-        }
+
         if content.get('Status') == 2:
+            order = {
+                'Order': content.copy()
+            }
             res = api.order_save(order)
             if res['status'] == 0:
                 requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': res.get('ck')})
@@ -234,36 +308,51 @@ def aeon_convert(self, domain, cfgId, ck, content, user, password):
                 return ret
             elif res['status'] == 3:
                 id = api.order_get(content['Code'])
-                if id is not None:
-                    content.update({'Id': id})
+                if id['status']:
+                    content.update({'Id': id['id']})
+                else:
+                    ret = {'status': False, 'result': id['err']}
+                    log(self.request.id, ret)
+                    return ret
             # elif int(content.get('Status')) == 2:
             else:
                 ret = {'status': True, 'result': res['message']}
                 log(self.request.id, ret)
                 return ret
         else:
-            res = api.return_save(order)
-        # if int(content.get('Status')) == 3:
-        #     while True:
-        #         id = api.order_get(content['Code'])
-        #         if id is not None: break
-        #     content.update({'Id': id})
-        #     res = api.order_void(id)
-        #     if res['status'] == 0:
-        #         requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': res.get('ck')})
-        #         ck = res.get('ck')
-        #     elif res['status'] == 1:
-        #         ret = {'status': False, 'result': str(res['message'])}
-        #         log(self.request.id, ret)
-        #         return ret
-        #     else:
-        #         ret = {'status': True, 'result': str(res['message'])}
-        #         log(self.request.id, ret)
-        #         return ret
+            bill_return = {
+                'Return': content.copy()
+            }
+            res = api.return_save(bill_return)
+            if res['status'] == 0:
+                requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': res.get('ck')})
+                ck = res.get('ck')
+            elif res['status'] == 1:
+                ret = {'status': False, 'result': str(res['message'])}
+                log(self.request.id, ret)
+                return ret
+            elif res['status'] == 3:
+                id = api.return_get(content['Code'])
+                if id['status']:
+                    content.update({'Id': id['id']})
+                else:
+                    ret = {'status': False, 'result': str(id['err'])}
+                    log(self.request.id, ret)
+                    return ret
 
+            # elif int(content.get('Status')) == 2:
+            else:
+                ret = {'status': True, 'result': res['message']}
+                log(self.request.id, ret)
+                return ret
+        count += 1
+    ret = {'status': False, 'result': 'Over 5 times'}
+    log(self.request.id, ret)
+    return ret
 
 def log(id, result):
     try:
         requests.post(f'{LOCAL_URL}/log', json={'rid': id, 'result': str(result)})
+        # requests.post(f'http://adapter.pos365.vn:6000/log', json={'rid': id, 'result': str(result)})
     except:
         pass
