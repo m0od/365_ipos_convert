@@ -12,6 +12,7 @@ class TenAntConfig(db.Model):
     cookie = db.Column(db.Integer, default=None)
     token = db.Column(db.Text, default=None)
     branch = db.Column(db.Text, default=None)
+    vat = db.Column(db.Float, default=0.1)
 
 class Log(db.Model):
     __bind_key__ = 'ipos365'

@@ -2,7 +2,7 @@ import hashlib
 import json
 import uuid
 from sqlalchemy import or_
-from common_celery import convert, aeon_convert
+from common_celery import convert
 from datetime import datetime, timedelta
 from flask import request, Blueprint, abort, render_template, Response, send_file, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -116,10 +116,9 @@ def fetch_log():
     if token != 'kt365aA@123':
         return abort(404)
     now = datetime.now()
-    now = now.replace(minute=now.minute//10*10, second=0, microsecond=0)
-    begin = now - timedelta(minutes=20)
-    end = now - timedelta(minutes=10)
-    logs = Log.query.filter(Log.log_date >= begin, Log.log_date < end,
+    now = now.replace(second=0, microsecond=0)
+    begin = now - timedelta(minutes=10)
+    logs = Log.query.filter(Log.log_date >= begin,
                             or_(Log.status == None, Log.status == False))
     logs = logs.join(TenAntConfig, TenAntConfig.id == Log.configId)
     logs = logs.add_columns(TenAntConfig.token)
@@ -132,6 +131,7 @@ def fetch_log():
             'content': json.loads(l.Log.content.replace("'", '"'))
         })
     return jsonify(ret)
+
 @common.route('/setup', methods=['GET', 'POST'])
 def setup():
     if request.method == 'GET':
@@ -142,7 +142,9 @@ def setup():
             return abort(404)
     else:
         token = request.form.get('token')
-        branch = request.form.get('branch')
+        if token != 'kt365aA@123':
+            return abort(403)
+        branch = request.form.get('branch').lower()
         domain = request.form.get('domain')
         user = request.form.get('user')
         password = request.form.get('password')
@@ -161,7 +163,8 @@ def setup():
             cfg.domain = domain
             cfg.user = user
             cfg.password = password
-            cfg.token = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
+            if cfg is None:
+                cfg.token = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
             try:
                 db.session.commit()
             except:
@@ -178,7 +181,7 @@ def setup():
                         db.session.commit()
                     except:
                         db.session.rollback()
-            return {'status': True, 'retailer': cfg.branch, 'token': cfg.token}
+            return {'status': True, 'retailer': cfg.branch, 'authorization': cfg.token}
         else:
             return {'status': False, 'message': 'Login Pos 365 Failed'}
 
@@ -211,8 +214,10 @@ def orders():
             db.session.rollback()
         if content.get('Code') is None or len(str(content.get('Code').strip())) == 0:
             raise MissingInformationException('Thiếu thông tin mã đơn hàng (Code)')
-        if content.get('PurchaseDate') is None or len(str(content.get('PurchaseDate').strip())) == 0:
+        if content.get('PurchaseDate') is not None and len(str(content.get('PurchaseDate').strip())) == 0:
             raise MissingInformationException('Thiếu thông tin ngày bán (PurchaseDate)')
+        if content.get('ReturnDate') is not None and len(str(content.get('ReturnDate').strip())) == 0:
+            raise MissingInformationException('Thiếu thông tin ngày bán (ReturnDate)')
         if content.get('PaymentMethods') is None or type(content.get('PaymentMethods')) != list:
             return MissingInformationException('Thiếu thông tin PTTT (PaymentMethods)')
         for pm in content.get('PaymentMethods'):
@@ -224,66 +229,66 @@ def orders():
             for service in content.get('AdditionalServices'):
                 if type(service) != dict:
                     raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
-        result = convert.delay(cfg.domain, cfg.id, cfg.cookie, content, cfg.user, cfg.password)
+        result = convert.delay(cfg.domain, cfg.id, cfg.cookie, content, cfg.user, cfg.password, cfg.vat)
         log.rid = str(result.id)
         try:
             db.session.commit()
         except:
             db.session.rollback()
-        return {"result_id": result.id}
+        return {'result_id': result.id}
     except Exception as e:
         return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
 
 
-@common.route('/aeon_orders', methods=['POST'])
-def aeon_orders():
-    try:
-        branch = request.headers.get('Retailer').lower()
-        if branch is None: return abort(403)
-        token = request.headers.get('Authorization').lower()
-        if token is None: return abort(403)
-    except:
-        return abort(403)
-    cfg = TenAntConfig.query.filter_by(branch=branch).first()
-    if cfg is None or cfg.token != token:
-        return abort(403)
-    try:
-        content = request.json
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print(f"{branch} {now} -> {content}")
-        log = Log()
-        log.configId = cfg.id
-        log.branch = branch
-        log.code = content.get('Code')
-        log.content = str(content)
-        log.log_date = datetime.now()
-        try:
-            db.session.add(log)
-            db.session.commit()
-        except:
-            db.session.rollback()
-        if content.get('Code') is None or len(str(content.get('Code').strip())) == 0:
-            raise MissingInformationException('Thiếu thông tin mã đơn hàng (Code)')
-        if content.get('PaymentMethods') is None or type(content.get('PaymentMethods')) != list:
-            return MissingInformationException('Thiếu thông tin PTTT (PaymentMethods)')
-        for pm in content.get('PaymentMethods'):
-            if type(pm) != dict:
-                raise MissingInformationException('Thông tin PTTT không hợp lệ')
-        if content.get('AdditionalServices') is not None:
-            if type(content.get('AdditionalServices')) != list:
-                raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
-            for service in content.get('AdditionalServices'):
-                if type(service) != dict:
-                    raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
-        result = aeon_convert.delay(cfg.domain, cfg.id, cfg.cookie, content, cfg.user, cfg.password)
-        log.rid = str(result.id)
-        try:
-            db.session.commit()
-        except:
-            db.session.rollback()
-        return {"result_id": result.id}
-    except Exception as e:
-        return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
+# @common.route('/aeon_orders', methods=['POST'])
+# def aeon_orders():
+#     try:
+#         branch = request.headers.get('Retailer').lower()
+#         if branch is None: return abort(403)
+#         token = request.headers.get('Authorization').lower()
+#         if token is None: return abort(403)
+#     except:
+#         return abort(403)
+#     cfg = TenAntConfig.query.filter_by(branch=branch).first()
+#     if cfg is None or cfg.token != token:
+#         return abort(403)
+#     try:
+#         content = request.json
+#         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#         print(f"{branch} {now} -> {content}")
+#         log = Log()
+#         log.configId = cfg.id
+#         log.branch = branch
+#         log.code = content.get('Code')
+#         log.content = str(content)
+#         log.log_date = datetime.now()
+#         try:
+#             db.session.add(log)
+#             db.session.commit()
+#         except:
+#             db.session.rollback()
+#         if content.get('Code') is None or len(str(content.get('Code').strip())) == 0:
+#             raise MissingInformationException('Thiếu thông tin mã đơn hàng (Code)')
+#         if content.get('PaymentMethods') is None or type(content.get('PaymentMethods')) != list:
+#             return MissingInformationException('Thiếu thông tin PTTT (PaymentMethods)')
+#         for pm in content.get('PaymentMethods'):
+#             if type(pm) != dict:
+#                 raise MissingInformationException('Thông tin PTTT không hợp lệ')
+#         if content.get('AdditionalServices') is not None:
+#             if type(content.get('AdditionalServices')) != list:
+#                 raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
+#             for service in content.get('AdditionalServices'):
+#                 if type(service) != dict:
+#                     raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
+#         result = aeon_convert.delay(cfg.domain, cfg.id, cfg.cookie, content, cfg.user, cfg.password)
+#         log.rid = str(result.id)
+#         try:
+#             db.session.commit()
+#         except:
+#             db.session.rollback()
+#         return {'result_id': result.id}
+#     except Exception as e:
+#         return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
 
 
 

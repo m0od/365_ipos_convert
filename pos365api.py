@@ -60,14 +60,22 @@ class API(object):
 
     def order_save(self, order):
         try:
-            try:
-                del order['Order']['PaymentMethods']
-            except:
-                pass
-            try:
-                del order['Order']['AdditionalServices']
-            except:
-                pass
+            # try:
+            #     del order['Order']['PaymentMethods']
+            # except:
+            #     pass
+            # try:
+            #     del order['Order']['AdditionalServices']
+            # except:
+            #     pass
+            # if order['Order'].get('TotalAdditionalServicesVAT') is not None:
+            #     order['Order']['VAT'] -= order['Order']['TotalAdditionalServicesVAT']
+            #     try:
+            #         del order['Order']['TotalAdditionalServicesVAT']
+            #     except:
+            #         pass
+            # if order['Order']['VAT'] == 0:
+            #     order['Order']['VAT'] = int(round(order['Total']/11, 0))
             data = json.dumps(order)
             res = self.browser.post(self.base_url + '/api/orders', data=data)
             if res.status_code == 401:

@@ -20,13 +20,9 @@ def submit_error(retailer=None, reason=None):
         pass
 
 def submit_job(headers=None, data=None):
-    if headers['retailer'].endswith('_aeonhd'):
-        url_path = 'aeon_orders'
-    else:
-        url_path = 'orders'
     while True:
         try:
-            res = requests.post(f'{URl}/{url_path}', headers=headers, json=data, timeout=10)
+            res = requests.post(f'{URl}/orders', headers=headers, json=data, timeout=10)
             if res.json()['result_id'] is not None:
                 break
         except Exception as e:
