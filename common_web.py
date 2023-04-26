@@ -132,6 +132,7 @@ def fetch_log():
         })
     return jsonify(ret)
 
+
 @common.route('/setup', methods=['GET', 'POST'])
 def setup():
     if request.method == 'GET':
@@ -163,7 +164,7 @@ def setup():
             cfg.domain = domain
             cfg.user = user
             cfg.password = password
-            if cfg is None:
+            if cfg is not None:
                 cfg.token = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
             try:
                 db.session.commit()
@@ -185,6 +186,7 @@ def setup():
         else:
             return {'status': False, 'message': 'Login Pos 365 Failed'}
 
+
 @common.route('/orders', methods=['POST'])
 def orders():
     try:
@@ -194,7 +196,8 @@ def orders():
         if token is None: return abort(403)
     except:
         return abort(403)
-    cfg = TenAntConfig.query.filter_by(branch=branch).first()
+    store = request.headers.get('Store')
+    cfg = TenAntConfig.query.filter(TenAntConfig.branch == branch).first()
     if cfg is None or cfg.token != token:
         return abort(403)
     try:
@@ -204,6 +207,7 @@ def orders():
         log = Log()
         log.configId = cfg.id
         log.branch = branch
+        log.store = store
         log.code = content.get('Code')
         log.content = str(content)
         log.log_date = datetime.now()
@@ -289,7 +293,6 @@ def orders():
 #         return {'result_id': result.id}
 #     except Exception as e:
 #         return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
-
 
 
 @common.route("/result/<id>", methods=['GET'])

@@ -12,6 +12,7 @@ class TenAntConfig(db.Model):
     cookie = db.Column(db.Integer, default=None)
     token = db.Column(db.Text, default=None)
     branch = db.Column(db.Text, default=None)
+    store = db.Column(db.Integer, default=None)
     vat = db.Column(db.Float, default=0.1)
 
 class Log(db.Model):
@@ -20,6 +21,7 @@ class Log(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     configId = db.Column(db.Integer, default=None)
     branch = db.Column(db.Text, default=None)
+    store = db.Column(db.Integer, default=None)
     code = db.Column(db.Text, default=None)
     content = db.Column(db.Text, default=None)
     rid = db.Column(db.VARCHAR, default=None)
