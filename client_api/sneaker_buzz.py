@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/blackwings/pos365')
+sys.path.append('/home/blackwings/365ipos')
 from pos_api.adapter import submit_error, submit_order
 import requests
 import json

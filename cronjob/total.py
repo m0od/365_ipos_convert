@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/blackwings/pos365')
+sys.path.append('/home/blackwings/365ipos')
 from client_api.boo import Boo
 from client_api.lemino import Lemino
 from client_api.sneaker_buzz import SneakerBuzz
@@ -52,11 +52,8 @@ if now.hour < 9:
         futures.as_completed(thread)
 else:
     ato = ATO()
-    # bl = Balabala()
     with futures.ThreadPoolExecutor(max_workers=1) as mt:
         thread = [
-            # mt.submit(bl.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-
             mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1))
         ]
         futures.as_completed(thread)

@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/blackwings/pos365')
+sys.path.append('/home/blackwings/365ipos')
 import pymssql
 import re
 from pos_api.adapter import submit_error, submit_order

@@ -45,19 +45,23 @@ am026
 am109
 am016
 am013
-am069
-am125
-am126
-am124'''
+am069'''
+# am125
+# am126
+# am124
+# print(urls)
 rows = ''
 for domain in urls.strip().split('\n'):
+    # print(domain)
     while True:
+        # print(domain)
         b = requests.session()
         b.headers.update({'content-type': 'application/json'})
         r = b.post(f'https://{domain}.pos365.vn/api/auth', json={
             'Username': 'report',
             'Password': '123123123'
         })
+        # print(r.text)
         if r.status_code == 200 and r.json().get('SessionId') is not None:
             try:
                 vendor = b.get(f'https://{domain}.pos365.vn/Config/VendorSession').text
@@ -68,16 +72,19 @@ for domain in urls.strip().split('\n'):
                     'Filter': "PurchaseDate eq 'yesterday'"
                 }
                 r = b.get(f'https://{domain}.pos365.vn/api/orders', params=p)
-                if r.status_code == 200 and len(r.json()['results']) == 0:
-                    rows += f'''<tr>
-                    <td style="border: 1px solid black;padding: 5px; text-align: left;">{domain}</td>
-                    <td style="border: 1px solid black;padding: 5px; text-align: left;">{retailer['Name'].upper()}</td>
-                    </tr>'''
+                # print(r.text)
+                if r.status_code == 200:
+                    if len(r.json()['results']) == 0:
+                        rows += f'''<tr>
+                        <td style="border: 1px solid black;padding: 5px; text-align: left;">{domain}</td>
+                        <td style="border: 1px solid black;padding: 5px; text-align: left;">{retailer['Name'].upper()}</td>
+                        </tr>'''
                     break
             except Exception as e:
+                print(e)
                 submit_error(retailer=domain, reason=f'[REPORT] {str(e)}')
-
-
+#
+#
 now = datetime.now() - timedelta(days=1)
 port = 465  # For SSL
 password = 'abqqzkkrgftlodny'

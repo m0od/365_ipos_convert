@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/blackwings/pos365')
+sys.path.append('/home/blackwings/365ipos')
 import requests
 import json
 from requests_toolbelt import MultipartEncoder
