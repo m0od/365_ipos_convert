@@ -128,6 +128,7 @@ def fetch_log():
         ret.append({
             'retailer': l.Log.branch,
             'token': l.token,
+            'store': l.Log.store,
             'content': json.loads(l.Log.content.replace("'", '"'))
         })
     return jsonify(ret)

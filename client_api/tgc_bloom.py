@@ -13,34 +13,58 @@ def prepare_data(dic, content, retailer):
         ts = f'{ts.strftime("%Y-%m-%d")} {content["tran_time"].strip()}:00'
         # ts = datetime.strptime(ts, '%Y-%m-%d %H:%M').strftime('%Y-%m-%d %H:%M:%S')
         tmp = content['trans_num'].strip()
-        # print(tmp, ts, retailer)
+        # print(tmp, retailer)
         if len(tmp) == 0:
             return
         method = content['httt'].strip().upper()
-        pm = []
+        d_pm = {}
         for i in range(0, len(method), 2):
             method_code = method[i:i+2]
             if method_code == 'TM':
-                pm.append({
-                    'Name': 'CASH',
-                    'Value': content['end_amt']
+                method_code = 'CASH'
+                d_pm.update({
+                    method_code: {
+                        'Name': method_code,
+                        'Value': content['end_amt']
+                    }
                 })
             elif method_code == 'TH':
-                pm.append({
-                    'Name': 'THẺ',
-                    'Value': content['begin_amt']
+                method_code = 'THẺ'
+                d_pm.update({
+                    method_code: {
+                        'Name': method_code,
+                        'Value': content['begin_amt']
+                    }
                 })
+                # pm.append({
+                #     'Name': 'THẺ',
+                #     'Value': content['begin_amt']
+                # })
             elif method_code == 'CK':
-                pm.append({
-                    'Name': 'CHUYỂN KHOẢN',
-                    'Value': content['kit_qty']
+                method_code = 'CHUYỂN KHOẢN'
+                d_pm.update({
+                    method_code: {
+                        'Name': method_code,
+                        'Value': content['begin_amt']
+                    }
                 })
+                # pm.append({
+                #     'Name': 'CHUYỂN KHOẢN',
+                #     'Value': content['begin_amt']
+                # })
             else:
-                pm.append({
-                    'Name': method_code,
-                    'Value': content['pay_amt']
+                d_pm.update({
+                    method_code: {
+                        'Name': method_code,
+                        'Value': content['pay_amt']
+                    }
                 })
+                # pm.append({
+                #     'Name': method_code,
+                #     'Value': content['pay_amt']
+                # })
         if dic.get(tmp) is None:
+            # print(list(d_pm.values()))
             dic[tmp] = {
                 'Code': tmp,
                 'PurchaseDate': ts,
@@ -49,7 +73,7 @@ def prepare_data(dic, content, retailer):
                 'VAT': content['vat_amt'],
                 'Total': content['pay_amt'],
                 'TotalPayment': content['pay_amt'],
-                'PaymentMethods': pm,
+                'PaymentMethods': list(d_pm.values()),
                 # 'Id': 0,
                 'OrderDetails': [
                     {
@@ -76,7 +100,14 @@ def prepare_data(dic, content, retailer):
                 'TotalPayment': dic[tmp]['TotalPayment'] + content['pay_amt'],
                 'OrderDetails': od
             })
+            for i in dic[tmp]['PaymentMethods']:
+                # print(i)
+                if i['Value'] < d_pm[i['Name']]['Value']:
+                    i['Value'] = d_pm[i['Name']]['Value']
+            # if dic[tmp]['PaymentMethods'] != pm:
+            #     dic[tmp].update({'PaymentMethods': pm})
     except Exception as e:
+        # print(e)
         submit_error(retailer=retailer, reason=f'[Prepare Data] {str(e)}')
         pass
 
@@ -115,8 +146,10 @@ class TGC_BLOOM(object):
                 elif i['exp_id'] == 'S00002':
                     prepare_data(self.TRANS_TGC, i, self.ADAPTER_RETAILER_TGC)
             for _, js in self.TRANS_BLOOM.items():
+                # print(js)
                 submit_order(retailer=self.ADAPTER_RETAILER_BLOOM, token=self.ADAPTER_TOKEN_BLOOM, data=js)
             for _, js in self.TRANS_TGC.items():
+                # print(js)
                 submit_order(retailer=self.ADAPTER_RETAILER_TGC, token=self.ADAPTER_TOKEN_TGC, data=js)
         except Exception as e:
             submit_error(retailer='TGC_BLOOM', reason=f'[Fetch Data] {str(e)}')

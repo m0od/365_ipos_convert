@@ -55,7 +55,7 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                         if p_name is not None and type(p_name) == str:
                             p_name = p_name.upper().strip()
                             if i.get('Value') is not None:
-                                v = abs(int(i.get('Value')))
+                                v = int(i.get('Value'))
                             else:
                                 v = 0
                             if p_name in ['CASH', 'COD']:
@@ -202,26 +202,26 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
         Cancel Order
         '''
         if int(content.get('Status')) == 3:
-                id = api.order_get(content['Code'])
-                # print(id)
-                if id['status']:
-                    content.update({'Id': id['id']})
-                else:
-                    ret = {'status': False, 'result': id['err']}
-                    log(self.request.id, ret)
-                    return ret
-                res = api.order_void(id['id'])
-                if res['status'] == 0:
-                    requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': res.get('ck')})
-                    ck = res.get('ck')
-                elif res['status'] == 1:
-                    ret = {'status': False, 'result': str(res['message'])}
-                    log(self.request.id, ret)
-                    return ret
-                else:
-                    ret = {'status': True, 'result': res['message']}
-                    log(self.request.id, ret)
-                    return ret
+            id = api.order_get(content['Code'])
+            # print(id)
+            if id['status']:
+                content.update({'Id': id['id']})
+            else:
+                ret = {'status': False, 'result': id['err']}
+                log(self.request.id, ret)
+                return ret
+            res = api.order_void(id['id'])
+            if res['status'] == 0:
+                requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': res.get('ck')})
+                ck = res.get('ck')
+            elif res['status'] == 1:
+                ret = {'status': False, 'result': str(res['message'])}
+                log(self.request.id, ret)
+                return ret
+            else:
+                ret = {'status': True, 'result': res['message']}
+                log(self.request.id, ret)
+                return ret
         '''
         Return Order
         '''

@@ -37,7 +37,10 @@ while True:
                 'retailer': job['retailer'],
                 'authorization': job['token']
             }
+            if job.get('store') is not None:
+                headers.update({'store': str(job['store'])})
             submit_job(headers=headers, data=job['content'])
         break
-    except:
+    except Exception as e:
+        print(e)
         pass
