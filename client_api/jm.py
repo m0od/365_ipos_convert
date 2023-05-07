@@ -16,8 +16,8 @@ class JM(object):
         self.MAIN = 'https://nhanh.vn'
         self.VERSION = '2.0'
         self.APPID = '73116'
-        self.USERNAME = 'cht-aeonhd'
-        self.PASSWORD = 'jm1234560'
+        self.USERNAME = 'cht_hn10'
+        self.PASSWORD = 'jm246810'
         self.SECRET_KEY = '1N9GyG9askOH1fGpxGu5sLKlOStK4DJLNyJxNp0gZpRxAiFwyR6rt92MLZDqVDFl' \
                           'GAEeERDKNLQAC50nYnnwURXoZUOjmtnrLm09SHVcJjqjv7IRu24edOHYb6YfPbXR'
         self.API = 'https://open.nhanh.vn'
