@@ -65,7 +65,7 @@ class Balabala(object):
         self.orders = {}
         if not self.login(): return False
         try:
-            print(self.SQL_QUERY.format(date_from))
+            # print(self.SQL_QUERY.format(date_from))
             self.CURSOR.execute(self.SQL_QUERY.format(date_from))
             row = self.CURSOR.fetchone()
             while row:
@@ -122,7 +122,7 @@ class Balabala(object):
             pass
         self.CONN.close()
         for _, js in self.orders.items():
-            print(js)
+            # print(js)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
 
         # return True

@@ -4,9 +4,7 @@ import sys
 import xmltodict
 sys.path.append('/home/blackwings/365ipos')
 from pos_api.adapter import submit_order, submit_error
-from datetime import datetime
-
-
+from datetime import datetime, timedelta
 
 
 class TGC_BLOOM(object):
@@ -131,7 +129,7 @@ class TGC_BLOOM(object):
                     submit_order(retailer=self.ADAPTER_RETAILER_BLOOM, token=self.ADAPTER_TOKEN_BLOOM, data=js)
                 else:
                     js.pop('exp_id')
-                    submit_order(retailer=self.ADAPTER_RETAILER_TGC, token=self.ADAPTER_TOKEN_BLOOM, data=js)
+                    submit_order(retailer=self.ADAPTER_RETAILER_TGC, token=self.ADAPTER_TOKEN_TGC, data=js)
                 # print(js)
             # for _, js in self.TRANS_TGC.items():
             #     # print(js)
@@ -139,4 +137,4 @@ class TGC_BLOOM(object):
         except Exception as e:
             submit_error(retailer='TGC_BLOOM', reason=f'[Fetch Data] {str(e)}')
 
-# TGC_BLOOM().get_data('05-05-2023')
+# TGC_BLOOM().get_data(datetime.now() - timedelta(days=1))
