@@ -37,7 +37,7 @@ if now.hour < 9:
     megane = MeganePrince()
     with futures.ThreadPoolExecutor(max_workers=14) as mt:
         thread = [
-            mt.submit(tgc_bloom.get_data, (now - timedelta(days=1)).strftime('%d-%m-%Y')),
+            mt.submit(tgc_bloom.get_data, now - timedelta(days=1)),
             mt.submit(ao.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
             mt.submit(bl.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
             mt.submit(at.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
