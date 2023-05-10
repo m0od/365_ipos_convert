@@ -118,7 +118,8 @@ def fetch_log():
     now = datetime.now()
     now = now.replace(second=0, microsecond=0)
     begin = now - timedelta(minutes=10)
-    logs = Log.query.filter(Log.log_date >= begin,
+    logs = Log.query.filter(Log.rid != None,
+                            Log.log_date >= begin,
                             or_(Log.status == None, Log.status == False))
     logs = logs.join(TenAntConfig, TenAntConfig.id == Log.configId)
     logs = logs.add_columns(TenAntConfig.token)

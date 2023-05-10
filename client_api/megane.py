@@ -8,10 +8,10 @@ from pos_api.adapter import submit_error, submit_order
 class MeganePrince(object):
 
     def __init__(self):
-        # self.ADAPTER_RETAILER = 'megane_prince_aeonhd'
-        # self.ADAPTER_TOKEN = '1a1238d2deb8d67f44bf97432f2a6b98f3b46c4fab5b4938ba7782b430309023'
-        self.ADAPTER_RETAILER = 'retry'
-        self.ADAPTER_TOKEN = 'cf0f760c3c11b65139beaecd6e0dd12f80bc34a177704ffc497d2bf816d1ac2d'
+        self.ADAPTER_RETAILER = 'megane_prince_aeonhd'
+        self.ADAPTER_TOKEN = '1a1238d2deb8d67f44bf97432f2a6b98f3b46c4fab5b4938ba7782b430309023'
+        # self.ADAPTER_RETAILER = 'retry'
+        # self.ADAPTER_TOKEN = 'cf0f760c3c11b65139beaecd6e0dd12f80bc34a177704ffc497d2bf816d1ac2d'
         self.URL = 'https://api-v2.masterpro.vn/api'
         self.USER = 'apiaeonhd'
         self.PASSWORD = 'MasterProBvymd7T5^6MPAEON'
@@ -28,12 +28,16 @@ class MeganePrince(object):
                 'username': self.USER,
                 'password': self.PASSWORD
             }
-            res = self.browser.post(f'{self.URL}/auth/login', json=js).json()
-            if res['data'].get('tokenPhp') is None:
+            res = self.browser.post(f'{self.URL}/auth/login', json=js)
+            if res.status_code != 200:
+                submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[LOGIN] {res.status_code}')
+                return False
+            js = res.json()
+            if js['data'].get('tokenPhp') is None:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[LOGIN] Invalid Login')
                 return False
             else:
-                self.TOKEN = res['data']['tokenPhp']
+                self.TOKEN = js['data']['tokenPhp']
                 return True
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[LOGIN] {str(e)}')

@@ -34,8 +34,7 @@ if now.hour < 9:
     kakao = Kakao()
     sneaker = SneakerBuzz()
     vans = Vans()
-    megane = MeganePrince()
-    with futures.ThreadPoolExecutor(max_workers=14) as mt:
+    with futures.ThreadPoolExecutor(max_workers=13) as mt:
         thread = [
             mt.submit(tgc_bloom.get_data, now - timedelta(days=1)),
             mt.submit(ao.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
@@ -49,16 +48,15 @@ if now.hour < 9:
             mt.submit(adore.get_data, now - timedelta(days=1), now),
             mt.submit(kakao.get_data, now - timedelta(days=1), now),
             mt.submit(sneaker.get_data, now - timedelta(days=1)),
-            mt.submit(vans.get_data, now - timedelta(days=1)),
-            mt.submit(megane.get_data, now - timedelta(days=1))
+            mt.submit(vans.get_data, now - timedelta(days=1))
         ]
         futures.as_completed(thread)
 else:
     ato = ATO()
-    # megane = MeganePrince()
-    with futures.ThreadPoolExecutor(max_workers=1) as mt:
+    megane = MeganePrince()
+    with futures.ThreadPoolExecutor(max_workers=2) as mt:
         thread = [
-            mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1))
-            # mt.submit(megane.get_data, now - timedelta(days=2))
+            mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
+            mt.submit(megane.get_data, now - timedelta(days=1))
         ]
         futures.as_completed(thread)

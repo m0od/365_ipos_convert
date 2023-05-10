@@ -223,4 +223,4 @@ class JM(object):
                     submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Data] {str(e)}')
                     pass
 
-# JM().get_data('2023-04-22')
+# JM().get_data('2023-05-08')
