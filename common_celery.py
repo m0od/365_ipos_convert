@@ -170,6 +170,15 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                 del bill['Order']['AdditionalServices']
             except:
                 pass
+            try:
+                del bill['Order']['VoucherCode']
+            except:
+                pass
+            try:
+                bill['Order']['Total'] = bill['Order']['Total'] - bill['Order']['Voucher']
+            except:
+                pass
+
             if bill['Order'].get('TotalAdditionalServicesVAT') is not None:
                 bill['Order']['VAT'] -= bill['Order']['TotalAdditionalServicesVAT']
                 try:
@@ -189,7 +198,12 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
             elif res['status'] == 3:
                 id = api.order_get(content['Code'])
                 if id['status'] is True:
-                    content.update({'Id': id['id']})
+                    if id.get('id') is not None:
+                        content.update({'Id': id['id']})
+                    else:
+                        ret = {'status': True, 'result': id['err']}
+                        log(self.request.id, ret)
+                        return ret
                 else:
                     ret = {'status': False, 'result': id['err']}
                     log(self.request.id, ret)
@@ -205,7 +219,12 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
             id = api.order_get(content['Code'])
             # print(id)
             if id['status']:
-                content.update({'Id': id['id']})
+                if id.get('id') is not None:
+                    content.update({'Id': id['id']})
+                else:
+                    ret = {'status': True, 'result': id['err']}
+                    log(self.request.id, ret)
+                    return ret
             else:
                 ret = {'status': False, 'result': id['err']}
                 log(self.request.id, ret)
@@ -458,6 +477,7 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
 
 def log(id, result):
     try:
+        print({'rid': id, 'result': str(result)})
         requests.post(f'http://127.0.0.1:6060/log', json={'rid': id, 'result': str(result)})
         # requests.post(f'http://adapter.pos365.vn:6000/log', json={'rid': id, 'result': str(result)})
     except:

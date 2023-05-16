@@ -1,13 +1,16 @@
 import hashlib
 import json
 import uuid
+
+import requests
 from sqlalchemy import or_
 from common_celery import convert
 from datetime import datetime, timedelta
-from flask import request, Blueprint, abort, render_template, Response, send_file, jsonify
+from flask import request, Blueprint, abort, render_template, Response, send_file, jsonify, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from model import TenAntConfig, Log, TenAntProduct, TenAntPayment
 from pos365api import API
+from role import login_required
 
 
 class MissingInformationException(Exception):
@@ -19,9 +22,9 @@ class MissingInformationException(Exception):
 db = SQLAlchemy()
 common = Blueprint('common', __name__)
 
-
+# @local_only
 @common.route('/cfg', methods=['PATCH'])
-def update_cfg():
+def local_update_cfg():
     id = request.form.get('cfgId')
     cookie = request.form.get('cookie')
     cfg = TenAntConfig.query.filter_by(id=id).first()
@@ -35,7 +38,7 @@ def update_cfg():
 
 
 @common.route('/log', methods=['POST'])
-def update_log():
+def local_update_log():
     rid = request.json.get('rid')
     result = request.json.get('result')
     log = Log.query.filter_by(rid=rid).first()
@@ -53,7 +56,7 @@ def update_log():
 
 
 @common.route('/product', methods=['POST', 'GET'])
-def product():
+def local_product():
     id = request.args.get('cfgId')
     code = request.args.get('code')
     if request.method == 'GET':
@@ -82,7 +85,7 @@ def product():
 
 
 @common.route('/payment', methods=['GET', 'POST'])
-def get_payment():
+def local_get_payment():
     id = request.args.get('cfgId')
     name = request.args.get('name')
     if request.method == 'GET':
@@ -111,7 +114,7 @@ def get_payment():
 
 
 @common.route('/fetch_log', methods=['GET'])
-def fetch_log():
+def local_fetch_log():
     token = request.args.get('token')
     if token != 'kt365aA@123':
         return abort(404)
@@ -126,15 +129,84 @@ def fetch_log():
     logs = logs.all()
     ret = []
     for l in logs:
+        content = l.Log.content.replace("\\", '\\\\').replace("'", '"')
         ret.append({
             'retailer': l.Log.branch,
             'token': l.token,
             'store': l.Log.store,
-            'content': json.loads(l.Log.content.replace("'", '"'))
+            'content': json.loads(content)
         })
     return jsonify(ret)
 
+@common.route('/', methods=['GET', 'POST'])
+def technical_department():
+    if request.method == 'GET':
+        return render_template('login.html')
+    else:
+        if request.form.get('accessCode') == 'IT@P0s365kms':
+            try:
+                session.regenerate()  # NO SESSION FIXATION FOR YOU
+            except:
+                pass
+            session['accessCode'] = 'IT@P0s365kms'
+            return redirect('/dashboard')
+        else:
+            return render_template('login.html')
 
+@common.route('/dashboard', methods=['GET', 'POST'])
+@login_required
+def technical_dashboard():
+    return render_template('365.html')
+@common.route('/api/orders', methods=['POST'])
+def api_orders():
+    try:
+        code = request.form['code']
+        cookie = request.form['cookie']
+        link = request.form['link']
+        b = requests.session()
+        b.headers.update({
+            'content-type': 'application/json',
+            'cookie': f'ss-id={cookie.strip()}'
+        })
+        # b.cookies.update({
+        #     'ss-id': cookie.strip()
+        # })
+        p = {
+            'Filter': f"substringof('{code.strip()}',Code)"
+        }
+        res = b.get(f'https://{link}.pos365.vn/api/orders',params=p).json()
+        # print(res)
+        return res
+    except Exception as e:
+        return str(e)
+
+@common.route('/Config/VendorSession', methods=['POST'])
+def api_VendorSession():
+    try:
+        cookie = request.form['cookie']
+        link = request.form['link']
+        b = requests.session()
+        b.headers.update({
+            'content-type': 'application/json',
+            'cookie': f'ss-id={cookie.strip()}'
+        })
+        # b.cookies.update({
+        #     'ss-id': cookie.strip()
+        # })
+        res = b.get(f'https://{link}.pos365.vn/Config/VendorSession')
+        if res.status_code != 200:
+            return f'Error {res.status_code}'
+        tmp = res.text.split('branch')
+        # print(tmp[1][tmp[1].index(':')+1:])
+        current = json.loads(tmp[1][tmp[1].index(':')+1:].split('}')[0]+'}')
+        branchs = json.loads(tmp[2][tmp[2].index(':')+1:].split(']')[0] + ']')
+        return jsonify({
+            'current': current,
+            'branchs': branchs
+        })
+    except Exception as e:
+        # print(e)
+        return str(e)
 @common.route('/setup', methods=['GET', 'POST'])
 def setup():
     if request.method == 'GET':
@@ -187,7 +259,6 @@ def setup():
             return {'status': True, 'retailer': cfg.branch, 'authorization': cfg.token}
         else:
             return {'status': False, 'message': 'Login Pos 365 Failed'}
-
 
 @common.route('/orders', methods=['POST'])
 def orders():
@@ -244,58 +315,6 @@ def orders():
         return {'result_id': result.id}
     except Exception as e:
         return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
-
-
-# @common.route('/aeon_orders', methods=['POST'])
-# def aeon_orders():
-#     try:
-#         branch = request.headers.get('Retailer').lower()
-#         if branch is None: return abort(403)
-#         token = request.headers.get('Authorization').lower()
-#         if token is None: return abort(403)
-#     except:
-#         return abort(403)
-#     cfg = TenAntConfig.query.filter_by(branch=branch).first()
-#     if cfg is None or cfg.token != token:
-#         return abort(403)
-#     try:
-#         content = request.json
-#         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-#         print(f"{branch} {now} -> {content}")
-#         log = Log()
-#         log.configId = cfg.id
-#         log.branch = branch
-#         log.code = content.get('Code')
-#         log.content = str(content)
-#         log.log_date = datetime.now()
-#         try:
-#             db.session.add(log)
-#             db.session.commit()
-#         except:
-#             db.session.rollback()
-#         if content.get('Code') is None or len(str(content.get('Code').strip())) == 0:
-#             raise MissingInformationException('Thiếu thông tin mã đơn hàng (Code)')
-#         if content.get('PaymentMethods') is None or type(content.get('PaymentMethods')) != list:
-#             return MissingInformationException('Thiếu thông tin PTTT (PaymentMethods)')
-#         for pm in content.get('PaymentMethods'):
-#             if type(pm) != dict:
-#                 raise MissingInformationException('Thông tin PTTT không hợp lệ')
-#         if content.get('AdditionalServices') is not None:
-#             if type(content.get('AdditionalServices')) != list:
-#                 raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
-#             for service in content.get('AdditionalServices'):
-#                 if type(service) != dict:
-#                     raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
-#         result = aeon_convert.delay(cfg.domain, cfg.id, cfg.cookie, content, cfg.user, cfg.password)
-#         log.rid = str(result.id)
-#         try:
-#             db.session.commit()
-#         except:
-#             db.session.rollback()
-#         return {'result_id': result.id}
-#     except Exception as e:
-#         return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
-
 
 @common.route("/result/<id>", methods=['GET'])
 def task_result(id):

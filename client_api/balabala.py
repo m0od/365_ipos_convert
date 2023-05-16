@@ -1,25 +1,8 @@
 import sys
 sys.path.append('/home/blackwings/365ipos')
+from client_api.font_vi import Converter
 import pymssql
-import re
-
 from pos_api.adapter import submit_order, submit_error
-
-TCVN3TAB =   "µ¸¶·¹¨»¾¼½Æ©ÇÊÈÉË®ÌÐÎÏÑªÒÕÓÔÖ×ÝØÜÞßãáâä«åèæçé¬êíëìîïóñòô-õøö÷ùúýûüþ¡¢§£¤¥¦"  # NOQA
-UNICODETAB = "àáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵĂÂĐÊÔƠƯ"   # NOQA
-TCVN3TAB = [ch for ch in TCVN3TAB]
-
-
-UNICODETAB = [ch for ch in UNICODETAB]
-
-r = re.compile("|".join(TCVN3TAB))
-replaces_dict = dict(zip(TCVN3TAB, UNICODETAB))
-
-
-def TCVN3(tcvn3str):
-    if tcvn3str is None: return None
-    return r.sub(lambda m: replaces_dict[m.group(0)], tcvn3str)
-
 
 class Balabala(object):
     def __init__(self):
@@ -62,6 +45,7 @@ class Balabala(object):
             return False
 
     def get_data(self, date_from):
+        cv = Converter()
         self.orders = {}
         if not self.login(): return False
         try:
@@ -86,7 +70,7 @@ class Balabala(object):
                             'Discount': int(row['discount']),
                             'OrderDetails': [{
                                 'Code': row['product_code'].strip(),
-                                'Name': TCVN3(row['name'].strip()),
+                                'Name': cv.convert(ori=row['name'].strip()),
                                 'Price': int(row['price']),
                                 'Quantity': int(row['qty'])
                             }],
@@ -105,7 +89,7 @@ class Balabala(object):
                     # print(od)
                     od.append({
                         'Code': row['product_code'].strip(),
-                        'Name': TCVN3(row['name'].strip()),
+                        'Name': cv.convert(ori=row['name'].strip()),
                         'Price': int(row['price']),
                         'Quantity': int(row['qty'])
                     })

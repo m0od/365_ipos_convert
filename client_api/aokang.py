@@ -1,23 +1,8 @@
 import sys
 sys.path.append('/home/blackwings/365ipos')
+from client_api.font_vi import Converter
 import pymssql
-import re
 from pos_api.adapter import submit_error, submit_order
-
-TCVN3TAB = "µ¸¶·¹¨»¾¼½Æ©ÇÊÈÉË®ÌÐÎÏÑªÒÕÓÔÖ×ÝØÜÞßãáâä«åèæçé¬êíëìîïóñòô-õøö÷ùúýûüþ¡¢§£¤¥¦"  # NOQA
-UNICODETAB = "àáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵĂÂĐÊÔƠƯ"  # NOQA
-TCVN3TAB = [ch for ch in TCVN3TAB]
-
-UNICODETAB = [ch for ch in UNICODETAB]
-
-r = re.compile("|".join(TCVN3TAB))
-replaces_dict = dict(zip(TCVN3TAB, UNICODETAB))
-
-
-def TCVN3(tcvn3str):
-    if tcvn3str is None: return None
-    return r.sub(lambda m: replaces_dict[m.group(0)], tcvn3str)
-
 
 class AoKang(object):
     def __init__(self):
@@ -62,12 +47,14 @@ class AoKang(object):
             return False
 
     def get_data(self, date_from):
+        cv = Converter()
         self.orders = {}
         if not self.login(): return False
         try:
             self.CURSOR.execute(self.SQL_QUERY.format(date_from))
             row = self.CURSOR.fetchone()
             while row:
+
                 order_code = str(row['order_code']).strip()
                 if self.orders.get(order_code) is None:
                     total = int(row['total']) - int(row['discount'])
@@ -85,7 +72,7 @@ class AoKang(object):
                             'Discount': int(row['discount']),
                             'OrderDetails': [{
                                 'Code': row['product_code'].strip(),
-                                'Name': TCVN3(row['name'].strip()),
+                                'Name': cv.convert(ori=row['name'].strip()),
                                 'Price': int(row['price']),
                                 'Quantity': int(row['qty'])
                             }],
@@ -104,7 +91,7 @@ class AoKang(object):
                     # print(od)
                     od.append({
                         'Code': row['product_code'].strip(),
-                        'Name': TCVN3(row['name'].strip()),
+                        'Name': cv.convert(ori=row['name'].strip()),
                         'Price': int(row['price']),
                         'Quantity': int(row['qty'])
                     })
@@ -114,7 +101,7 @@ class AoKang(object):
                         'Total': total,
                         'TotalPayment': total
                     })
-                # print(orders.get(order_code))
+
                 row = self.CURSOR.fetchone()
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Data] {str(e)}')
@@ -122,3 +109,5 @@ class AoKang(object):
         self.CONN.close()
         for _, js in self.orders.items():
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
+
+# AoKang().get_data(('230516'))
