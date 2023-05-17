@@ -22,36 +22,41 @@ def submit_error(retailer=None, reason=None):
     except:
         pass
 
-urls = '''am059
-am061
-am060
-am002
-am055
-am100
-am108
-am110
-am056
-am043
+urls = '''am002
+am008
 am011
-am038
-am065
-am063
-am033
-am041
-am037
-am102
-am101
-am026
-am109
-am016
 am013
+am016
+am026
+am033
+am037
+am038
+am041
+am043
+am051
+am055
+am056
+am059
+am060
+am061
+am063
+am065
 am069
+am100
+am101
+am102
+am104
+am105
+am108
+am109
+am110
 am113
+am124
 am125
-am126'''
-# am126
-# am124
-# print(urls)
+am126
+am130
+am134
+'''
 rows = ''
 for domain in urls.strip().split('\n'):
     # print(domain)

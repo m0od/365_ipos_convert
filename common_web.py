@@ -11,7 +11,8 @@ from flask_sqlalchemy import SQLAlchemy
 from model import TenAntConfig, Log, TenAntProduct, TenAntPayment
 from pos365api import API
 from role import login_required
-
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 class MissingInformationException(Exception):
     def __init__(self, message=""):
@@ -138,9 +139,29 @@ def local_fetch_log():
         })
     return jsonify(ret)
 
+@common.route('/gg_login', methods=['GET', 'POST'])
+def gg_login():
+    form = request.form
+    idinfo = id_token.verify_oauth2_token(form['credential'], requests.Request(), '726905584100-o3n5emfgouu6poruvp0r2qb2rkjdfn5b.apps.googleusercontent.com')
+
+    # Or, if multiple clients access the backend server:
+    # idinfo = id_token.verify_oauth2_token(token, requests.Request())
+    # if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
+    #     raise ValueError('Could not verify audience.')
+
+    # If auth request is from a G Suite domain:
+    # if idinfo['hd'] != GSUITE_DOMAIN_NAME:
+    #     raise ValueError('Wrong hosted domain.')
+    print(idinfo)
+    # ID token is valid. Get the user's Google Account ID from the decoded token.
+    userid = idinfo['sub']
+
+    return ''
 @common.route('/', methods=['GET', 'POST'])
-def technical_department():
+def api_technical_department():
     if request.method == 'GET':
+        # if session is not None and session.get('accessCode') == 'IT@P0s365kms':
+        #     return redirect('/dashboard')
         return render_template('login.html')
     else:
         if request.form.get('accessCode') == 'IT@P0s365kms':
@@ -155,7 +176,7 @@ def technical_department():
 
 @common.route('/dashboard', methods=['GET', 'POST'])
 @login_required
-def technical_dashboard():
+def api_technical_dashboard():
     return render_template('365.html')
 @common.route('/api/orders', methods=['POST'])
 def api_orders():
