@@ -6,13 +6,9 @@ from flask import session, redirect
 def login_required(f):
     @functools.wraps(f)
     def wrap(*args, **kwargs):
-        if 'accessCode' in session:
-            if session['accessCode'] != 'IT@P0s365kms':
-                session.clear()
-                return redirect('/', code=302)
-            else:
-                return f(*args, **kwargs)
-        else:
+        if session.get('userId') is None:
+            session.clear()
             return redirect('/', code=302)
-
+        else:
+            return f(*args, **kwargs)
     return wrap

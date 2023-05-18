@@ -12,8 +12,8 @@ from model import TenAntConfig, Log, TenAntProduct, TenAntPayment
 from pos365api import API
 from role import login_required
 from google.oauth2 import id_token
-from google.auth.transport import requests
-
+from google.auth.transport import requests as ggRequests
+from flask import current_app
 class MissingInformationException(Exception):
     def __init__(self, message=""):
         self.message = message
@@ -139,39 +139,48 @@ def local_fetch_log():
         })
     return jsonify(ret)
 
-@common.route('/gg_login', methods=['GET', 'POST'])
-def gg_login():
-    form = request.form
-    idinfo = id_token.verify_oauth2_token(form['credential'], requests.Request(), '726905584100-o3n5emfgouu6poruvp0r2qb2rkjdfn5b.apps.googleusercontent.com')
-
-    # Or, if multiple clients access the backend server:
-    # idinfo = id_token.verify_oauth2_token(token, requests.Request())
-    # if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
-    #     raise ValueError('Could not verify audience.')
-
-    # If auth request is from a G Suite domain:
-    # if idinfo['hd'] != GSUITE_DOMAIN_NAME:
-    #     raise ValueError('Wrong hosted domain.')
-    print(idinfo)
-    # ID token is valid. Get the user's Google Account ID from the decoded token.
-    userid = idinfo['sub']
-
-    return ''
+# @common.route('/gg_login', methods=['GET', 'POST'])
+# def gg_login():
+#     form = request.form
+#     # GG_CLIENT_ID = '726905584100-o3n5emfgouu6poruvp0r2qb2rkjdfn5b.apps.googleusercontent.com'
+#     idinfo = id_token.verify_oauth2_token(form['credential'],
+#                                           ggRequests.Request(),
+#                                           current_app.config['GOOGLE_CLIENT_ID'])
+#
+#     # Or, if multiple clients access the backend server:
+#     # idinfo = id_token.verify_oauth2_token(token, requests.Request())
+#     # if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
+#     #     raise ValueError('Could not verify audience.')
+#
+#     # If auth request is from a G Suite domain:
+#     # if idinfo['hd'] != GSUITE_DOMAIN_NAME:
+#     #     raise ValueError('Wrong hosted domain.')
+#     print(idinfo)
+#     # ID token is valid. Get the user's Google Account ID from the decoded token.
+#     userid = idinfo['sub']
+#
+#     return ''
 @common.route('/', methods=['GET', 'POST'])
 def api_technical_department():
     if request.method == 'GET':
         # if session is not None and session.get('accessCode') == 'IT@P0s365kms':
         #     return redirect('/dashboard')
-        return render_template('login.html')
+        return render_template('login.html', gg_client_id=current_app.config['GOOGLE_CLIENT_ID'])
     else:
-        if request.form.get('accessCode') == 'IT@P0s365kms':
+        try:
+            info = id_token.verify_oauth2_token(request.form['credential'],
+                                                ggRequests.Request(),
+                                                current_app.config['GOOGLE_CLIENT_ID'])
+
+            print(info)
+            userId = info['sub']
             try:
                 session.regenerate()  # NO SESSION FIXATION FOR YOU
             except:
                 pass
-            session['accessCode'] = 'IT@P0s365kms'
+            session['userId'] = userId
             return redirect('/dashboard')
-        else:
+        except:
             return render_template('login.html')
 
 @common.route('/dashboard', methods=['GET', 'POST'])
@@ -217,10 +226,11 @@ def api_VendorSession():
         res = b.get(f'https://{link}.pos365.vn/Config/VendorSession')
         if res.status_code != 200:
             return f'Error {res.status_code}'
-        tmp = res.text.split('branch')
+        tmp = res.text.split('branch :')
         # print(tmp[1][tmp[1].index(':')+1:])
-        current = json.loads(tmp[1][tmp[1].index(':')+1:].split('}')[0]+'}')
-        branchs = json.loads(tmp[2][tmp[2].index(':')+1:].split(']')[0] + ']')
+        current = json.loads(tmp[1].split('}')[0]+'}')
+        tmp = res.text.split('branchs:')
+        branchs = json.loads(tmp[1].split(']')[0] + ']')
         return jsonify({
             'current': current,
             'branchs': branchs

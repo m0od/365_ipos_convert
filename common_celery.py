@@ -186,7 +186,10 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                 except:
                     pass
             if bill['Order']['VAT'] == 0:
-                bill['Order']['VAT'] = int(round(bill['Order']['Total']/((1+vat)/vat), 0))
+                try:
+                    bill['Order']['VAT'] = int(round(bill['Order']['Total']/((1+vat)/vat), 0))
+                except:
+                    pass
             res = api.order_save(bill)
             if res['status'] == 0:
                 requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': res.get('ck')})

@@ -22,6 +22,7 @@ class Config(object):
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+    GOOGLE_CLIENT_ID = '263581281598-tkh7tha61k78kb55c670sjfu6651m3a1.apps.googleusercontent.com'
 
 
 
@@ -45,8 +46,8 @@ def init_utils(app):
 
                 if functions.__name__.startswith('local_') and request.remote_addr not in ['127.0.0.1', '103.35.65.114']:
                     abort(404)
-                if functions.__name__.startswith('api_') and request.remote_addr not in ['117.4.244.167', '118.70.124.165']:
-                    abort(404)
+                # if functions.__name__.startswith('api_') and request.remote_addr not in ['117.4.244.167', '118.70.124.165']:
+                #     abort(404)
             except KeyError as e:
                 print(e)
                 abort(404)
