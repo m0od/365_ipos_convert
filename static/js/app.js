@@ -8,14 +8,16 @@ $(document).ready(function () {
             $('#status').html('Đi đâu vội thế nhập link đã bạn ê!');
             return;
         }
+        let user = $('#username').val().trim();
+        let password = $('#password').val().trim();
         $.ajax({
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify({
                 // Username: "quantri@pos365.vn",
                 // Password: "IT@P0s365kms",
-                UserName: "admin",
-                Password: "123456"
+                UserName: user,
+                Password: password
             }),
             url: `https://${link}.pos365.vn/api/auth`,
             // timeout: 150000,
@@ -88,4 +90,14 @@ $(document).ready(function () {
             }
         });
     });
+    $(document).on('click', '[name="SNOption"]', function (event){
+        let opt = $('[name="SNOption"]:checked').val()
+        if (opt === '2'){
+            $('#btnSN').attr('rowspan',2);
+            $('#trSNProduct').removeClass('d-none');
+        }else{
+            $('#btnSN').removeAttr('rowspan');
+            $('#trSNProduct').addClass('d-none');
+        }
+    })
 });
