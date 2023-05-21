@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('/home/blackwings/365ipos')
 from client_api.megane import MeganePrince
 from client_api.boo import Boo
@@ -19,21 +20,23 @@ from client_api.aokang import AoKang
 from client_api.adore import Adore
 from client_api.kakao import Kakao
 
+tgc_bloom = TGC_BLOOM()
+ao = AoKang()
+bl = Balabala()
+at = Anta()
+atk = AntaKids()
+jm = JM()
+lemino = Lemino()
+boo = Boo()
+atz = ATZ()
+adore = Adore()
+kakao = Kakao()
+sneaker = SneakerBuzz()
+vans = Vans()
+ato = ATO()
+megane = MeganePrince()
 now = datetime.now(timezone('Etc/GMT-7'))
 if now.hour < 9:
-    tgc_bloom = TGC_BLOOM()
-    ao = AoKang()
-    bl = Balabala()
-    at = Anta()
-    atk = AntaKids()
-    jm = JM()
-    lemino = Lemino()
-    boo = Boo()
-    atz = ATZ()
-    adore = Adore()
-    kakao = Kakao()
-    sneaker = SneakerBuzz()
-    vans = Vans()
     with futures.ThreadPoolExecutor(max_workers=13) as mt:
         thread = [
             mt.submit(tgc_bloom.get_data, now - timedelta(days=1)),
@@ -52,11 +55,13 @@ if now.hour < 9:
         ]
         futures.as_completed(thread)
 else:
-    ato = ATO()
-    megane = MeganePrince()
     with futures.ThreadPoolExecutor(max_workers=2) as mt:
         thread = [
             mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
             mt.submit(megane.get_data, now - timedelta(days=1))
+            # mt.submit(ao.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
+            # mt.submit(bl.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
+            # mt.submit(at.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
+            # mt.submit(atk.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
         ]
         futures.as_completed(thread)

@@ -17,6 +17,8 @@ def submit_order(retailer=None, token=None, data=None):
             res = requests.post(URL, headers=headers, json=data, timeout=10)
             if res.json()['result_id'] is not None: return True
             return False
+        except ConnectionError as ce:
+            submit_error(retailer, f'{str(ce).split(":")[-1].strip()[:-3]} {data}')
         except Exception as e:
             submit_error(retailer, f'{str(e)} {data}')
 

@@ -1,4 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql.functions import current_time
+
 db = SQLAlchemy()
 
 
@@ -15,6 +17,7 @@ class TenAntConfig(db.Model):
     store = db.Column(db.Integer, default=None)
     vat = db.Column(db.Float, default=0.1)
 
+
 class Log(db.Model):
     __bind_key__ = 'ipos365'
     __tablename__ = 'log'
@@ -27,7 +30,19 @@ class Log(db.Model):
     rid = db.Column(db.VARCHAR, default=None)
     status = db.Column(db.Boolean, default=None)
     result = db.Column(db.Text, default=None)
-    log_date = db.Column(db.DateTime, default=None)
+    log_date = db.Column(db.DateTime, default=current_time())
+
+
+class TechLog(db.Model):
+    __bind_key__ = 'ipos365'
+    __tablename__ = 'log_technical'
+    id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
+    rid = db.Column(db.VARCHAR, default=None)
+    log_date = db.Column(db.DateTime, default=current_time())
+    task_name = db.Column(db.Text, default=None)
+    state = db.Column(db.Text, default=None)
+    info = db.Column(db.JSON, default=None)
+
 
 class TenAntPayment(db.Model):
     __bind_key__ = 'ipos365'
@@ -54,4 +69,3 @@ class TenAntProduct(db.Model):
 #     configId = db.Column(db.Integer)
 #     code = db.Column(db.Text, default=None)
 #     orderId = db.Column(db.Integer, default=None)
-

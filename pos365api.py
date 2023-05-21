@@ -19,7 +19,6 @@ class API(object):
         self.password = password
         self.base_url = f'https://{self.domain}.pos365.vn'
 
-
     def check_login(self):
         try:
             res = self.browser.get(self.base_url + '/Config/VendorSession')
@@ -28,7 +27,6 @@ class API(object):
         except Exception as e:
             pass
         return False
-
 
     def auth(self):
         try:
@@ -246,3 +244,125 @@ class API(object):
                 return {'status': True, 'accounts': accounts}
         except Exception as e:
             return {'status': False, 'message': str(e)}
+
+    def product_list(self, skip, worker=5):
+        data = []
+        # print(f'order_list {skip}')
+        try:
+            params = {
+                'Top': '50',
+                'Skip': str(skip)
+            }
+            res = self.browser.get(self.base_url + '/api/products', params=params)
+            if res.status_code != 200:
+                return {'status': 0, 'result': {}}
+            if len(res.json()['results']) == 0: return {'status': 1, 'result': {}}
+            for product in res.json()['results']:
+                priceConfig = {}
+                try:
+                    priceConfig = json.loads(product.get('PriceConfig'))
+                except:
+                    pass
+                printer = []
+                try:
+                    if priceConfig.get('SecondPrinter') is not None and len(priceConfig['SecondPrinter'].strip()) > 0:
+                        printer.append(priceConfig['SecondPrinter'].strip())
+                    if priceConfig.get('Printer3') is not None and len(priceConfig['Printer3'].strip()) > 0:
+                        printer.append(priceConfig['Printer3'].strip())
+                    if priceConfig.get('Printer4') is not None and len(priceConfig['Printer4'].strip()) > 0:
+                        printer.append(priceConfig['Printer4'].strip())
+                    if priceConfig.get('Printer5') is not None and len(priceConfig['Printer5'].strip()) > 0:
+                        printer.append(priceConfig['Printer5'].strip())
+                except:
+                    pass
+                code = []
+                try:
+                    if product.get('Code') is not None and len(product['Code'].strip()) > 0:
+                        code.append(product['Code'].strip().replace(',', '.'))
+                    if product.get('Code2') is not None and len(product['Code2'].strip()) > 0:
+                        code.append(product['Code2'].strip().replace(',', '.'))
+                    if product.get('Code3') is not None and len(product['Code3'].strip()) > 0:
+                        code.append(product['Code3'].strip().replace(',', '.'))
+                    if product.get('Code4') is not None and len(product['Code4'].strip()) > 0:
+                        code.append(product['Code4'].strip().replace(',', '.'))
+                    if product.get('Code5') is not None and len(product['Code5'].strip()) > 0:
+                        code.append(product['Code5'].strip().replace(',', '.'))
+                except:
+                    pass
+                try:
+                    category = ''
+                    if product.get('Category') is not None:
+                        category = product['Category'].get('Name') is not None and product['Category'][
+                            'Name'].strip() or ''
+                except:
+                    category = ''
+                bonus = [product.get('BonusPoint'), product.get('BonusPointForAssistant'),
+                         product.get('BonusPointForAssistant2'), product.get('BonusPointForAssistant3')]
+                sup = self.product_supplier(product['Id'])
+                info = [
+                    ', '.join(_ for _ in code).strip(),
+                    product['Name'].strip(),
+                    category,
+                    product.get('Unit') is not None and product['Unit'].strip() or '',
+                    product.get('LargeUnit') is not None and product['LargeUnit'].strip() or '',
+                    product.get('LargeUnitCode') is not None and product['LargeUnitCode'].strip() or '',
+                    float(product['ConversionValue']),
+                    product['Price'],
+                    product['PriceLargeUnit'],
+                    product['Cost'],
+                    product['TotalOnHand'],
+                    product.get('AttributesName') is not None and product['AttributesName'].strip() or '',
+                    ', '.join(f'{img.get("ImageURL")}' for img in product['ProductImages']).strip(),
+                    product.get('OrderQuickNotes') is not None and product['OrderQuickNotes'].strip() or '',
+                    product['MinQuantity'],
+                    product['MaxQuantity'],
+                    product['ProductType'],
+                    product.get('Hidden') and 1 or 0,
+                    product['SplitForSalesOrder'] and 1 or 0,
+                    product.get('Printer') is not None and product['Printer'].strip() or '',
+                    sup,
+                    priceConfig.get('VAT') is not None and priceConfig['VAT'] or 0,
+                    product.get('Formular') is not None and product['Formular'].strip() or '',
+                    product.get('IsSerialNumberTracking') and 1 or 0,
+                    priceConfig.get('DontPrintLabel') and 1 or 0,
+                    priceConfig.get('OpenTopping') and 1 or 0,
+                    ', '.join(_ for _ in printer).strip(),
+                    ', '.join(str(_) for _ in bonus).strip(),
+                    product['Id']
+                ]
+                data.append(info)
+            return {'status': 2, 'result': data}
+        except Exception as e:
+            print(e)
+            return {'status': 0, 'result': {}}
+
+    def count_products(self):
+        while True:
+            try:
+                params = {
+                    'Top': '50',
+                    'Skip': str(0)
+                }
+                res = self.browser.get(self.base_url + '/api/products', params=params)
+                if res.status_code == 200:
+                    return res.json()['__count']
+            except Exception as e:
+                print(e)
+                pass
+
+    def switch_branch(self, branch):
+        p = {
+            'branchId': branch
+        }
+        res = self.browser.get(self.base_url + '/Home/ChangeBranch', params=p)
+        if res.status_code == 200: return True
+        return False
+
+    def product_supplier(self, product_id):
+        while True:
+            try:
+                res = self.browser.get(self.base_url + f'/api/products/{product_id}/suppliers')
+                if res.status_code == 200:
+                    return ', '.join(f'{img.get("Supplier").get("Code")}' for img in res.json()).strip()
+            except:
+                pass

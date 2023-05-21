@@ -11,4 +11,16 @@ pymssql
 bs4
 requests_toolbelt
 xmltodict
+gspread
+oauth2client
+gspread-formatting
+flask_socketio
+SQLAlchemy
+beautifulsoup4
+uvicorn
+flower
+httpx
+fastapi
+aioredis==2.0.0
+websockets
 google

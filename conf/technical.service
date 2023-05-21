@@ -6,7 +6,7 @@ After=network.target
 User=blackwings
 WorkingDirectory=/home/blackwings/365ipos
 Environment="PATH=/home/blackwings/365ipos/bin"
-ExecStart=/home/blackwings/365ipos/bin/celery -A common_celery.background worker --loglevel=info --concurrency=8
+ExecStart=/home/blackwings/365ipos/bin/celery -A technical_celery.background worker -E --concurrency=32
 
 [Install]
 WantedBy=default.target

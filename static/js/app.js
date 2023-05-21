@@ -27,12 +27,12 @@ $(document).ready(function () {
                 $.ajax({
                     type: "POST",
                     data: {
-                        cookie: res.SessionId,
+                        cookie: $('#cookie').val(),
                         link: link
                     },
                     url: '/Config/VendorSession',
                     success: function (r) {
-                        r.branchs.forEach(function (value){
+                        r.branch.forEach(function (value){
                             $('#optBranch').append($('<option>', {
                                 value: value.Id,
                                 text: value.Name
@@ -42,11 +42,13 @@ $(document).ready(function () {
                         $('#status').text('Làm gì thì làm tớ mệt rồi!')
                     },
                     error: function (e){
-                        $('#status').html(e);
+                        console.log('aaaaa');
+                        $('#status').html(e.responseText);
                     }
                 });
             },
             error: function (err) {
+                console.log(err);
                 $('#status').html(err.responseJSON.ResponseStatus.Message);
                 // alert(request.responseJSON.ResponseStatus.Message);
             }
@@ -100,4 +102,53 @@ $(document).ready(function () {
             $('#trSNProduct').addClass('d-none');
         }
     })
+    $(document).on('click', '[name="DelDataOption"]', function (event){
+        let opt = $('[name="DelDataOption"]:checked').val()
+        if (opt === '2'){
+            $('#btnDelData').attr('rowspan',2);
+            $('#trDelDataOption').removeClass('d-none');
+            $('#trDelDataDate').addClass('d-none');
+        }else if(opt === '3'){
+            $('#btnDelData').attr('rowspan',2);
+            $('#trDelDataDate').removeClass('d-none');
+            $('#trDelDataOption').addClass('d-none');
+        }
+        else{
+            $('#btnDelData').removeAttr('rowspan');
+            $('#trDelDataDate').addClass('d-none');
+            $('#trDelDataOption').addClass('d-none');
+        }
+    })
+    $(document).on('click', '#btnExtract', function (event){
+        $('#status').empty();
+        let type = $('#typeExtract').val();
+        let link = $('#link').val().trim();
+        let cookie = $('#cookie').val().trim();
+        let branch = $('#optBranch').val();
+        switch (type) {
+            case '1'://hàng hoá
+                $.ajax({
+                    type: "POST",
+                    data: {
+                        cookie: cookie,
+                        link: link,
+                        branch: branch
+                    },
+                    url: '/api/extract/products',
+                    success: function (r) {
+                        $('#status').html(r)
+                    },
+                    error: function (e){
+                        $('#status').html(e);
+                    }
+                });
+                break;
+            case '2':
+                break;
+            default:
+                $('#status').html('Chưa chọn data cần xuất bạn ê');
+                break;
+
+        }
+    });
 });

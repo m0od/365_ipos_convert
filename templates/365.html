@@ -12,94 +12,100 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="{{ request.script_root }}/static/js/app.js" type="application/javascript"></script>
 <div class="row mt-3 w-100 ">
-    <div class="col ms-1 me-1">
+    <div class="col-9 ms-1 me-1">
         <table class="ml-1 table table-sm table-borderless">
             <tr>
-                <td>
+                <td class="w-15">
                     <div class="input-group input-group-sm">
-                        <span class="input-group-text">Link</span>
+                        <span class="input-group-text bg-transparent text-light">Link</span>
                         <input type="text" class="form-control"
                                placeholder="VD: 695" id="link">
                     </div>
                 </td>
 
-                <td>
+                <td class="w-35">
                     <div class="input-group input-group-sm">
-                        <span class="input-group-text">User</span>
+                        <span class="input-group-text bg-transparent text-light">User</span>
                         <input type="text" class="form-control"
                                placeholder="Username" id="username">
-                        <span class="input-group-text">Password</span>
+                        <span class="input-group-text bg-transparent text-light">Password</span>
                         <input type="password" class="form-control"
                                placeholder="Password" id="password">
                     </div>
                 </td>
-                <td>
+                <td class="w-15">
                     <input class="w-100 btn btn-sm btn-outline-light"
                            type="submit" value="Đăng nhập" id="login365">
                 </td>
-            </tr>
-            <tr>
                 <td>
                     <div class="input-group input-group-sm">
-                        <label class="input-group-text">Chi nhánh</label>
+                        <label class="input-group-text bg-transparent text-light">Chi nhánh</label>
                         <select class="form-select" id="optBranch"></select>
 
                     </div>
                 </td>
+            </tr>
+        </table>
+        <table class="ml-1 table table-sm table-borderless w-75">
+            <tr>
+
                 <td>
                     <div class="input-group input-group-sm">
-                        <span class="input-group-text">Mã đơn hàng</span>
-                        <input type="text" class="form-control"
+                        <span class="input-group-text bg-transparent text-light">Mã đơn hàng</span>
+                        <input type="text" class="form-control" autocomplete="off"
                                placeholder="VD: HD010123-0001" id="billCode">
                     </div>
                 </td>
                 <td><input class="w-100 btn btn-sm btn-outline-light" type="submit" value="Lấy ID" id="billID"></td>
-            </tr>
-        </table>
-        <table class="ml-1 table table-sm table-borderless w-50">
-            <tr>
-                <td class="fw-bold text-light" colspan="3">Thiết lập thông số</td>
-            </tr>
-            <tr>
                 <td>
                     <div class="input-group input-group-sm">
-                        <span class="input-group-text">% VAT</span>
-                        <input type="text" class="form-control"
+                        <span class="input-group-text bg-transparent text-light">% VAT</span>
+                        <input type="text" class="form-control" autocomplete="off"
                                placeholder="VD: 10" id="vatRate">
                     </div>
                 </td>
-                <td><input class="w-100 btn btn-sm btn-outline-light" type="submit" value="Set VAT" id="setVAT"></td>
-                {#                <td></td>#}
+                <td>
+                    <input class="w-100 btn btn-sm btn-outline-light" type="submit"
+                           value="Set VAT" id="setVAT">
+                </td>
             </tr>
         </table>
         <table class="ml-1 table table-sm table-borderless">
             <tr>
-                <td id="btnSN" class="w-20"><input class="w-100 d-table btn btn-sm btn-outline-light" type="submit"
-                                                   value="Lô Hạn"
-                                                   id="IsSerialNumberTracking"></td>
+                <td id="btnSN" class="w-15">
+                    <input class="w-100 d-table btn btn-sm btn-outline-light" type="submit"
+                           value="Lô hạn" id="IsSerialNumberTracking"></td>
                 <td>
                     <div class="form-check form-check-inline pt-1">
-                        <input class="form-check-input" type="radio" name="SNOption" value="1" checked>
+                        <input class="form-check-input" type="radio" autocomplete="off"
+                               name="SNOption" value="1" checked>
                         <label class="form-check-label text-light">Toàn bộ</label>
                     </div>
                     <div class="form-check form-check-inline pt-1">
-                        <input class="form-check-input" type="radio" name="SNOption" value="2">
+                        <input class="form-check-input" type="radio" autocomplete="off"
+                               name="SNOption" value="2">
                         <label class="form-check-label text-light">Theo danh sách</label>
                     </div>
                 </td>
             </tr>
             <tr id="trSNProduct" class="d-none">
-                <td><textarea class="form-control form-control-sm w-100" id="listSNProduct" rows="3"></textarea></td>
+                <td>
+                    <textarea class="form-control form-control-sm w-100" autocomplete="off"
+                              id="listSNProduct" rows="3"></textarea>
+                </td>
             </tr>
         </table>
         <table class="ml-1 table table-sm table-borderless">
             <tr>
-                <td id="btnDelSale" class="w-20">
+                <td id="btnDelData" class="w-15">
+                    <input class="w-100 btn btn-sm btn-danger" type="submit"
+                           value="Xoá Trắng" id="IsSerialNumberTracking">
+                </td>
+                <td class="w-20">
                     <div class="input-group input-group-sm">
-                        <button class="btn btn-outline-light btn-sm" type="button">Xoá</button>
-                        <select class="form-select" id="inputGroupSelect03"
-                                aria-label="Example select with button addon">
-                            <option selected>Choose...</option>
+                        <select class="form-select" autocomplete="off"
+                                id="inputGroupSelect03">
+                            <option selected></option>
                             <option value="1">Đơn hàng</option>
                             <option value="2">Đơn nhập hàng</option>
                             <option value="3">Giao dịch khác</option>
@@ -108,55 +114,54 @@
                             <option value="6">Thu chi</option>
                             <option value="7">Đối tác</option>
                         </select>
-                    </div>
-                </td>
-                <td>
-                    <div class="form-check form-check-inline pt-1">
-                        <input class="form-check-input" type="radio" name="DelSaleOption" value="1" checked>
-                        <label class="form-check-label text-light">Toàn bộ</label>
-                    </div>
-                    <div class="form-check form-check-inline pt-1">
-                        <input class="form-check-input" type="radio" name="DelSaleOption" value="2">
-                        <label class="form-check-label text-light">Theo danh sách</label>
-                    </div>
-                    <div class="form-check form-check-inline pt-1">
-                        <input class="form-check-input" type="radio" name="DelSaleOption" value="3">
-                        <label class="form-check-label text-light">Theo ngày</label>
-                    </div>
-                </td>
-            </tr>
-        </table>
-        <table class="ml-1 table table-sm table-borderless">
-            <tr>
-                <td id="btnDelSale" class="w-20">
-                    <div class="input-group input-group-sm">
                         <button class="btn btn-outline-light btn-sm" type="button">Xoá</button>
-                        <select class="form-select" id="inputGroupSelect03"
-                                aria-label="Example select with button addon">
-                            <option selected>Choose...</option>
-                            <option value="1">Đơn hàng</option>
-                            <option value="2">Đơn nhập hàng</option>
-                            <option value="3">Giao dịch khác</option>
-                            <option value="4">Chuyển hàng nội bộ</option>
-                            <option value="5">Kiểm kê</option>
-                            <option value="6">Thu chi</option>
-                            <option value="7">Đối tác</option>
-                        </select>
+
                     </div>
                 </td>
                 <td>
                     <div class="form-check form-check-inline pt-1">
-                        <input class="form-check-input" type="radio" name="DelSaleOption" value="1" checked>
+                        <input class="form-check-input" type="radio" autocomplete="off"
+                               name="DelDataOption" value="1" checked>
                         <label class="form-check-label text-light">Toàn bộ</label>
                     </div>
                     <div class="form-check form-check-inline pt-1">
-                        <input class="form-check-input" type="radio" name="DelSaleOption" value="2">
+                        <input class="form-check-input" type="radio" autocomplete="off"
+                               name="DelDataOption" value="2">
                         <label class="form-check-label text-light">Theo danh sách</label>
                     </div>
                     <div class="form-check form-check-inline pt-1">
-                        <input class="form-check-input" type="radio" name="DelSaleOption" value="3">
+                        <input class="form-check-input" type="radio" autocomplete="off"
+                               name="DelDataOption" value="3">
                         <label class="form-check-label text-light">Theo ngày</label>
                     </div>
+                </td>
+
+            </tr>
+            <tr id="trDelDataOption" class="d-none">
+                <td colspan="2">
+                    <textarea class="form-control form-control-sm w-100" autocomplete="off"
+                              id="listSNProduct" rows="3"></textarea>
+                </td>
+            </tr>
+            <tr id="trDelDataDate" class="d-none">
+                <td colspan="2">
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">From</span>
+                                <input id="startDate" autocomplete="off"
+                                       class="form-control form-control-sm" type="date"/>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">To</span>
+                                <input id="startDate" autocomplete="off"
+                                       class="form-control form-control-sm" type="date"/>
+                            </div>
+                        </div>
+                    </div>
+
                 </td>
             </tr>
         </table>
@@ -164,10 +169,12 @@
             <tr>
                 <td id="btnDelSale" class="w-20">
                     <div class="input-group input-group-sm">
-                        <button class="btn btn-outline-light btn-sm" type="button">Xuất</button>
-                        <select class="form-select" id="inputGroupSelect03"
-                                aria-label="Example select with button addon">
-                            <option selected>Choose...</option>
+                        <input class="btn btn-outline-light btn-sm" type="submit"
+                               id="btnExtract" value="Xuất">
+
+                        <select class="form-select" autocomplete="off"
+                                id="typeExtract">
+                            <option selected></option>
                             <option value="1">Hàng hoá</option>
                             <option value="2">Phòng bàn</option>
                             <option value="3">Khách hàng</option>
@@ -186,33 +193,19 @@
 
                 <td>
                     <div class="form-check form-check-inline pt-1">
-                        <input class="form-check-input" type="radio" name="DelSaleOption" value="1" checked>
+                        <input class="form-check-input" type="radio" autocomplete="off"
+                               name="DelSaleOption" value="1" checked>
                         <label class="form-check-label text-light">Toàn bộ</label>
                     </div>
                     <div class="form-check form-check-inline pt-1">
-                        <input class="form-check-input" type="radio" name="DelSaleOption" value="3">
+                        <input class="form-check-input" type="radio" autocomplete="off"
+                               name="DelSaleOption" value="3">
                         <label class="form-check-label text-light">Theo ngày</label>
                     </div>
                 </td>
-                {#                <td>#}
-                {#                    <div class="form-check form-check-inline pt-1">#}
-                {#                        <input class="form-check-input" type="radio" name="DelSaleOption" value="1" checked>#}
-                {#                        <label class="form-check-label text-light">Toàn bộ</label>#}
-                {#                    </div>#}
-                {#                    <div class="form-check form-check-inline pt-1">#}
-                {#                        <input class="form-check-input" type="radio" name="DelSaleOption" value="2">#}
-                {#                        <label class="form-check-label text-light">Theo danh sách</label>#}
-                {#                    </div>#}
-                {#                    <div class="form-check form-check-inline pt-1">#}
-                {#                        <input class="form-check-input" type="radio" name="DelSaleOption" value="3">#}
-                {#                        <label class="form-check-label text-light">Theo ngày</label>#}
-                {#                    </div>#}
-                {#                </td>#}
             </tr>
         </table>
-        <input class="w-100 btn btn-sm btn-danger" type="submit" value="Xoá Trắng"
-               id="IsSerialNumberTracking">
-        <input type="text" hidden value="" id="cookie">
+        <input hidden value="" id="cookie" autocomplete="off">
     </div>
     <div class="col ms-1 me-1">
         <table id="status" class="table table-sm table-borderless text-light"></table>

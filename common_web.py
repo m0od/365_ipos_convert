@@ -10,10 +10,8 @@ from flask import request, Blueprint, abort, render_template, Response, send_fil
 from flask_sqlalchemy import SQLAlchemy
 from model import TenAntConfig, Log, TenAntProduct, TenAntPayment
 from pos365api import API
-from role import login_required
-from google.oauth2 import id_token
-from google.auth.transport import requests as ggRequests
-from flask import current_app
+
+
 class MissingInformationException(Exception):
     def __init__(self, message=""):
         self.message = message
@@ -22,6 +20,7 @@ class MissingInformationException(Exception):
 
 db = SQLAlchemy()
 common = Blueprint('common', __name__)
+
 
 # @local_only
 @common.route('/cfg', methods=['PATCH'])
@@ -139,6 +138,7 @@ def local_fetch_log():
         })
     return jsonify(ret)
 
+
 # @common.route('/gg_login', methods=['GET', 'POST'])
 # def gg_login():
 #     form = request.form
@@ -160,84 +160,7 @@ def local_fetch_log():
 #     userid = idinfo['sub']
 #
 #     return ''
-@common.route('/', methods=['GET', 'POST'])
-def api_technical_department():
-    if request.method == 'GET':
-        # if session is not None and session.get('accessCode') == 'IT@P0s365kms':
-        #     return redirect('/dashboard')
-        return render_template('login.html', gg_client_id=current_app.config['GOOGLE_CLIENT_ID'])
-    else:
-        try:
-            info = id_token.verify_oauth2_token(request.form['credential'],
-                                                ggRequests.Request(),
-                                                current_app.config['GOOGLE_CLIENT_ID'])
 
-            print(info)
-            userId = info['sub']
-            try:
-                session.regenerate()  # NO SESSION FIXATION FOR YOU
-            except:
-                pass
-            session['userId'] = userId
-            return redirect('/dashboard')
-        except:
-            return render_template('login.html')
-
-@common.route('/dashboard', methods=['GET', 'POST'])
-@login_required
-def api_technical_dashboard():
-    return render_template('365.html')
-@common.route('/api/orders', methods=['POST'])
-def api_orders():
-    try:
-        code = request.form['code']
-        cookie = request.form['cookie']
-        link = request.form['link']
-        b = requests.session()
-        b.headers.update({
-            'content-type': 'application/json',
-            'cookie': f'ss-id={cookie.strip()}'
-        })
-        # b.cookies.update({
-        #     'ss-id': cookie.strip()
-        # })
-        p = {
-            'Filter': f"substringof('{code.strip()}',Code)"
-        }
-        res = b.get(f'https://{link}.pos365.vn/api/orders',params=p).json()
-        # print(res)
-        return res
-    except Exception as e:
-        return str(e)
-
-@common.route('/Config/VendorSession', methods=['POST'])
-def api_VendorSession():
-    try:
-        cookie = request.form['cookie']
-        link = request.form['link']
-        b = requests.session()
-        b.headers.update({
-            'content-type': 'application/json',
-            'cookie': f'ss-id={cookie.strip()}'
-        })
-        # b.cookies.update({
-        #     'ss-id': cookie.strip()
-        # })
-        res = b.get(f'https://{link}.pos365.vn/Config/VendorSession')
-        if res.status_code != 200:
-            return f'Error {res.status_code}'
-        tmp = res.text.split('branch :')
-        # print(tmp[1][tmp[1].index(':')+1:])
-        current = json.loads(tmp[1].split('}')[0]+'}')
-        tmp = res.text.split('branchs:')
-        branchs = json.loads(tmp[1].split(']')[0] + ']')
-        return jsonify({
-            'current': current,
-            'branchs': branchs
-        })
-    except Exception as e:
-        # print(e)
-        return str(e)
 @common.route('/setup', methods=['GET', 'POST'])
 def setup():
     if request.method == 'GET':
@@ -291,6 +214,7 @@ def setup():
         else:
             return {'status': False, 'message': 'Login Pos 365 Failed'}
 
+
 @common.route('/orders', methods=['POST'])
 def orders():
     try:
@@ -314,7 +238,6 @@ def orders():
         log.store = store
         log.code = content.get('Code')
         log.content = str(content)
-        log.log_date = datetime.now()
         try:
             db.session.add(log)
             db.session.commit()
@@ -346,6 +269,7 @@ def orders():
         return {'result_id': result.id}
     except Exception as e:
         return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
+
 
 @common.route("/result/<id>", methods=['GET'])
 def task_result(id):

@@ -1,0 +1,13 @@
+[Unit]
+Description=Daemon for WebTool API for Technical Support
+After=network.target
+
+[Service]
+User=blackwings
+Group=www-data
+WorkingDirectory=/home/blackwings/webtool
+Environment="PATH=/home/blackwings/webtool/bin"
+ExecStart=/home/blackwings/webtool/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker api:app
+
+[Install]
+WantedBy=multi-user.target
