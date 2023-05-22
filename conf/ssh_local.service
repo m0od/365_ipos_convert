@@ -1,0 +1,12 @@
+[Unit]
+Description=Tunnel SSH
+After=network.target
+
+[Service]
+Environment="AUTOSSH_GATETIME=0"
+ExecStart=/usr/local/bin/autossh -M 0 -N -o "ServerAliveInterval 15" -o "ServerAliveCountMax 3" -o "ConnectTimeout 10" -o "ExitOnForwardFailure yes" -i /root/.ssh/id_rsa -p 22 root@adapter.pos365.vn -R 2222:localhost:22
+Restart=always
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target

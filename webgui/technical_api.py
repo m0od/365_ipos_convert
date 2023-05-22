@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from model import TechLog, Log
 from role import login_required
-from technical_celery import extract_product, add
+from technical_celery import extract_product
 from common_celery import convert
 from role import login_required
 from google.oauth2 import id_token
@@ -78,7 +78,7 @@ def api_technical_department():
     if request.method == 'GET':
         # if session is not None and session.get('accessCode') == 'IT@P0s365kms':
         #     return redirect('/dashboard')
-        return render_template('templates/login.html', gg_client_id=current_app.config['GOOGLE_CLIENT_ID'])
+        return render_template('login.html', gg_client_id=current_app.config['GOOGLE_CLIENT_ID'])
     else:
         try:
             info = id_token.verify_oauth2_token(request.form['credential'],
@@ -94,13 +94,13 @@ def api_technical_department():
             session['userId'] = userId
             return redirect('/dashboard')
         except:
-            return render_template('templates/login.html')
+            return render_template('login.html')
 
 
 @technical.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def api_technical_dashboard():
-    return render_template('templates/365.html')
+    return render_template('365.html')
 
 
 @technical.route('/api/orders', methods=['POST'])
@@ -155,7 +155,7 @@ def api_VendorSession():
         })
     except Exception as e:
         # print(e)
-        return str(e)
+        return Response(str(e), status=400)
 
 
 @technical.route('/api/extract/products', methods=['POST'])
@@ -183,10 +183,10 @@ r = redis.Redis(host="localhost", port=6380)
 #     r.publish("tasks", result.id)
 #     return "Message published!"
 
-@technical.route('/pub', methods=['GET'])
-def publish_message():
-    print(request.args)
-    message = request.args['message']
-    # Publish the message to the Redis channel
-    r.publish('my_channel', message)
-    return 'Message published successfully'
+# @technical.route('/pub', methods=['GET'])
+# def publish_message():
+#     print(request.args)
+#     message = request.args['message']
+#     # Publish the message to the Redis channel
+#     r.publish('my_channel', message)
+#     return 'Message published successfully'

@@ -1,12 +1,12 @@
 [Unit]
-Description=Celery Service 365ipos
+Description=Celery Service webtool
 After=network.target
 
 [Service]
 User=blackwings
-WorkingDirectory=/home/blackwings/365ipos
-Environment="PATH=/home/blackwings/365ipos/bin"
-ExecStart=/home/blackwings/365ipos/bin/celery -A common_celery.background worker -E --concurrency=32
+WorkingDirectory=/home/blackwings/webtool/webgui
+Environment="PATH=/home/blackwings/webtool/bin"
+ExecStart=/home/blackwings/webtool/bin/celery -A common_celery.background worker -E --concurrency=32
 
 [Install]
 WantedBy=default.target

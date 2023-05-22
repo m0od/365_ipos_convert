@@ -1,5 +1,28 @@
 $(document).ready(function () {
-
+    $(document).on('click', '#optBranch', function () {
+       $.ajax({
+            type: "POST",
+            data: {
+                cookie: $('#cookie').val().trim(),
+                link: $('#link').val().trim()
+            },
+            url: '/Config/VendorSession',
+            success: function (r) {
+                r.branch.forEach(function (value){
+                    $('#optBranch').append($('<option>', {
+                        value: value.Id,
+                        text: value.Name
+                    }));
+                });
+                $(`#optBranch option[value=${r.current.Id}]`).attr('selected','selected');
+                $('#status').text('Làm gì thì làm tớ mệt rồi!')
+            },
+            error: function (e){
+                console.log('aaaaa');
+                $('#status').html(e);
+            }
+        });
+    });
     $(document).on('click', '#login365', function (event) {
         $('#status').empty();
         $('#optBranch').empty();
@@ -24,28 +47,7 @@ $(document).ready(function () {
             success: function (res) {
                 $('#cookie').val(res.SessionId);
                 $('#status').html('Họ họ... Đang sync chi nhánh');
-                $.ajax({
-                    type: "POST",
-                    data: {
-                        cookie: $('#cookie').val(),
-                        link: link
-                    },
-                    url: '/Config/VendorSession',
-                    success: function (r) {
-                        r.branch.forEach(function (value){
-                            $('#optBranch').append($('<option>', {
-                                value: value.Id,
-                                text: value.Name
-                            }));
-                        });
-                        $(`#optBranch option[value=${r.current.Id}]`).attr('selected','selected');
-                        $('#status').text('Làm gì thì làm tớ mệt rồi!')
-                    },
-                    error: function (e){
-                        console.log('aaaaa');
-                        $('#status').html(e.responseText);
-                    }
-                });
+                $('#optBranch').click();
             },
             error: function (err) {
                 console.log(err);

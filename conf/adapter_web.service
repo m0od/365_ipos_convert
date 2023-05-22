@@ -1,13 +1,13 @@
 [Unit]
-Description=uWSGI instance to serve myproject
+Description=uWSGI webtool
 After=network.target
 
 [Service]
 User=blackwings
 Group=nginx
-WorkingDirectory=/home/blackwings/365ipos
-Environment="PATH=/home/blackwings/365ipos/bin"
-ExecStart=/home/blackwings/365ipos/bin/uwsgi --ini 365ipos.ini
+WorkingDirectory=/home/blackwings/webtool/webgui
+Environment="PATH=/home/blackwings/webtool/bin"
+ExecStart=/home/blackwings/webtool/bin/uwsgi --ini webgui.ini
 
 [Install]
 WantedBy=multi-user.target

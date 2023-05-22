@@ -24,22 +24,22 @@ redis_client = redis.Redis(host='localhost', port=6380)
 # pubsub.subscribe('my_channel')
 
 background = Celery('Backend kt365', backend=RESULT_BACKEND, broker=CELERY_BROKER_URL)
-@background.task
-def process_message(message):
-    print('process_message')
-    # Process the message
-    print(f'Received message: {message}')
+# @background.task
+# def process_message(message):
+#     print('process_message')
+#     # Process the message
+#     print(f'Received message: {message}')
+#
+# def handle_message():
+#     pubsub = redis_client.pubsub()
+#     pubsub.subscribe('my_channel')
+#     for message in pubsub.listen():
+#         print(message)
+#         if message['type'] == 'message':
+#             message_data = message['data'].decode('utf-8')
+#             process_message.delay(message_data)
 
-def handle_message():
-    pubsub = redis_client.pubsub()
-    pubsub.subscribe('my_channel')
-    for message in pubsub.listen():
-        print(message)
-        if message['type'] == 'message':
-            message_data = message['data'].decode('utf-8')
-            process_message.delay(message_data)
-
-handle_message()
+# handle_message()
 
 
 @background.task(bind=True)
@@ -92,9 +92,9 @@ def extract_product(self, domain=None, cookie=None, branch=None):
     log(rid=rid, state='SUCCESS', info={'sheet': sheet.sheet_id})
     return {'status': True, 'result': 'done'}
 
-@background.task
-def add(x, y):
-    return x + y
+# @background.task
+# def add(x, y):
+#     return x + y
 def log(rid=None, state=None, info=None):
     try:
         js = {'rid': rid, 'state': state, 'info': info}
