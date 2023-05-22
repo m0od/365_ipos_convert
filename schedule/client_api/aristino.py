@@ -27,8 +27,8 @@ class Aristino(object):
     def get_data(self, d_from):
         try:
             params = {
-                # 'ngay_bd': d_from.strftime('%Y-%m-%d'),
-                'ngay_bd': '2023-05-01',
+                'ngay_bd': d_from.strftime('%Y-%m-%d'),
+                # 'ngay_bd': '2023-05-01',
                 'ngay_kt': d_from.strftime('%Y-%m-%d'),
                 'ma_dvcs': self.LOCATION
             }
