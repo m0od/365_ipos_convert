@@ -166,7 +166,7 @@ def setup():
     if request.method == 'GET':
         token = request.args.get('token')
         if token == 'kt365aA@123':
-            return render_template('setup.html')
+            return render_template('templates/setup.html')
         else:
             return abort(404)
     else:

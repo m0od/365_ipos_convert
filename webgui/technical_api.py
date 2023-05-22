@@ -78,7 +78,7 @@ def api_technical_department():
     if request.method == 'GET':
         # if session is not None and session.get('accessCode') == 'IT@P0s365kms':
         #     return redirect('/dashboard')
-        return render_template('login.html', gg_client_id=current_app.config['GOOGLE_CLIENT_ID'])
+        return render_template('templates/login.html', gg_client_id=current_app.config['GOOGLE_CLIENT_ID'])
     else:
         try:
             info = id_token.verify_oauth2_token(request.form['credential'],
@@ -94,13 +94,13 @@ def api_technical_department():
             session['userId'] = userId
             return redirect('/dashboard')
         except:
-            return render_template('login.html')
+            return render_template('templates/login.html')
 
 
 @technical.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def api_technical_dashboard():
-    return render_template('365.html')
+    return render_template('templates/365.html')
 
 
 @technical.route('/api/orders', methods=['POST'])

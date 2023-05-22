@@ -1,13 +1,8 @@
-import sys
-sys.path.append('/home/blackwings/365ipos')
-from pos_api.adapter import submit_error, submit_order
+from os.path import dirname
 import requests
 import json
 from datetime import datetime
 from bs4 import BeautifulSoup
-import warnings
-
-warnings.filterwarnings("ignore")
 
 
 class Vans(object):
@@ -155,3 +150,13 @@ class Vans(object):
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Payment] {str(e)}')
                 pass
+
+
+if __name__.__contains__('schedule.client_api'):
+    import sys
+    import warnings
+
+    warnings.filterwarnings("ignore")
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order

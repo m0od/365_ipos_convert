@@ -1,13 +1,14 @@
-import sys
-sys.path.append('/home/blackwings/365ipos')
+from os.path import dirname
 from datetime import datetime
 import requests
-from pos_api.adapter import submit_error, submit_order
 
 
 class MeganePrince(object):
 
     def __init__(self):
+        # PATH = dirname(dirname(__file__))
+        # sys.path.append(PATH)
+        # from schedule.pos_api.adapter import submit_error, submit_order
         self.ADAPTER_RETAILER = 'megane_prince_aeonhd'
         self.ADAPTER_TOKEN = '1a1238d2deb8d67f44bf97432f2a6b98f3b46c4fab5b4938ba7782b430309023'
         # self.ADAPTER_RETAILER = 'retry'
@@ -67,7 +68,6 @@ class MeganePrince(object):
                     payoo += float(raw[14])
                     voucher = float(raw[15])
                     e_wallet = float(raw[16])
-                    # print(raw, 'total',total,'cash', cash,'payoo', payoo,'voucher', voucher,'other', other)
                     if total != 0 or cash != 0 or payoo != 0 and e_wallet != 0:
                         pms = []
                         if cash != 0:
@@ -89,7 +89,6 @@ class MeganePrince(object):
                             'OrderDetails': [],
                             'PaymentMethods': pms
                         }
-                        # print(send)
                         submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
                         if e_wallet < 0:
                             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
@@ -99,7 +98,14 @@ class MeganePrince(object):
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[FETCH DATA] api status {res.status_code}')
                 return False
         except Exception as e:
+            print(e)
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[FETCH DATA] {str(e)}')
             return False
 
-# MeganePrince().get_data('')
+
+if __name__.__contains__('schedule.client_api'):
+    import sys
+
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order

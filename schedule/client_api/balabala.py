@@ -1,8 +1,6 @@
-import sys
-sys.path.append('/home/blackwings/365ipos')
-from client_api.font_vi import Converter
 import pymssql
-from pos_api.adapter import submit_order, submit_error
+from os.path import dirname
+
 
 class Balabala(object):
     def __init__(self):
@@ -17,17 +15,17 @@ class Balabala(object):
         self.CURSOR = None
         self.orders = {}
         self.SQL_QUERY = "SELECT TOP 10000 dbo.SlBlM.ID AS order_code, dbo.SlBlM.InsertDate AS pur_date, dbo.SlBlM.Tien_GtGt as vat," \
-                   "dbo.SlBlM.Tien_Hang AS total, dbo.DmH.Ma_Hang AS product_code, dbo.DmH.Ten_Hang AS name," \
-                   "dbo.SlBlD.Don_Gia AS price, dbo.SlBlD.So_Luong AS qty, dbo.SlBlD.Tien_CK + dbo.SlBlD.Tien_Giam AS discount," \
-                   "dbo.dmnx.Ma_Nx as payment_method " \
-                   "FROM dbo.SlBlD " \
-                   "LEFT JOIN dbo.SlBlM ON dbo.SlBlD.ID = dbo.SlBlM.ID " \
-                   "LEFT JOIN dbo.DmH ON dbo.SlBlD.ID_Hang = dbo.DmH.ID " \
-                   "LEFT JOIN dbo.DmDvt ON dbo.DmH.ID_DvCs = dbo.DmDvt.ID " \
-                   "LEFT JOIN dbo.DmNx ON dbo.SlBlM.ID_Nx = dbo.DmNx.ID " \
-                   "WHERE dbo.SlBlD.ID_Hang IS NOT NULL AND dbo.SlBlM.SNgay='{}' " \
-                   "AND ISNULL(dbo.SlBlD.ID_Kho, dbo.SlBlM.ID_Kho) = 61 " \
-                   "ORDER BY dbo.SlBlM.ID"
+                         "dbo.SlBlM.Tien_Hang AS total, dbo.DmH.Ma_Hang AS product_code, dbo.DmH.Ten_Hang AS name," \
+                         "dbo.SlBlD.Don_Gia AS price, dbo.SlBlD.So_Luong AS qty, dbo.SlBlD.Tien_CK + dbo.SlBlD.Tien_Giam AS discount," \
+                         "dbo.dmnx.Ma_Nx as payment_method " \
+                         "FROM dbo.SlBlD " \
+                         "LEFT JOIN dbo.SlBlM ON dbo.SlBlD.ID = dbo.SlBlM.ID " \
+                         "LEFT JOIN dbo.DmH ON dbo.SlBlD.ID_Hang = dbo.DmH.ID " \
+                         "LEFT JOIN dbo.DmDvt ON dbo.DmH.ID_DvCs = dbo.DmDvt.ID " \
+                         "LEFT JOIN dbo.DmNx ON dbo.SlBlM.ID_Nx = dbo.DmNx.ID " \
+                         "WHERE dbo.SlBlD.ID_Hang IS NOT NULL AND dbo.SlBlM.SNgay='{}' " \
+                         "AND ISNULL(dbo.SlBlD.ID_Kho, dbo.SlBlM.ID_Kho) = 61 " \
+                         "ORDER BY dbo.SlBlM.ID"
         self.METHOD = {
             '2-TOS.THE.BA': 'THẺ',
             '1-TOS.TM.BA': 'CASH'
@@ -60,7 +58,7 @@ class Balabala(object):
                     if self.METHOD.get(pm) is not None:
                         pm = self.METHOD.get(pm)
                     self.orders.update({
-                        order_code:{
+                        order_code: {
                             'Code': order_code,
                             'Status': 2,
                             'PurchaseDate': row['pur_date'].strftime('%Y-%m-%d %H:%M:%S'),
@@ -119,6 +117,12 @@ class Balabala(object):
     #         id = api_accounts.put_payment_method(browser, 'am069', f"{row['Ma_Nx'].strip()}")
     #         print(f"'{row['Ma_Nx'].strip()}': {id}")
     #         row = self.cursor.fetchone()
-# b = Balabala()
-# b.pm()
 
+
+if __name__.__contains__('schedule.client_api'):
+    import sys
+
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order
+    from schedule.client_api.font_vi import Converter

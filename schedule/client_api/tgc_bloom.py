@@ -1,10 +1,8 @@
+from os.path import dirname
 import requests
 import json
-import sys
 import xmltodict
-sys.path.append('/home/blackwings/365ipos')
-from pos_api.adapter import submit_order, submit_error
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class TGC_BLOOM(object):
@@ -137,4 +135,10 @@ class TGC_BLOOM(object):
         except Exception as e:
             submit_error(retailer='TGC_BLOOM', reason=f'[Fetch Data] {str(e)}')
 
-# TGC_BLOOM().get_data(datetime.now() - timedelta(days=1))
+
+if __name__.__contains__('schedule.client_api'):
+    import sys
+
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order

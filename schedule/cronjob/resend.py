@@ -5,6 +5,7 @@ import requests
 URl = 'https://adapter.pos365.vn'
 TOKEN = {'token': 'kt365aA@123'}
 
+
 def submit_error(retailer=None, reason=None):
     try:
         TELE_TOKEN = '6094052614:AAHhC8l1GKHXwBlLCHxWXySLxOSjFnvteB4'
@@ -19,6 +20,7 @@ def submit_error(retailer=None, reason=None):
     except:
         pass
 
+
 def submit_job(headers=None, data=None):
     while True:
         try:
@@ -27,6 +29,8 @@ def submit_job(headers=None, data=None):
                 break
         except Exception as e:
             submit_error(retailer=headers['retailer'], reason=f'{str(e)} {data}')
+
+
 while True:
     try:
         jobs = requests.get(f'{URl}/fetch_log', params=TOKEN).json()

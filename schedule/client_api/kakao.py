@@ -1,13 +1,10 @@
-import sys
-sys.path.append('/home/blackwings/365ipos')
-from pos_api.adapter import submit_order, submit_error
-
-
+from os.path import dirname
 import requests
 import hashlib
 import string
 import random
 from datetime import datetime
+
 
 def random_str():
     return ''.join(random.choice(string.ascii_letters) for i in range(8)).encode('utf-8')
@@ -237,4 +234,9 @@ class Kakao(object):
             skip += 100
 
 
+if __name__.__contains__('schedule.client_api'):
+    import sys
 
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order

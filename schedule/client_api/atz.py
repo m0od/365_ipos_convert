@@ -1,11 +1,7 @@
-import sys
-sys.path.append('/home/blackwings/365ipos')
 import requests
 import json
-
+from os.path import dirname
 from requests_toolbelt import MultipartEncoder
-
-from pos_api.adapter import submit_order, submit_error
 
 
 class ATZ(object):
@@ -223,3 +219,11 @@ class ATZ(object):
                 except Exception as e:
                     submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Data] {str(e)}')
                     pass
+
+
+if __name__.__contains__('schedule.client_api'):
+    import sys
+
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order

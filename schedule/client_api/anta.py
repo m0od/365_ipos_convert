@@ -1,8 +1,5 @@
-import sys
-sys.path.append('/home/blackwings/365ipos')
-from client_api.font_vi import Converter
 import pymssql
-from pos_api.adapter import submit_error, submit_order
+from os.path import dirname
 
 
 class Anta(object):
@@ -16,19 +13,19 @@ class Anta(object):
         self.DATABASE = 'AB_Augges'
         self.CONN = None
         self.CURSOR = None
-        self.orders={}
+        self.orders = {}
         self.SQL_QUERY = "SELECT TOP 10000 dbo.SlBlM.ID AS order_code, dbo.SlBlM.InsertDate AS pur_date, dbo.SlBlM.Tien_GtGt as vat," \
-                  "dbo.SlBlM.Tien_Hang AS total, dbo.DmH.Ma_Hang AS product_code, dbo.DmH.Ten_Hang AS name," \
-                  "dbo.SlBlD.Don_Gia AS price, dbo.SlBlD.So_Luong AS qty, dbo.SlBlD.Tien_CK + dbo.SlBlD.Tien_Giam AS discount," \
-                  "dbo.dmnx.Ma_Nx as payment_method " \
-                  "FROM dbo.SlBlD " \
-                  "LEFT JOIN dbo.SlBlM ON dbo.SlBlD.ID = dbo.SlBlM.ID " \
-                  "LEFT JOIN dbo.DmH ON dbo.SlBlD.ID_Hang = dbo.DmH.ID " \
-                  "LEFT JOIN dbo.DmDvt ON dbo.DmH.ID_DvCs = dbo.DmDvt.ID " \
-                  "LEFT JOIN dbo.DmNx ON dbo.SlBlM.ID_Nx = dbo.DmNx.ID " \
-                  "WHERE dbo.SlBlD.ID_Hang IS NOT NULL AND dbo.SlBlM.SNgay='{}' " \
-                  "AND ISNULL(dbo.SlBlD.ID_Kho, dbo.SlBlM.ID_Kho) = 166 " \
-                  "ORDER BY dbo.SlBlM.ID"
+                         "dbo.SlBlM.Tien_Hang AS total, dbo.DmH.Ma_Hang AS product_code, dbo.DmH.Ten_Hang AS name," \
+                         "dbo.SlBlD.Don_Gia AS price, dbo.SlBlD.So_Luong AS qty, dbo.SlBlD.Tien_CK + dbo.SlBlD.Tien_Giam AS discount," \
+                         "dbo.dmnx.Ma_Nx as payment_method " \
+                         "FROM dbo.SlBlD " \
+                         "LEFT JOIN dbo.SlBlM ON dbo.SlBlD.ID = dbo.SlBlM.ID " \
+                         "LEFT JOIN dbo.DmH ON dbo.SlBlD.ID_Hang = dbo.DmH.ID " \
+                         "LEFT JOIN dbo.DmDvt ON dbo.DmH.ID_DvCs = dbo.DmDvt.ID " \
+                         "LEFT JOIN dbo.DmNx ON dbo.SlBlM.ID_Nx = dbo.DmNx.ID " \
+                         "WHERE dbo.SlBlD.ID_Hang IS NOT NULL AND dbo.SlBlM.SNgay='{}' " \
+                         "AND ISNULL(dbo.SlBlD.ID_Kho, dbo.SlBlM.ID_Kho) = 166 " \
+                         "ORDER BY dbo.SlBlM.ID"
         self.METHOD = {
             'VISATTT_A': 'THẺ',
             'TM.TNHA_AN': 'CASH',
@@ -108,3 +105,12 @@ class Anta(object):
         self.CONN.close()
         for _, js in self.orders.items():
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
+
+
+if __name__.__contains__('schedule.client_api'):
+    import sys
+
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order
+    from schedule.client_api.font_vi import Converter

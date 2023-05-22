@@ -15,6 +15,7 @@ def submit_order(retailer=None, token=None, data=None):
                 'authorization': token
             }
             res = requests.post(URL, headers=headers, json=data, timeout=10)
+            # print(res.text)
             if res.json()['result_id'] is not None: return True
             return False
         except ConnectionError as ce:
@@ -34,5 +35,9 @@ def submit_error(retailer=None, reason=None):
             'parse_mode': 'HTML'
         }
         requests.post(URL, data=DATA)
-    except:
+    except Exception as e:
+        print(e)
         pass
+
+if __name__ == '__main__':
+    print('XXX')

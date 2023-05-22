@@ -1,24 +1,24 @@
 import sys
 
-sys.path.append('/home/blackwings/365ipos')
+# sys.path.append('/home/blackwings/365ipos')
 from client_api.megane import MeganePrince
-from client_api.boo import Boo
-from client_api.lemino import Lemino
-from client_api.sneaker_buzz import SneakerBuzz
-from client_api.vans import Vans
-from client_api.ato import ATO
-from client_api.anta import Anta
-from client_api.antakids import AntaKids
-from client_api.atz import ATZ
-from client_api.balabala import Balabala
-from client_api.jm import JM
-from client_api.tgc_bloom import TGC_BLOOM
+from schedule.client_api.boo import Boo
+from schedule.client_api.lemino import Lemino
+from schedule.client_api.sneaker_buzz import SneakerBuzz
+from schedule.client_api.vans import Vans
+from schedule.client_api.ato import ATO
+from schedule.client_api.anta import Anta
+from schedule.client_api.antakids import AntaKids
+from schedule.client_api.atz import ATZ
+from schedule.client_api.balabala import Balabala
+from schedule.client_api.jm import JM
+from schedule.client_api.tgc_bloom import TGC_BLOOM
 from concurrent import futures
 from datetime import datetime, timedelta
 from pytz import timezone
-from client_api.aokang import AoKang
-from client_api.adore import Adore
-from client_api.kakao import Kakao
+from schedule.client_api.aokang import AoKang
+from schedule.client_api.adore import Adore
+from schedule.client_api.kakao import Kakao
 
 tgc_bloom = TGC_BLOOM()
 ao = AoKang()

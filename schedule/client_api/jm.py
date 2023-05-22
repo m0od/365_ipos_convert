@@ -1,9 +1,8 @@
-import sys
-sys.path.append('/home/blackwings/365ipos')
+from os.path import dirname
+
 import requests
 import json
 from requests_toolbelt import MultipartEncoder
-from pos_api.adapter import submit_order, submit_error
 
 
 class JM(object):
@@ -113,6 +112,7 @@ class JM(object):
             return False
         except:
             return False
+
     def access_token(self):
         try:
             data = {
@@ -211,7 +211,7 @@ class JM(object):
                                 'Discount': 0,
                                 'Status': 2,
                                 'VAT': 0,
-                                'AdditionalServices': [{'Name': 'Hoàn VAT', 'Value': bill['money']*minus}],
+                                'AdditionalServices': [{'Name': 'Hoàn VAT', 'Value': bill['money'] * minus}],
                                 'PurchaseDate': bill['createdDateTime'],
                                 'OrderDetails': []
                             }
@@ -223,4 +223,10 @@ class JM(object):
                     submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Data] {str(e)}')
                     pass
 
-# JM().get_data('2023-05-08')
+
+if __name__.__contains__('schedule.client_api'):
+    import sys
+
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order

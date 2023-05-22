@@ -1,11 +1,6 @@
-import sys
-sys.path.append('/home/blackwings/365ipos')
-from pos_api.adapter import submit_order, submit_error
+from os.path import dirname
 import requests
 from datetime import datetime, timedelta
-import warnings
-
-warnings.filterwarnings("ignore")
 
 
 class Boo(object):
@@ -154,3 +149,13 @@ class Boo(object):
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
             # print(json.dumps(js))
             # break
+
+
+if __name__.__contains__('schedule.client_api'):
+    import warnings
+    import sys
+
+    warnings.filterwarnings("ignore")
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order

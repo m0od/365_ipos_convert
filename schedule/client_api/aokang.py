@@ -1,8 +1,6 @@
-import sys
-sys.path.append('/home/blackwings/365ipos')
-from client_api.font_vi import Converter
 import pymssql
-from pos_api.adapter import submit_error, submit_order
+from os.path import dirname
+
 
 class AoKang(object):
     def __init__(self):
@@ -110,4 +108,11 @@ class AoKang(object):
         for _, js in self.orders.items():
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
 
-# AoKang().get_data(('230516'))
+
+if __name__.__contains__('schedule.client_api'):
+    import sys
+
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order
+    from schedule.client_api.font_vi import Converter

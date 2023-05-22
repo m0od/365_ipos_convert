@@ -1,7 +1,4 @@
-import sys
-
-sys.path.append('/home/blackwings/365ipos')
-from pos_api.adapter import submit_order, submit_error
+from os.path import dirname
 import requests
 import hashlib
 import string
@@ -238,5 +235,11 @@ class Adore(object):
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
                 index += 1
             skip += 100
-# n = datetime.strptime('2022-06-15', '%Y-%m-%d')
-# Adore().get_data(datetime.strptime('2022-06-15', '%Y-%m-%d'), datetime.strptime('2022-06-16', '%Y-%m-%d'))
+
+
+if __name__.__contains__('schedule.client_api'):
+    import sys
+
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order

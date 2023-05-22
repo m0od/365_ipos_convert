@@ -1,6 +1,4 @@
-import sys
-sys.path.append('/home/blackwings/365ipos')
-from pos_api.adapter import submit_order, submit_error
+from os.path import dirname
 import requests
 from datetime import datetime
 
@@ -37,7 +35,9 @@ class ATO(object):
             res = r.json()
             if res['success'] is False: return
             data = res['data']
+            print(data)
         except Exception as e:
+            print(e)
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Data] {str(e)}')
             return
         ods = {}
@@ -113,7 +113,7 @@ class ATO(object):
                             'TotalPayment': int(d['Tổng Đơn']) * minus,
                             'Status': 0,
                             'ReturnDetails': od,
-                            'PaymentMethods': [{'Name': method,'Value': int(d['Tổng Đơn'] * minus)}]
+                            'PaymentMethods': [{'Name': method, 'Value': int(d['Tổng Đơn'] * minus)}]
                         }
                         ods.update({code: r})
                     else:
@@ -130,4 +130,10 @@ class ATO(object):
         for _, js in ods.items():
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
 
-# ATO().get_data(datetime.strptime('2023-04-23','%Y-%m-%d'), datetime.strptime('2023-04-23','%Y-%m-%d'))
+
+if __name__.__contains__('schedule.client_api'):
+    import sys
+
+    PATH = dirname(dirname(__file__))
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order
