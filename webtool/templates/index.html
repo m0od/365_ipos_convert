@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+        <title>Chat</title>
+
+    </head>
+    <body>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="{{ request.script_root }}/static/js/app.js" type="application/javascript"></script>
+
+        <h1>WebSocket Chat</h1>
+<!--        <form action="" onsubmit="sendMessage(event)">-->
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button id="send">Send</button>
+<!--        </form>-->
+        <ul id='messages'>
+        </ul>
+    </body>
+</html>
