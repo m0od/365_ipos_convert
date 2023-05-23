@@ -41,9 +41,9 @@ def main():
     else:
         with futures.ThreadPoolExecutor(max_workers=2) as mt:
             thread = [
-                # mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
-                # mt.submit(megane.get_data, now - timedelta(days=1))
-                mt.submit(aristino.get_data, now - timedelta(days=1))
+                mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
+                mt.submit(megane.get_data, now - timedelta(days=1))
+                # mt.submit(aristino.get_data, now - timedelta(days=1))
                 # mt.submit(ao.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
                 # mt.submit(bl.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
                 # mt.submit(at.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
