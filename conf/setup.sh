@@ -1,4 +1,40 @@
 #!/bin/sh
+
+#env Centos7.9.2009
+yum -y update
+echo "[mariadb]
+name = MariaDB
+baseurl = http://yum.mariadb.org/10.11.3/centos7-amd64
+gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+gpgcheck=1" > /etc/yum.repos.d/MariaDB.repo
+yum clean all
+yum -y group install "Development Tools"
+yum -y install epel-release
+yum -y install centos-release-scl
+yum -y install nano mariadb-server mariadb-devel nginx redis gcc perl-core pcre-devel wget zlib-devel devtoolset-8
+scl enable devtoolset-8 -- bash
+wget https://ftp.openssl.org/source/openssl-3.1.0.tar.gz
+tar -xvf openssl-3.1.0.tar.gz
+rm -rf openssl-3.1.0.tar.gz
+cd openssl-3.1.0
+./config --prefix=/usr --openssldir=/etc/ssl --libdir=lib no-shared zlib-dynamic
+make && make install
+echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64" > /etc/profile.d/openssl.sh
+source /etc/profile.d/openssl.sh
+cd .. && rm -rf openssl-3.1.0
+wget https://www.python.org/ftp/python/3.11.3/Python-3.11.3.tgz
+tar -xvf Python-3.11.3.tgz
+rm -rf Python-3.11.3.tgz
+cd Python-3.11.3
+./configure --enable-optimizations --with-openssl=/usr
+make altinstall
+cd .. && rm -rf Python-3.11.3
+mkdir test
+python3.11 -m venv test
+cd test
+source bin/activate
+pip install uwsgi
+
 cd /home/blackwings/webtool/conf
 cp redis_6380.conf /etc/redis_6380.conf
 cp redis_6380.service /usr/lib/systemd/system/redis_6380.service

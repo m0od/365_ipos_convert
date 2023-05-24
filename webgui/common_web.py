@@ -7,8 +7,8 @@ from sqlalchemy import or_
 from common_celery import convert
 from datetime import datetime, timedelta
 from flask import request, Blueprint, abort, render_template, Response, send_file, jsonify, redirect, url_for, session
-from flask_sqlalchemy import SQLAlchemy
-from model import TenAntConfig, Log, TenAntProduct, TenAntPayment
+# from flask_sqlalchemy import SQLAlchemy
+from model import TenAntConfig, Log, TenAntProduct, TenAntPayment, db
 from pos365api import API
 
 
@@ -18,7 +18,7 @@ class MissingInformationException(Exception):
         super().__init__(self.message)
 
 
-db = SQLAlchemy()
+# db = SQLAlchemy()
 common = Blueprint('common', __name__)
 
 
@@ -268,6 +268,7 @@ def orders():
             db.session.rollback()
         return {'result_id': result.id}
     except Exception as e:
+        print(e)
         return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
 
 

@@ -49,16 +49,16 @@ class AoKang(object):
         self.orders = {}
         if not self.login(): return False
         try:
-            self.CURSOR.execute(self.SQL_QUERY.format(date_from))
+            self.CURSOR.execute(self.SQL_QUERY.format(date_from.strftime('%y%m%d')))
             row = self.CURSOR.fetchone()
             while row:
 
                 order_code = str(row['order_code']).strip()
+                pm = row['payment_method'].strip()
+                if self.METHOD.get(pm) is not None:
+                    pm = self.METHOD.get(pm)
                 if self.orders.get(order_code) is None:
                     total = int(row['total']) - int(row['discount'])
-                    pm = row['payment_method'].strip()
-                    if self.METHOD.get(pm) is not None:
-                        pm = self.METHOD.get(pm)
                     self.orders.update({
                         order_code: {
                             'Code': order_code,
@@ -97,7 +97,13 @@ class AoKang(object):
                         'Discount': self.orders[order_code]['Discount'] + int(row['discount']),
                         'OrderDetails': od,
                         'Total': total,
-                        'TotalPayment': total
+                        'TotalPayment': total,
+                        'PaymentMethods': [
+                            {
+                                'Name': pm,
+                                'Value': total
+                            }
+                        ]
                     })
 
                 row = self.CURSOR.fetchone()
@@ -106,6 +112,7 @@ class AoKang(object):
             pass
         self.CONN.close()
         for _, js in self.orders.items():
+            # print(js)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
 
 

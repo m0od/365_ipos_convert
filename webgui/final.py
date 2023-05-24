@@ -1,6 +1,6 @@
 import os
 
-from flask_socketio import SocketIO
+# from flask_socketio import SocketIO
 
 from common_web import common
 from model import db
@@ -29,7 +29,8 @@ class Config(object):
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     GOOGLE_CLIENT_ID = '263581281598-tkh7tha61k78kb55c670sjfu6651m3a1.apps.googleusercontent.com'
 
-wss = SocketIO()
+
+# wss = SocketIO()
 def create_app(config=Config):
     app = Flask(__name__)
     # CORS(app)
@@ -40,7 +41,8 @@ def create_app(config=Config):
     app.register_blueprint(common)
     app.register_blueprint(technical)
     # app.register_blueprint(noti)
-    wss.init_app(app)
+    # app.init_app(app)
+    # init_utils(app)
     return app
 
 

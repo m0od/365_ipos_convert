@@ -23,10 +23,10 @@ def main():
         with futures.ThreadPoolExecutor(max_workers=14) as mt:
             thread = [
                 mt.submit(tgc_bloom.get_data, now - timedelta(days=1)),
-                mt.submit(ao.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-                mt.submit(bl.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-                mt.submit(at.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-                mt.submit(atk.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
+                mt.submit(ao.get_data, (now - timedelta(days=1))),
+                mt.submit(bl.get_data, (now - timedelta(days=1))),
+                mt.submit(at.get_data, (now - timedelta(days=1))),
+                mt.submit(atk.get_data, (now - timedelta(days=1))),
                 mt.submit(jm.get_data, (now - timedelta(days=1)).strftime('%Y-%m-%d')),
                 mt.submit(lemino.get_data, now - timedelta(days=1)),
                 mt.submit(boo.get_data, now - timedelta(days=1)),
@@ -39,17 +39,22 @@ def main():
             ]
             futures.as_completed(thread)
     else:
-        with futures.ThreadPoolExecutor(max_workers=2) as mt:
-            thread = [
-                mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
-                mt.submit(megane.get_data, now - timedelta(days=1))
-                # mt.submit(aristino.get_data, now - timedelta(days=1))
-                # mt.submit(ao.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-                # mt.submit(bl.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-                # mt.submit(at.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-                # mt.submit(atk.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-            ]
-            futures.as_completed(thread)
+        for i in range(1,24):
+            with futures.ThreadPoolExecutor(max_workers=2) as mt:
+                thread = [
+                    mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
+                    mt.submit(megane.get_data, now - timedelta(days=1))
+                    # mt.submit(ao.get_data, (now - timedelta(days=i))),
+                    # mt.submit(bl.get_data, (now - timedelta(days=i))),
+                    # mt.submit(at.get_data, (now - timedelta(days=i))),
+                    # mt.submit(atk.get_data, (now - timedelta(days=i)))
+                    # mt.submit(aristino.get_data, now - timedelta(days=1))
+                    # mt.submit(ao.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
+                    # mt.submit(bl.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
+                    # mt.submit(at.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
+                    # mt.submit(atk.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
+                ]
+                futures.as_completed(thread)
 
 
 if __name__ == '__main__':

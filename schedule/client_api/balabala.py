@@ -48,15 +48,15 @@ class Balabala(object):
         if not self.login(): return False
         try:
             # print(self.SQL_QUERY.format(date_from))
-            self.CURSOR.execute(self.SQL_QUERY.format(date_from))
+            self.CURSOR.execute(self.SQL_QUERY.format(date_from.strftime('%y%m%d')))
             row = self.CURSOR.fetchone()
             while row:
                 order_code = str(row['order_code']).strip()
+                pm = row['payment_method'].strip()
+                if self.METHOD.get(pm) is not None:
+                    pm = self.METHOD.get(pm)
                 if self.orders.get(order_code) is None:
                     total = int(row['total']) - int(row['discount'])
-                    pm = row['payment_method'].strip()
-                    if self.METHOD.get(pm) is not None:
-                        pm = self.METHOD.get(pm)
                     self.orders.update({
                         order_code: {
                             'Code': order_code,
@@ -95,7 +95,13 @@ class Balabala(object):
                         'Discount': self.orders[order_code]['Discount'] + int(row['discount']),
                         'OrderDetails': od,
                         'Total': total,
-                        'TotalPayment': total
+                        'TotalPayment': total,
+                        'PaymentMethods': [
+                            {
+                                'Name': pm,
+                                'Value': total
+                            }
+                        ]
                     })
                 # print(orders.get(order_code))
                 row = self.CURSOR.fetchone()
