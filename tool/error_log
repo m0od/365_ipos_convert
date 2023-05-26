@@ -1,0 +1,1311 @@
+[2023-05-25 19:50:08 +0700] [48243] [DEBUG] Current configuration:
+  config: config.py
+  wsgi_app: None
+  bind: ['/home/blackwings/webtool/tool/techtool.sock']
+  backlog: 2048
+  workers: 2
+  worker_class: uvicorn.workers.UvicornWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/blackwings/webtool/tool
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 1000
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: /home/blackwings/webtool/tool/access_log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: /home/blackwings/webtool/tool/error_log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.main:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f1f5f637560>
+  on_reload: <function OnReload.on_reload at 0x7f1f5f6376a0>
+  when_ready: <function WhenReady.when_ready at 0x7f1f5f6377e0>
+  pre_fork: <function Prefork.pre_fork at 0x7f1f5f637920>
+  post_fork: <function Postfork.post_fork at 0x7f1f5f637a60>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f1f5f637ba0>
+  worker_int: <function WorkerInt.worker_int at 0x7f1f5f637ce0>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f1f5f637e20>
+  pre_exec: <function PreExec.pre_exec at 0x7f1f5f637f60>
+  pre_request: <function PreRequest.pre_request at 0x7f1f5f6480e0>
+  post_request: <function PostRequest.post_request at 0x7f1f5f648180>
+  child_exit: <function ChildExit.child_exit at 0x7f1f5f6482c0>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f1f5f648400>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f1f5f648540>
+  on_exit: <function OnExit.on_exit at 0x7f1f5f648680>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2023-05-25 19:50:08 +0700] [48243] [INFO] Starting gunicorn 20.1.0
+[2023-05-25 19:50:08 +0700] [48243] [DEBUG] connection to ('/home/blackwings/webtool/tool/techtool.sock', 8000) failed: [Errno -2] Name or service not known
+[2023-05-25 19:50:08 +0700] [48243] [ERROR] Retrying in 1 second.
+[2023-05-25 19:50:09 +0700] [48243] [DEBUG] connection to ('/home/blackwings/webtool/tool/techtool.sock', 8000) failed: [Errno -2] Name or service not known
+[2023-05-25 19:50:09 +0700] [48243] [ERROR] Retrying in 1 second.
+[2023-05-25 19:50:10 +0700] [48243] [DEBUG] connection to ('/home/blackwings/webtool/tool/techtool.sock', 8000) failed: [Errno -2] Name or service not known
+[2023-05-25 19:50:10 +0700] [48243] [ERROR] Retrying in 1 second.
+[2023-05-25 19:50:11 +0700] [48243] [DEBUG] connection to ('/home/blackwings/webtool/tool/techtool.sock', 8000) failed: [Errno -2] Name or service not known
+[2023-05-25 19:50:11 +0700] [48243] [ERROR] Retrying in 1 second.
+[2023-05-25 19:50:12 +0700] [48243] [DEBUG] connection to ('/home/blackwings/webtool/tool/techtool.sock', 8000) failed: [Errno -2] Name or service not known
+[2023-05-25 19:50:12 +0700] [48243] [ERROR] Retrying in 1 second.
+[2023-05-25 19:50:13 +0700] [48243] [ERROR] Can't connect to ('/home/blackwings/webtool/tool/techtool.sock', 8000)
+[2023-05-25 19:51:09 +0700] [48256] [DEBUG] Current configuration:
+  config: config.py
+  wsgi_app: None
+  bind: ['/home/blackwings/webtool/tool/techtool.sock']
+  backlog: 2048
+  workers: 2
+  worker_class: uvicorn.workers.UvicornWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/blackwings/webtool/tool
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 1000
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: /home/blackwings/webtool/tool/access_log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: /home/blackwings/webtool/tool/error_log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.main:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f0170547560>
+  on_reload: <function OnReload.on_reload at 0x7f01705476a0>
+  when_ready: <function WhenReady.when_ready at 0x7f01705477e0>
+  pre_fork: <function Prefork.pre_fork at 0x7f0170547920>
+  post_fork: <function Postfork.post_fork at 0x7f0170547a60>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f0170547ba0>
+  worker_int: <function WorkerInt.worker_int at 0x7f0170547ce0>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f0170547e20>
+  pre_exec: <function PreExec.pre_exec at 0x7f0170547f60>
+  pre_request: <function PreRequest.pre_request at 0x7f01705540e0>
+  post_request: <function PostRequest.post_request at 0x7f0170554180>
+  child_exit: <function ChildExit.child_exit at 0x7f01705542c0>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f0170554400>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f0170554540>
+  on_exit: <function OnExit.on_exit at 0x7f0170554680>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2023-05-25 19:51:09 +0700] [48256] [INFO] Starting gunicorn 20.1.0
+[2023-05-25 19:51:09 +0700] [48256] [DEBUG] connection to ('/home/blackwings/webtool/tool/techtool.sock', 8000) failed: [Errno -2] Name or service not known
+[2023-05-25 19:51:09 +0700] [48256] [ERROR] Retrying in 1 second.
+[2023-05-25 19:51:10 +0700] [48256] [DEBUG] connection to ('/home/blackwings/webtool/tool/techtool.sock', 8000) failed: [Errno -2] Name or service not known
+[2023-05-25 19:51:10 +0700] [48256] [ERROR] Retrying in 1 second.
+[2023-05-25 19:51:11 +0700] [48256] [DEBUG] connection to ('/home/blackwings/webtool/tool/techtool.sock', 8000) failed: [Errno -2] Name or service not known
+[2023-05-25 19:51:11 +0700] [48256] [ERROR] Retrying in 1 second.
+[2023-05-25 19:51:12 +0700] [48256] [DEBUG] connection to ('/home/blackwings/webtool/tool/techtool.sock', 8000) failed: [Errno -2] Name or service not known
+[2023-05-25 19:51:12 +0700] [48256] [ERROR] Retrying in 1 second.
+[2023-05-25 19:51:13 +0700] [48256] [DEBUG] connection to ('/home/blackwings/webtool/tool/techtool.sock', 8000) failed: [Errno -2] Name or service not known
+[2023-05-25 19:51:13 +0700] [48256] [ERROR] Retrying in 1 second.
+[2023-05-25 19:51:14 +0700] [48256] [ERROR] Can't connect to ('/home/blackwings/webtool/tool/techtool.sock', 8000)
+[2023-05-25 19:54:08 +0700] [48377] [DEBUG] Current configuration:
+  config: config.py
+  wsgi_app: None
+  bind: ['unix:/home/blackwings/webtool/tool/techtool.sock']
+  backlog: 2048
+  workers: 2
+  worker_class: uvicorn.workers.UvicornWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/blackwings/webtool/tool
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 996
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: /home/blackwings/webtool/tool/access_log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: /home/blackwings/webtool/tool/error_log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f1c7415f4c0>
+  on_reload: <function OnReload.on_reload at 0x7f1c7415f600>
+  when_ready: <function WhenReady.when_ready at 0x7f1c7415f740>
+  pre_fork: <function Prefork.pre_fork at 0x7f1c7415f880>
+  post_fork: <function Postfork.post_fork at 0x7f1c7415f9c0>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f1c7415fb00>
+  worker_int: <function WorkerInt.worker_int at 0x7f1c7415fc40>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f1c7415fd80>
+  pre_exec: <function PreExec.pre_exec at 0x7f1c7415fec0>
+  pre_request: <function PreRequest.pre_request at 0x7f1c7416c040>
+  post_request: <function PostRequest.post_request at 0x7f1c7416c0e0>
+  child_exit: <function ChildExit.child_exit at 0x7f1c7416c220>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f1c7416c360>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f1c7416c4a0>
+  on_exit: <function OnExit.on_exit at 0x7f1c7416c5e0>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2023-05-25 19:54:08 +0700] [48377] [INFO] Starting gunicorn 20.1.0
+[2023-05-25 19:54:08 +0700] [48377] [DEBUG] Arbiter booted
+[2023-05-25 19:54:08 +0700] [48377] [INFO] Listening at: unix:/home/blackwings/webtool/tool/techtool.sock (48377)
+[2023-05-25 19:54:08 +0700] [48377] [INFO] Using worker: uvicorn.workers.UvicornWorker
+[2023-05-25 19:54:08 +0700] [48379] [INFO] Booting worker with pid: 48379
+[2023-05-25 19:54:08 +0700] [48380] [INFO] Booting worker with pid: 48380
+[2023-05-25 19:54:08 +0700] [48379] [DEBUG] Exception while loading the application
+Traceback (most recent call last):
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/util.py", line 402, in import_app
+    app = getattr(mod, name)
+          ^^^^^^^^^^^^^^^^^^
+AttributeError: module 'app' has no attribute 'app'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/arbiter.py", line 589, in spawn_worker
+    worker.init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/uvicorn/workers.py", line 66, in init_process
+    super(UvicornWorker, self).init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 134, in init_process
+    self.load_wsgi()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/util.py", line 406, in import_app
+    raise AppImportError("Failed to find attribute %r in %r." % (name, module))
+gunicorn.errors.AppImportError: Failed to find attribute 'app' in 'app'.
+[2023-05-25 19:54:08 +0700] [48379] [INFO] Worker exiting (pid: 48379)
+[2023-05-25 19:54:08 +0700] [48380] [DEBUG] Exception while loading the application
+Traceback (most recent call last):
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/util.py", line 402, in import_app
+    app = getattr(mod, name)
+          ^^^^^^^^^^^^^^^^^^
+AttributeError: module 'app' has no attribute 'app'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/arbiter.py", line 589, in spawn_worker
+    worker.init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/uvicorn/workers.py", line 66, in init_process
+    super(UvicornWorker, self).init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 134, in init_process
+    self.load_wsgi()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/util.py", line 406, in import_app
+    raise AppImportError("Failed to find attribute %r in %r." % (name, module))
+gunicorn.errors.AppImportError: Failed to find attribute 'app' in 'app'.
+[2023-05-25 19:54:08 +0700] [48380] [INFO] Worker exiting (pid: 48380)
+[2023-05-25 19:54:08 +0700] [48377] [DEBUG] 2 workers
+[2023-05-25 19:57:29 +0700] [48430] [DEBUG] Current configuration:
+  config: config.py
+  wsgi_app: None
+  bind: ['unix:/home/blackwings/webtool/tool/techtool.sock']
+  backlog: 2048
+  workers: 2
+  worker_class: uvicorn.workers.UvicornWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/blackwings/webtool/tool
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 996
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: /home/blackwings/webtool/tool/access_log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: /home/blackwings/webtool/tool/error_log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.main:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f18192ff4c0>
+  on_reload: <function OnReload.on_reload at 0x7f18192ff600>
+  when_ready: <function WhenReady.when_ready at 0x7f18192ff740>
+  pre_fork: <function Prefork.pre_fork at 0x7f18192ff880>
+  post_fork: <function Postfork.post_fork at 0x7f18192ff9c0>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f18192ffb00>
+  worker_int: <function WorkerInt.worker_int at 0x7f18192ffc40>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f18192ffd80>
+  pre_exec: <function PreExec.pre_exec at 0x7f18192ffec0>
+  pre_request: <function PreRequest.pre_request at 0x7f181930c040>
+  post_request: <function PostRequest.post_request at 0x7f181930c0e0>
+  child_exit: <function ChildExit.child_exit at 0x7f181930c220>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f181930c360>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f181930c4a0>
+  on_exit: <function OnExit.on_exit at 0x7f181930c5e0>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2023-05-25 19:57:29 +0700] [48430] [INFO] Starting gunicorn 20.1.0
+[2023-05-25 19:57:29 +0700] [48430] [DEBUG] Arbiter booted
+[2023-05-25 19:57:29 +0700] [48430] [INFO] Listening at: unix:/home/blackwings/webtool/tool/techtool.sock (48430)
+[2023-05-25 19:57:29 +0700] [48430] [INFO] Using worker: uvicorn.workers.UvicornWorker
+[2023-05-25 19:57:29 +0700] [48431] [INFO] Booting worker with pid: 48431
+[2023-05-25 19:57:29 +0700] [48432] [INFO] Booting worker with pid: 48432
+[2023-05-25 19:57:29 +0700] [48430] [DEBUG] 2 workers
+[2023-05-25 19:57:30 +0700] [48432] [INFO] Started server process [48432]
+[2023-05-25 19:57:30 +0700] [48432] [INFO] Waiting for application startup.
+[2023-05-25 19:57:30 +0700] [48432] [INFO] Application startup complete.
+[2023-05-25 19:57:30 +0700] [48431] [INFO] Started server process [48431]
+[2023-05-25 19:57:30 +0700] [48431] [INFO] Waiting for application startup.
+[2023-05-25 19:57:30 +0700] [48431] [INFO] Application startup complete.
+[2023-05-25 19:59:43 +0700] [48430] [INFO] Handling signal: term
+[2023-05-25 19:59:43 +0700] [48431] [INFO] Shutting down
+[2023-05-25 19:59:43 +0700] [48432] [INFO] Shutting down
+[2023-05-25 19:59:43 +0700] [48431] [INFO] Waiting for application shutdown.
+[2023-05-25 19:59:43 +0700] [48431] [INFO] Application shutdown complete.
+[2023-05-25 19:59:43 +0700] [48431] [INFO] Finished server process [48431]
+[2023-05-25 19:59:43 +0700] [48431] [INFO] Worker exiting (pid: 48431)
+[2023-05-25 19:59:43 +0700] [48432] [INFO] Waiting for application shutdown.
+[2023-05-25 19:59:43 +0700] [48432] [INFO] Application shutdown complete.
+[2023-05-25 19:59:43 +0700] [48432] [INFO] Finished server process [48432]
+[2023-05-25 19:59:43 +0700] [48432] [INFO] Worker exiting (pid: 48432)
+[2023-05-25 19:59:44 +0700] [48430] [INFO] Shutting down: Master
+[2023-05-25 19:59:44 +0700] [48483] [DEBUG] Current configuration:
+  config: config.py
+  wsgi_app: None
+  bind: ['unix:/home/blackwings/webtool/tool/techtool.sock']
+  backlog: 2048
+  workers: 2
+  worker_class: uvicorn.workers.UvicornWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/blackwings/webtool/tool
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 996
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: /home/blackwings/webtool/tool/access_log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: /home/blackwings/webtool/tool/error_log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.main:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f2c895a74c0>
+  on_reload: <function OnReload.on_reload at 0x7f2c895a7600>
+  when_ready: <function WhenReady.when_ready at 0x7f2c895a7740>
+  pre_fork: <function Prefork.pre_fork at 0x7f2c895a7880>
+  post_fork: <function Postfork.post_fork at 0x7f2c895a79c0>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f2c895a7b00>
+  worker_int: <function WorkerInt.worker_int at 0x7f2c895a7c40>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f2c895a7d80>
+  pre_exec: <function PreExec.pre_exec at 0x7f2c895a7ec0>
+  pre_request: <function PreRequest.pre_request at 0x7f2c895b8040>
+  post_request: <function PostRequest.post_request at 0x7f2c895b80e0>
+  child_exit: <function ChildExit.child_exit at 0x7f2c895b8220>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f2c895b8360>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f2c895b84a0>
+  on_exit: <function OnExit.on_exit at 0x7f2c895b85e0>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2023-05-25 19:59:44 +0700] [48483] [INFO] Starting gunicorn 20.1.0
+[2023-05-25 19:59:44 +0700] [48483] [DEBUG] Arbiter booted
+[2023-05-25 19:59:44 +0700] [48483] [INFO] Listening at: unix:/home/blackwings/webtool/tool/techtool.sock (48483)
+[2023-05-25 19:59:44 +0700] [48483] [INFO] Using worker: uvicorn.workers.UvicornWorker
+[2023-05-25 19:59:44 +0700] [48484] [INFO] Booting worker with pid: 48484
+[2023-05-25 19:59:44 +0700] [48485] [INFO] Booting worker with pid: 48485
+[2023-05-25 19:59:44 +0700] [48483] [DEBUG] 2 workers
+[2023-05-25 19:59:45 +0700] [48484] [INFO] Started server process [48484]
+[2023-05-25 19:59:45 +0700] [48484] [INFO] Waiting for application startup.
+[2023-05-25 19:59:45 +0700] [48484] [INFO] Application startup complete.
+[2023-05-25 19:59:45 +0700] [48485] [INFO] Started server process [48485]
+[2023-05-25 19:59:45 +0700] [48485] [INFO] Waiting for application startup.
+[2023-05-25 19:59:45 +0700] [48485] [INFO] Application startup complete.
+[2023-05-25 20:01:16 +0700] [48483] [INFO] Handling signal: term
+[2023-05-25 20:01:16 +0700] [48485] [INFO] Shutting down
+[2023-05-25 20:01:16 +0700] [48484] [INFO] Shutting down
+[2023-05-25 20:01:16 +0700] [48485] [INFO] Waiting for application shutdown.
+[2023-05-25 20:01:16 +0700] [48485] [INFO] Application shutdown complete.
+[2023-05-25 20:01:16 +0700] [48485] [INFO] Finished server process [48485]
+[2023-05-25 20:01:16 +0700] [48485] [INFO] Worker exiting (pid: 48485)
+[2023-05-25 20:01:16 +0700] [48484] [INFO] Waiting for application shutdown.
+[2023-05-25 20:01:16 +0700] [48484] [INFO] Application shutdown complete.
+[2023-05-25 20:01:16 +0700] [48484] [INFO] Finished server process [48484]
+[2023-05-25 20:01:16 +0700] [48484] [INFO] Worker exiting (pid: 48484)
+[2023-05-25 20:01:16 +0700] [48483] [INFO] Shutting down: Master
+[2023-05-25 20:01:16 +0700] [48516] [DEBUG] Current configuration:
+  config: config.py
+  wsgi_app: None
+  bind: ['unix:/home/blackwings/webtool/tool/techtool.sock']
+  backlog: 2048
+  workers: 2
+  worker_class: uvicorn.workers.UvicornWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/blackwings/webtool/tool
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 996
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: /home/blackwings/webtool/tool/access_log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: /home/blackwings/webtool/tool/error_log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.main:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f6627b4f4c0>
+  on_reload: <function OnReload.on_reload at 0x7f6627b4f600>
+  when_ready: <function WhenReady.when_ready at 0x7f6627b4f740>
+  pre_fork: <function Prefork.pre_fork at 0x7f6627b4f880>
+  post_fork: <function Postfork.post_fork at 0x7f6627b4f9c0>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f6627b4fb00>
+  worker_int: <function WorkerInt.worker_int at 0x7f6627b4fc40>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f6627b4fd80>
+  pre_exec: <function PreExec.pre_exec at 0x7f6627b4fec0>
+  pre_request: <function PreRequest.pre_request at 0x7f6627b60040>
+  post_request: <function PostRequest.post_request at 0x7f6627b600e0>
+  child_exit: <function ChildExit.child_exit at 0x7f6627b60220>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f6627b60360>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f6627b604a0>
+  on_exit: <function OnExit.on_exit at 0x7f6627b605e0>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2023-05-25 20:01:16 +0700] [48516] [INFO] Starting gunicorn 20.1.0
+[2023-05-25 20:01:16 +0700] [48516] [DEBUG] Arbiter booted
+[2023-05-25 20:01:16 +0700] [48516] [INFO] Listening at: unix:/home/blackwings/webtool/tool/techtool.sock (48516)
+[2023-05-25 20:01:16 +0700] [48516] [INFO] Using worker: uvicorn.workers.UvicornWorker
+[2023-05-25 20:01:16 +0700] [48518] [INFO] Booting worker with pid: 48518
+[2023-05-25 20:01:16 +0700] [48519] [INFO] Booting worker with pid: 48519
+[2023-05-25 20:01:16 +0700] [48516] [DEBUG] 2 workers
+[2023-05-25 20:01:17 +0700] [48519] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/arbiter.py", line 589, in spawn_worker
+    worker.init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/uvicorn/workers.py", line 66, in init_process
+    super(UvicornWorker, self).init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 134, in init_process
+    self.load_wsgi()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/util.py", line 359, in import_app
+    mod = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1206, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/blackwings/webtool/tool/app/main.py", line 14, in <module>
+    from . import auth, ws, extract
+  File "/home/blackwings/webtool/tool/app/auth.py", line 5, in <module>
+    @router.route('')
+     ^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/fastapi/routing.py", line 537, in decorator
+    self.add_route(
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/routing.py", line 772, in add_route
+    route = Route(
+            ^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/routing.py", line 209, in __init__
+    assert path.startswith("/"), "Routed paths must start with '/'"
+AssertionError: Routed paths must start with '/'
+[2023-05-25 20:01:17 +0700] [48519] [INFO] Worker exiting (pid: 48519)
+[2023-05-25 20:01:17 +0700] [48518] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/arbiter.py", line 589, in spawn_worker
+    worker.init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/uvicorn/workers.py", line 66, in init_process
+    super(UvicornWorker, self).init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 134, in init_process
+    self.load_wsgi()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/util.py", line 359, in import_app
+    mod = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1206, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/blackwings/webtool/tool/app/main.py", line 14, in <module>
+    from . import auth, ws, extract
+  File "/home/blackwings/webtool/tool/app/auth.py", line 5, in <module>
+    @router.route('')
+     ^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/fastapi/routing.py", line 537, in decorator
+    self.add_route(
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/routing.py", line 772, in add_route
+    route = Route(
+            ^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/routing.py", line 209, in __init__
+    assert path.startswith("/"), "Routed paths must start with '/'"
+AssertionError: Routed paths must start with '/'
+[2023-05-25 20:01:17 +0700] [48518] [INFO] Worker exiting (pid: 48518)
+[2023-05-25 20:01:17 +0700] [48516] [WARNING] Worker with pid 48518 was terminated due to signal 15
+[2023-05-25 20:01:17 +0700] [48516] [INFO] Shutting down: Master
+[2023-05-25 20:01:17 +0700] [48516] [INFO] Reason: Worker failed to boot.
+[2023-05-25 20:01:38 +0700] [48526] [DEBUG] Current configuration:
+  config: config.py
+  wsgi_app: None
+  bind: ['unix:/home/blackwings/webtool/tool/techtool.sock']
+  backlog: 2048
+  workers: 2
+  worker_class: uvicorn.workers.UvicornWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/blackwings/webtool/tool
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 996
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: /home/blackwings/webtool/tool/access_log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: /home/blackwings/webtool/tool/error_log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.main:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f25f195f4c0>
+  on_reload: <function OnReload.on_reload at 0x7f25f195f600>
+  when_ready: <function WhenReady.when_ready at 0x7f25f195f740>
+  pre_fork: <function Prefork.pre_fork at 0x7f25f195f880>
+  post_fork: <function Postfork.post_fork at 0x7f25f195f9c0>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f25f195fb00>
+  worker_int: <function WorkerInt.worker_int at 0x7f25f195fc40>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f25f195fd80>
+  pre_exec: <function PreExec.pre_exec at 0x7f25f195fec0>
+  pre_request: <function PreRequest.pre_request at 0x7f25f1970040>
+  post_request: <function PostRequest.post_request at 0x7f25f19700e0>
+  child_exit: <function ChildExit.child_exit at 0x7f25f1970220>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f25f1970360>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f25f19704a0>
+  on_exit: <function OnExit.on_exit at 0x7f25f19705e0>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2023-05-25 20:01:38 +0700] [48526] [INFO] Starting gunicorn 20.1.0
+[2023-05-25 20:01:38 +0700] [48526] [DEBUG] Arbiter booted
+[2023-05-25 20:01:38 +0700] [48526] [INFO] Listening at: unix:/home/blackwings/webtool/tool/techtool.sock (48526)
+[2023-05-25 20:01:38 +0700] [48526] [INFO] Using worker: uvicorn.workers.UvicornWorker
+[2023-05-25 20:01:38 +0700] [48527] [INFO] Booting worker with pid: 48527
+[2023-05-25 20:01:38 +0700] [48528] [INFO] Booting worker with pid: 48528
+[2023-05-25 20:01:38 +0700] [48526] [DEBUG] 2 workers
+[2023-05-25 20:01:39 +0700] [48527] [INFO] Started server process [48527]
+[2023-05-25 20:01:39 +0700] [48527] [INFO] Waiting for application startup.
+[2023-05-25 20:01:39 +0700] [48527] [INFO] Application startup complete.
+[2023-05-25 20:01:39 +0700] [48528] [INFO] Started server process [48528]
+[2023-05-25 20:01:39 +0700] [48528] [INFO] Waiting for application startup.
+[2023-05-25 20:01:39 +0700] [48528] [INFO] Application startup complete.
+[2023-05-25 20:18:48 +0700] [48526] [INFO] Handling signal: term
+[2023-05-25 20:18:48 +0700] [48527] [INFO] Shutting down
+[2023-05-25 20:18:48 +0700] [48528] [INFO] Shutting down
+[2023-05-25 20:18:48 +0700] [48527] [INFO] Waiting for application shutdown.
+[2023-05-25 20:18:48 +0700] [48527] [INFO] Application shutdown complete.
+[2023-05-25 20:18:48 +0700] [48527] [INFO] Finished server process [48527]
+[2023-05-25 20:18:48 +0700] [48527] [INFO] Worker exiting (pid: 48527)
+[2023-05-25 20:18:48 +0700] [48528] [INFO] Waiting for application shutdown.
+[2023-05-25 20:18:48 +0700] [48528] [INFO] Application shutdown complete.
+[2023-05-25 20:18:48 +0700] [48528] [INFO] Finished server process [48528]
+[2023-05-25 20:18:48 +0700] [48528] [INFO] Worker exiting (pid: 48528)
+[2023-05-25 20:18:48 +0700] [48526] [INFO] Shutting down: Master
+[2023-05-25 20:18:49 +0700] [48588] [DEBUG] Current configuration:
+  config: config.py
+  wsgi_app: None
+  bind: ['unix:/home/blackwings/webtool/tool/techtool.sock']
+  backlog: 2048
+  workers: 2
+  worker_class: uvicorn.workers.UvicornWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/blackwings/webtool/tool
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 996
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: /home/blackwings/webtool/tool/access_log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: /home/blackwings/webtool/tool/error_log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.main:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7fd8210334c0>
+  on_reload: <function OnReload.on_reload at 0x7fd821033600>
+  when_ready: <function WhenReady.when_ready at 0x7fd821033740>
+  pre_fork: <function Prefork.pre_fork at 0x7fd821033880>
+  post_fork: <function Postfork.post_fork at 0x7fd8210339c0>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7fd821033b00>
+  worker_int: <function WorkerInt.worker_int at 0x7fd821033c40>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7fd821033d80>
+  pre_exec: <function PreExec.pre_exec at 0x7fd821033ec0>
+  pre_request: <function PreRequest.pre_request at 0x7fd821044040>
+  post_request: <function PostRequest.post_request at 0x7fd8210440e0>
+  child_exit: <function ChildExit.child_exit at 0x7fd821044220>
+  worker_exit: <function WorkerExit.worker_exit at 0x7fd821044360>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7fd8210444a0>
+  on_exit: <function OnExit.on_exit at 0x7fd8210445e0>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2023-05-25 20:18:49 +0700] [48588] [INFO] Starting gunicorn 20.1.0
+[2023-05-25 20:18:49 +0700] [48588] [DEBUG] Arbiter booted
+[2023-05-25 20:18:49 +0700] [48588] [INFO] Listening at: unix:/home/blackwings/webtool/tool/techtool.sock (48588)
+[2023-05-25 20:18:49 +0700] [48588] [INFO] Using worker: uvicorn.workers.UvicornWorker
+[2023-05-25 20:18:49 +0700] [48589] [INFO] Booting worker with pid: 48589
+[2023-05-25 20:18:49 +0700] [48590] [INFO] Booting worker with pid: 48590
+[2023-05-25 20:18:49 +0700] [48588] [DEBUG] 2 workers
+[2023-05-25 20:18:49 +0700] [48589] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/arbiter.py", line 589, in spawn_worker
+    worker.init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/uvicorn/workers.py", line 66, in init_process
+    super(UvicornWorker, self).init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 134, in init_process
+    self.load_wsgi()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/util.py", line 359, in import_app
+    mod = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1206, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/blackwings/webtool/tool/app/main.py", line 14, in <module>
+    from . import auth, ws, extract
+  File "/home/blackwings/webtool/tool/app/auth.py", line 3, in <module>
+    from tool.app.database import get_db
+ModuleNotFoundError: No module named 'tool'
+[2023-05-25 20:18:49 +0700] [48589] [INFO] Worker exiting (pid: 48589)
+[2023-05-25 20:18:49 +0700] [48590] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/arbiter.py", line 589, in spawn_worker
+    worker.init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/uvicorn/workers.py", line 66, in init_process
+    super(UvicornWorker, self).init_process()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 134, in init_process
+    self.load_wsgi()
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+    self.wsgi = self.app.wsgi()
+                ^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+                    ^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+    return self.load_wsgiapp()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+    return util.import_app(self.app_uri)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/gunicorn/util.py", line 359, in import_app
+    mod = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1206, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1178, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1149, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/blackwings/webtool/tool/app/main.py", line 14, in <module>
+    from . import auth, ws, extract
+  File "/home/blackwings/webtool/tool/app/auth.py", line 3, in <module>
+    from tool.app.database import get_db
+ModuleNotFoundError: No module named 'tool'
+[2023-05-25 20:18:49 +0700] [48590] [INFO] Worker exiting (pid: 48590)
+[2023-05-25 20:18:49 +0700] [48588] [WARNING] Worker with pid 48590 was terminated due to signal 15
+[2023-05-25 20:18:49 +0700] [48588] [INFO] Shutting down: Master
+[2023-05-25 20:18:49 +0700] [48588] [INFO] Reason: Worker failed to boot.
+[2023-05-25 20:22:33 +0700] [48624] [DEBUG] Current configuration:
+  config: config.py
+  wsgi_app: None
+  bind: ['unix:/home/blackwings/webtool/tool/techtool.sock']
+  backlog: 2048
+  workers: 2
+  worker_class: uvicorn.workers.UvicornWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/blackwings/webtool/tool
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 996
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: /home/blackwings/webtool/tool/access_log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: /home/blackwings/webtool/tool/error_log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.main:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f2a1de2b4c0>
+  on_reload: <function OnReload.on_reload at 0x7f2a1de2b600>
+  when_ready: <function WhenReady.when_ready at 0x7f2a1de2b740>
+  pre_fork: <function Prefork.pre_fork at 0x7f2a1de2b880>
+  post_fork: <function Postfork.post_fork at 0x7f2a1de2b9c0>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f2a1de2bb00>
+  worker_int: <function WorkerInt.worker_int at 0x7f2a1de2bc40>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f2a1de2bd80>
+  pre_exec: <function PreExec.pre_exec at 0x7f2a1de2bec0>
+  pre_request: <function PreRequest.pre_request at 0x7f2a1de3c040>
+  post_request: <function PostRequest.post_request at 0x7f2a1de3c0e0>
+  child_exit: <function ChildExit.child_exit at 0x7f2a1de3c220>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f2a1de3c360>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f2a1de3c4a0>
+  on_exit: <function OnExit.on_exit at 0x7f2a1de3c5e0>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2023-05-25 20:22:33 +0700] [48624] [INFO] Starting gunicorn 20.1.0
+[2023-05-25 20:22:33 +0700] [48624] [DEBUG] Arbiter booted
+[2023-05-25 20:22:33 +0700] [48624] [INFO] Listening at: unix:/home/blackwings/webtool/tool/techtool.sock (48624)
+[2023-05-25 20:22:33 +0700] [48624] [INFO] Using worker: uvicorn.workers.UvicornWorker
+[2023-05-25 20:22:33 +0700] [48625] [INFO] Booting worker with pid: 48625
+[2023-05-25 20:22:33 +0700] [48626] [INFO] Booting worker with pid: 48626
+[2023-05-25 20:22:33 +0700] [48624] [DEBUG] 2 workers
+[2023-05-25 20:22:34 +0700] [48625] [INFO] Started server process [48625]
+[2023-05-25 20:22:34 +0700] [48625] [INFO] Waiting for application startup.
+[2023-05-25 20:22:34 +0700] [48625] [INFO] Application startup complete.
+[2023-05-25 20:22:34 +0700] [48626] [INFO] Started server process [48626]
+[2023-05-25 20:22:34 +0700] [48626] [INFO] Waiting for application startup.
+[2023-05-25 20:22:34 +0700] [48626] [INFO] Application startup complete.
+[2023-05-25 20:22:35 +0700] [48626] [ERROR] Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py", line 428, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 78, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/fastapi/applications.py", line 276, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 21, in __call__
+    raise e
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/fastapi/routing.py", line 237, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/fastapi/routing.py", line 165, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/starlette/concurrency.py", line 41, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/anyio/to_thread.py", line 31, in run_sync
+    return await get_asynclib().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 937, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/home/blackwings/webtool/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 867, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/blackwings/webtool/tool/app/auth.py", line 13, in auth
+    records = db.query(Log).first()
+              ^^^^^^^^
+AttributeError: 'generator' object has no attribute 'query'
+[2023-05-25 20:25:26 +0700] [48624] [INFO] Handling signal: term
+[2023-05-25 20:25:26 +0700] [48626] [INFO] Shutting down
+[2023-05-25 20:25:26 +0700] [48625] [INFO] Shutting down
+[2023-05-25 20:25:26 +0700] [48626] [INFO] Waiting for application shutdown.
+[2023-05-25 20:25:26 +0700] [48626] [INFO] Application shutdown complete.
+[2023-05-25 20:25:26 +0700] [48626] [INFO] Finished server process [48626]
+[2023-05-25 20:25:26 +0700] [48626] [INFO] Worker exiting (pid: 48626)
+[2023-05-25 20:25:26 +0700] [48625] [INFO] Waiting for application shutdown.
+[2023-05-25 20:25:26 +0700] [48625] [INFO] Application shutdown complete.
+[2023-05-25 20:25:26 +0700] [48625] [INFO] Finished server process [48625]
+[2023-05-25 20:25:26 +0700] [48625] [INFO] Worker exiting (pid: 48625)
+[2023-05-25 20:25:26 +0700] [48624] [INFO] Shutting down: Master
+[2023-05-25 20:25:27 +0700] [48654] [DEBUG] Current configuration:
+  config: config.py
+  wsgi_app: None
+  bind: ['unix:/home/blackwings/webtool/tool/techtool.sock']
+  backlog: 2048
+  workers: 2
+  worker_class: uvicorn.workers.UvicornWorker
+  threads: 1
+  worker_connections: 1000
+  max_requests: 0
+  max_requests_jitter: 0
+  timeout: 30
+  graceful_timeout: 30
+  keepalive: 2
+  limit_request_line: 4094
+  limit_request_fields: 100
+  limit_request_field_size: 8190
+  reload: False
+  reload_engine: auto
+  reload_extra_files: []
+  spew: False
+  check_config: False
+  print_config: False
+  preload_app: False
+  sendfile: None
+  reuse_port: False
+  chdir: /home/blackwings/webtool/tool
+  daemon: False
+  raw_env: []
+  pidfile: None
+  worker_tmp_dir: None
+  user: 1000
+  group: 996
+  umask: 0
+  initgroups: False
+  tmp_upload_dir: None
+  secure_scheme_headers: {'X-FORWARDED-PROTOCOL': 'ssl', 'X-FORWARDED-PROTO': 'https', 'X-FORWARDED-SSL': 'on'}
+  forwarded_allow_ips: ['127.0.0.1']
+  accesslog: /home/blackwings/webtool/tool/access_log
+  disable_redirect_access_to_syslog: False
+  access_log_format: %(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"
+  errorlog: /home/blackwings/webtool/tool/error_log
+  loglevel: debug
+  capture_output: False
+  logger_class: gunicorn.glogging.Logger
+  logconfig: None
+  logconfig_dict: {}
+  syslog_addr: udp://localhost:514
+  syslog: False
+  syslog_prefix: None
+  syslog_facility: user
+  enable_stdio_inheritance: False
+  statsd_host: None
+  dogstatsd_tags: 
+  statsd_prefix: 
+  proc_name: None
+  default_proc_name: app.main:app
+  pythonpath: None
+  paste: None
+  on_starting: <function OnStarting.on_starting at 0x7f9d4f61f4c0>
+  on_reload: <function OnReload.on_reload at 0x7f9d4f61f600>
+  when_ready: <function WhenReady.when_ready at 0x7f9d4f61f740>
+  pre_fork: <function Prefork.pre_fork at 0x7f9d4f61f880>
+  post_fork: <function Postfork.post_fork at 0x7f9d4f61f9c0>
+  post_worker_init: <function PostWorkerInit.post_worker_init at 0x7f9d4f61fb00>
+  worker_int: <function WorkerInt.worker_int at 0x7f9d4f61fc40>
+  worker_abort: <function WorkerAbort.worker_abort at 0x7f9d4f61fd80>
+  pre_exec: <function PreExec.pre_exec at 0x7f9d4f61fec0>
+  pre_request: <function PreRequest.pre_request at 0x7f9d4f62c040>
+  post_request: <function PostRequest.post_request at 0x7f9d4f62c0e0>
+  child_exit: <function ChildExit.child_exit at 0x7f9d4f62c220>
+  worker_exit: <function WorkerExit.worker_exit at 0x7f9d4f62c360>
+  nworkers_changed: <function NumWorkersChanged.nworkers_changed at 0x7f9d4f62c4a0>
+  on_exit: <function OnExit.on_exit at 0x7f9d4f62c5e0>
+  proxy_protocol: False
+  proxy_allow_ips: ['127.0.0.1']
+  keyfile: None
+  certfile: None
+  ssl_version: 2
+  cert_reqs: 0
+  ca_certs: None
+  suppress_ragged_eofs: True
+  do_handshake_on_connect: False
+  ciphers: None
+  raw_paste_global_conf: []
+  strip_header_spaces: False
+[2023-05-25 20:25:27 +0700] [48654] [INFO] Starting gunicorn 20.1.0
+[2023-05-25 20:25:27 +0700] [48654] [DEBUG] Arbiter booted
+[2023-05-25 20:25:27 +0700] [48654] [INFO] Listening at: unix:/home/blackwings/webtool/tool/techtool.sock (48654)
+[2023-05-25 20:25:27 +0700] [48654] [INFO] Using worker: uvicorn.workers.UvicornWorker
+[2023-05-25 20:25:27 +0700] [48655] [INFO] Booting worker with pid: 48655
+[2023-05-25 20:25:27 +0700] [48656] [INFO] Booting worker with pid: 48656
+[2023-05-25 20:25:27 +0700] [48654] [DEBUG] 2 workers
+[2023-05-25 20:25:28 +0700] [48655] [INFO] Started server process [48655]
+[2023-05-25 20:25:28 +0700] [48655] [INFO] Waiting for application startup.
+[2023-05-25 20:25:28 +0700] [48655] [INFO] Application startup complete.
+[2023-05-25 20:25:28 +0700] [48656] [INFO] Started server process [48656]
+[2023-05-25 20:25:28 +0700] [48656] [INFO] Waiting for application startup.
+[2023-05-25 20:25:28 +0700] [48656] [INFO] Application startup complete.

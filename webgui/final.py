@@ -9,7 +9,7 @@ from flask import Flask, request, abort
 # from notification import noti
 from technical_api import technical
 
-with open('.secret_key', 'a+b') as secret:
+with open('../.secret_key', 'a+b') as secret:
     secret.seek(0)  # Seek to beginning of file since a+ mode leaves you at the end and w+ deletes the file
     key = secret.read()
     if not key:

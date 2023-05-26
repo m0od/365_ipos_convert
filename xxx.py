@@ -5,6 +5,6 @@ import time
 from datetime import datetime
 
 import json
-a = json.loads('[[622],[620]]')
+a = json.loads('[]')
 print(type(a))
-print(', '.join(str(_[0]) for _ in a).strip())
+print(f"|{', '.join(str(_[0]) for _ in a).strip()}|")

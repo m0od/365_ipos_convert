@@ -1,5 +1,6 @@
 import json
 
+import jwt
 import redis
 import requests
 from sqlalchemy.sql import null
@@ -73,29 +74,13 @@ def api_task_result(id):
     # return response
 
 
-@technical.route('/', methods=['GET', 'POST'])
+@technical.route('/', methods=['GET'])
 def api_technical_department():
-    if request.method == 'GET':
-        # if session is not None and session.get('accessCode') == 'IT@P0s365kms':
-        #     return redirect('/dashboard')
+    try:
+        jwt.decode(request.cookies.get('jwt'), current_app.config['SECRET_KEY'], 'HS256')
+        return redirect('/dashboard')
+    except:
         return render_template('login.html', gg_client_id=current_app.config['GOOGLE_CLIENT_ID'])
-    else:
-        try:
-            info = id_token.verify_oauth2_token(request.form['credential'],
-                                                ggRequests.Request(),
-                                                current_app.config['GOOGLE_CLIENT_ID'])
-
-            print(info)
-            userId = info['sub']
-            try:
-                session.regenerate()  # NO SESSION FIXATION FOR YOU
-            except:
-                pass
-            session['userId'] = userId
-            return redirect('/dashboard')
-        except:
-            return render_template('login.html')
-
 
 @technical.route('/dashboard', methods=['GET', 'POST'])
 @login_required

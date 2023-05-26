@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn Technical Tool
+After=network.target
+
+[Service]
+User=blackwings
+Group=nginx
+Environment="PATH=/home/blackwings/webtool/bin"
+WorkingDirectory=/home/blackwings/webtool/tool
+ExecStart=/home/blackwings/webtool/bin/gunicorn -c config.py app.main:app
+
+[Install]
+WantedBy=multi-user.target

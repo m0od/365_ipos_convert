@@ -1,33 +1,35 @@
 $(document).ready(function () {
-    $(document).on('click', '#optBranch', function () {
-       $.ajax({
+    function sync_branch () {
+        $.ajax({
+            xhrFields: {
+                withCredentials: true
+            },
             type: "POST",
             data: {
                 cookie: $('#cookie').val().trim(),
                 link: $('#link').val().trim()
             },
-            url: '/Config/VendorSession',
+            url: '/tool/sync/branch',
             success: function (r) {
-                r.branch.forEach(function (value){
+                r.branch.forEach(function (value) {
                     $('#optBranch').append($('<option>', {
                         value: value.Id,
                         text: value.Name
                     }));
                 });
-                $(`#optBranch option[value=${r.current.Id}]`).attr('selected','selected');
-                $('#status').text('Làm gì thì làm tớ mệt rồi!')
+                $(`#optBranch option[value=${r.current.Id}]`).attr('selected', 'selected');
+                $('#status').empty();
             },
-            error: function (e){
-                console.log('aaaaa');
-                $('#status').html(e);
+            error: function (e) {
+                $('#status').html(e.responseJSON.detail);
             }
         });
-    });
+    }
     $(document).on('click', '#login365', function (event) {
         $('#status').empty();
         $('#optBranch').empty();
         let link = $('#link').val().trim();
-        if (link.length === 0){
+        if (link.length === 0) {
             $('#status').html('Đi đâu vội thế nhập link đã bạn ê!');
             return;
         }
@@ -47,7 +49,7 @@ $(document).ready(function () {
             success: function (res) {
                 $('#cookie').val(res.SessionId);
                 $('#status').html('Họ họ... Đang sync chi nhánh');
-                $('#optBranch').click();
+                sync_branch();
             },
             error: function (err) {
                 console.log(err);
@@ -59,31 +61,31 @@ $(document).ready(function () {
     $(document).on('click', '#billID', function (event) {
         $('#status').empty();
         let link = $('#link').val().trim();
-        if (link.length === 0){
+        if (link.length === 0) {
             $('#status').html('Đi đâu vội thế nhập link đã bạn ê!');
             return;
         }
         let billCode = $('#billCode').val().trim();
-        if (billCode.length === 0){
+        if (billCode.length === 0) {
             $('#status').html('Đi đâu vội thế chưa có mã đơn hàng bạn ê!');
             return;
         }
         let cookie = $('#cookie').val().trim();
         $.ajax({
             type: "POST",
-            url: '/api/orders',
+            url: '/tool/orders',
             data: {
                 code: billCode,
                 cookie: cookie,
                 link: link
             },
-            success: function (res){
-                if (res.results.length === 0){
+            success: function (res) {
+                if (res.results.length === 0) {
                     $('#status').html('Không tìm thấy mã đơn hàng bạn ê!');
                     return;
                 }
                 $('#status').append(`<thead><tr><th class="text-align-center">Id</th><th>Mã đơn hàng</th></tr></thead>`);
-                res.results.forEach(function (r){
+                res.results.forEach(function (r) {
                     $('#status').append(`<tr><td>${r.Id}</td><td>${r.Code}</td></tr>`);
                 });
                 // $('#status').text(res.results[0].Id);
@@ -94,34 +96,33 @@ $(document).ready(function () {
             }
         });
     });
-    $(document).on('click', '[name="SNOption"]', function (event){
+    $(document).on('click', '[name="SNOption"]', function (event) {
         let opt = $('[name="SNOption"]:checked').val()
-        if (opt === '2'){
-            $('#btnSN').attr('rowspan',2);
+        if (opt === '2') {
+            $('#btnSN').attr('rowspan', 2);
             $('#trSNProduct').removeClass('d-none');
-        }else{
+        } else {
             $('#btnSN').removeAttr('rowspan');
             $('#trSNProduct').addClass('d-none');
         }
     })
-    $(document).on('click', '[name="DelDataOption"]', function (event){
+    $(document).on('click', '[name="DelDataOption"]', function (event) {
         let opt = $('[name="DelDataOption"]:checked').val()
-        if (opt === '2'){
-            $('#btnDelData').attr('rowspan',2);
+        if (opt === '2') {
+            $('#btnDelData').attr('rowspan', 2);
             $('#trDelDataOption').removeClass('d-none');
             $('#trDelDataDate').addClass('d-none');
-        }else if(opt === '3'){
-            $('#btnDelData').attr('rowspan',2);
+        } else if (opt === '3') {
+            $('#btnDelData').attr('rowspan', 2);
             $('#trDelDataDate').removeClass('d-none');
             $('#trDelDataOption').addClass('d-none');
-        }
-        else{
+        } else {
             $('#btnDelData').removeAttr('rowspan');
             $('#trDelDataDate').addClass('d-none');
             $('#trDelDataOption').addClass('d-none');
         }
     })
-    $(document).on('click', '#btnExtract', function (event){
+    $(document).on('click', '#btnExtract', function (event) {
         $('#status').empty();
         let type = $('#typeExtract').val();
         let link = $('#link').val().trim();
@@ -131,16 +132,20 @@ $(document).ready(function () {
             case '1'://hàng hoá
                 $.ajax({
                     type: "POST",
+                    xhrFields: {
+                        withCredentials: true
+                    },
                     data: {
                         cookie: cookie,
                         link: link,
                         branch: branch
                     },
-                    url: '/api/extract/products',
+                    url: '/tool/extract/products',
                     success: function (r) {
-                        $('#status').html(r)
+                        $('#status').html(r);
+                        fuck_wss(r);
                     },
-                    error: function (e){
+                    error: function (e) {
                         $('#status').html(e);
                     }
                 });
@@ -153,4 +158,52 @@ $(document).ready(function () {
 
         }
     });
+
+    // let ws = new WebSocket(`wss://adapter.pos365.vn:6000/ws`);
+    // ws.onmessage = function (event) {
+    //     console.log(event);
+    //     try {
+    //         let js = JSON.parse(event.data);
+    //         console.log(js);
+    //         if (js.status) {
+    //             // ws.onclose = function () {};
+    //             // ws.close();
+    //             // ws.onmessage = function () {};
+    //         } else {
+    //             $('#messages').html(`${js.progress}%`);
+    //         }
+    //     } catch {
+    //     }
+    // };
+    // ws.onclose = function (e) {
+    //     console.log(e);
+    //     console.log('disconnected');
+    // };
+
+function fuck_wss(task_id) {
+    var ws = new WebSocket(`wss://adapter.pos365.vn/tool/ws?tid=${task_id}`);
+    ws.onmessage = function (event) {
+        console.log(event);
+        let js = JSON.parse(event.data);
+
+        if (js.status) {
+            $('#status').html(`<a target="_blank" href="${js.progress}">${js.progress}</a>`);
+            // ws.onclose = function () {};
+            ws.close();
+            // ws.onmessage = function () {};
+        } else {
+            $('#status').html(`${js.progress}`);
+        }
+    };
+    ws.onclose = function () {
+        console.log('disconnected');
+    };
+
+    // function sendMessage(event) {
+    //     var input = document.getElementById("messageText")
+    //     ws.send(input.value)
+    //     input.value = ''
+    //     event.preventDefault()
+    // }
+}
 });
