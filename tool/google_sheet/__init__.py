@@ -1,8 +1,17 @@
 from datetime import datetime
+from os.path import dirname
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from gspread_formatting import *
+
+if __name__:
+    import sys
+
+    PATH = dirname(dirname(dirname(__file__)))
+    sys.path.append(PATH)
+    from tool.pos.product import Product
+
 
 JSON_CRED = {
     "type": "service_account",
@@ -26,16 +35,25 @@ FOLDER = '1B0ZaHo3h2MLpX7HSRZjtZ3Fux59AHUzH'
 
 class Sheet(object):
     def __init__(self):
-        self.cred = ServiceAccountCredentials.from_json_keyfile_dict(JSON_CRED, SCOPE)
+        cred = ServiceAccountCredentials.from_json_keyfile_dict(JSON_CRED, SCOPE)
+        self.client = gspread.authorize(cred)
         self.wb = None
         self.sheet_id = None
         self.sheet_url = None
 
+    def get_sheet_by_link(self, link):
+        try:
+            self.wb = self.client.open_by_url(link)
+            if self.wb is None:
+                return False
+            return True
+        except Exception as e:
+            print(39, e)
+            return False
+
     def create_sheet(self, domain=None, title=None):
-        client = gspread.authorize(self.cred)
-        print('LOGGED')
         title = f"{domain}_{title}_{datetime.now().strftime('%d-%m-%y %H:%M')}"
-        self.wb = client.create(title, folder_id=FOLDER)
+        self.wb = self.client.create(title, folder_id=FOLDER)
         print('CREATED')
 
         self.sheet_id = self.wb.id
@@ -53,10 +71,57 @@ class Sheet(object):
              'Chi nhánh hiển thị','Id']]
         values.extend(data)
         ws.insert_rows(values)
-        set_frozen(ws, 1)
+        set_frozen(ws, rows=1, cols=2)
         fmt = CellFormat(
             backgroundColor=Color(147 / 255, 204 / 255, 234 / 255),  # set it to yellow
             textFormat=TextFormat(bold=True),
         )
         format_cell_range(ws, '1:1', fmt)
+
+    def extract(self):
+        ws = self.wb.get_worksheet(0)
+        header = ws.row_values(1)
+        ws.sort((header.index('Thành phần') + 1, 'asc'))
+        records = ws.get_all_records()
+        # print(data[0])
+        for data in records:
+            p = Product()
+            p.setId(data['Id'])
+            p.setMulCode(data['Mã hàng hóa'])
+            p.setName(data['Tên hàng hóa'])
+            p.setSerial(data['Quản lý theo Lô Hạn'])
+            p.setPrintLabel(data['Không in ra tem nhãn'])
+            p.setOpenTopping(data['Mở Extra/Topping khi chọn'])
+            p.setHidden(data['Không cho phép bán'])
+            p.setVAT(data['VAT'])
+            p.setMulPrinter(data['In nhiều vị trí'])
+            p.Price = str(data['Giá bán']).strip()
+            p.PriceLargeUnit = str(data['Giá bán ĐVT Lớn']).strip()
+            p.Cost = str(data['Giá vốn']).strip()
+            p.Unit = data['ĐVT'].strip()
+            p.LargeUnit = data['ĐVT Lớn'].strip()
+            p.LargeUnitCode = data['Mã ĐVT Lớn'].strip()
+            p.ConversionValue = data['Giá trị quy đổi']
+            p.OrderQuickNotes = data['Ghi chú nhanh khi bán hàng'].strip()
+            p.OnHand = data['Tồn kho']
+            p.setMaxQuantity(data['Định mức tồn lớn nhất'])
+            p.setMinQuantity(data['Định mức tồn nhỏ nhất'])
+            p.setSplitForSalesOrder(data['Tách thành nhiều dòng khi bán hàng'])
+            p.update({
+                'Id': id,
+                'Code': code[0],
+                'Name': name,
+                'Unit': data['ĐVT'].strip(),
+                'LargeUnit': data['ĐVT Lớn'].strip(),
+                'LargeUnitCode': data['Mã ĐVT Lớn'].strip(),
+                'ConversionValue': data['Giá trị quy đổi'],
+                'OrderQuickNotes': data['Ghi chú nhanh khi bán hàng'].strip(),
+                'Price': data['Giá bán'],
+                'PriceLargeUnit': data['Giá bán ĐVT Lớn'],
+                'Cost': data['Giá vốn'],
+                'IsSerialNumberTracking': serial,
+                'Printer': data['Tên máy in'].strip()
+            })
+            print(p)
+
 # Sheet().auth(None)

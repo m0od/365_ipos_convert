@@ -12,14 +12,15 @@ import multiprocessing as mp
 # from pos365api import API
 # from threading import current_thread
 import warnings
+
 # print(__name__)
-if __name__ is not '__main__':
+if __name__:
     import sys
+
     PATH = dirname(dirname(dirname(__file__)))
     sys.path.append(PATH)
     from tool.pos import PosApi
     from tool.google_sheet import Sheet
-
 
 # import sys
 # sys.path.append(".")
@@ -35,6 +36,7 @@ r = redis.Redis(host='localhost', port=6380)
 
 bg = Celery('kt365', backend=RESULT_BACKEND, broker=CELERY_BROKER_URL)
 
+
 @bg.task(name='extract_product')
 def extract_product(domain=None, cookie=None, branch=None):
     global _COUNTER
@@ -48,6 +50,7 @@ def extract_product(domain=None, cookie=None, branch=None):
         channel=rid,
         message=json.dumps({'progress': round(float(100 / 100000) * 100, 2), 'status': False})
     )
+
     def func(skip, worker):
         # try:
         data = []
@@ -72,6 +75,7 @@ def extract_product(domain=None, cookie=None, branch=None):
                 skip += 50 * worker
             # else:
             #     print(res)
+
     #
     api = PosApi(domain, cookie)
     if not api.switch_branch(branch):
@@ -83,9 +87,9 @@ def extract_product(domain=None, cookie=None, branch=None):
     max_workers = 6
     thread = futures.ThreadPoolExecutor(max_workers=max_workers)
     tasks = []
-    for i in range(max_workers-1):
+    for i in range(max_workers - 1):
         # skip = i * 50
-        tasks.append(thread.submit(func, i * 50, max_workers-1))
+        tasks.append(thread.submit(func, i * 50, max_workers - 1))
     tasks.append(thread.submit(sheet.create_sheet, domain, 'DS Hàng hoá'))
     # futures.as_completed(tasks)
     wait(tasks)
@@ -110,18 +114,12 @@ def extract_product(domain=None, cookie=None, branch=None):
     #     message=json.dumps({'progress': 'DONE', 'status': True})
     # )
     return {'status': True, 'result': 'done'}
-@bg.task(name='abc')
-def abc(txt):
-    for i in range(100001):
-        pub = r.publish(
-            channel=abc.request.id,
-            message=json.dumps({'progress':round(float(i/100000)*100,2), 'status':False})
-        )
-        # time.sleep(1)
-    pub = r.publish(
-        channel=abc.request.id,
-        message=json.dumps({'status':True})
-    )
-    print('process_message')
-    # Process the message
-    print(f'Received message: {txt}')
+
+
+@bg.task(name='import_product')
+def import_product(domain=None, cookie=None, branch=None, importType=None, data=None):
+    global _COUNTER
+    if importType == 1:
+        sheet = Sheet()
+        sheet.get_sheet_by_link(data)
+        sheet.extract()

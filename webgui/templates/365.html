@@ -205,6 +205,50 @@
                 </td>
             </tr>
         </table>
+        <table class="ml-1 table table-sm table-borderless">
+            <tr>
+                <td id="btnDelSale" class="w-20">
+                    <div class="input-group input-group-sm">
+                        <input class="btn btn-outline-light btn-sm" type="submit"
+                               id="btnImport" value="Nhập">
+
+                        <select class="form-select" autocomplete="off"
+                                id="typeImport">
+                            <option selected></option>
+                            <option value="1">Hàng hoá</option>
+{#                            <option value="2">Phòng bàn</option>#}
+{#                            <option value="3">Khách hàng</option>#}
+{#                            <option value="4">Nhà cung cấp</option>#}
+{#                            <option value="5">Đơn hàng</option>#}
+{#                            <option value="6">Trả hàng</option>#}
+{#                            <option value="7">Trả hàng NCC</option>#}
+{#                            <option value="8">Chuyển hàng nội bộ</option>#}
+{#                            <option value="9">Giao dịch khác</option>#}
+{#                            <option value="10">Kiểm kê</option>#}
+{#                            <option value="11">Thu chi</option>#}
+{#                            <option value="12">QL SX & sơ chế</option>#}
+                        </select>
+                    </div>
+                </td>
+
+                <td class="w-20">
+                    <div class="form-check form-check-inline pt-1">
+                        <input class="form-check-input" type="radio" autocomplete="off"
+                               name="ImportOption" value="1" checked>
+                        <label class="form-check-label text-light">GoogleSheet</label>
+                    </div>
+                    <div class="form-check form-check-inline pt-1">
+                        <input class="form-check-input" type="radio" autocomplete="off"
+                               name="ImportOption" value="2">
+                        <label class="form-check-label text-light">File</label>
+                    </div>
+
+                </td>
+                <td id="import">
+{#                    <input type="file" class="form-control form-control-sm d-none" id="inputFile">#}
+                </td>
+            </tr>
+        </table>
         <input hidden value="" id="cookie" autocomplete="off">
     </div>
     <div class="col ms-1 me-1">

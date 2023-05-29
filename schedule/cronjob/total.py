@@ -42,7 +42,7 @@ def main():
         # for i in range(1,24):
         with futures.ThreadPoolExecutor(max_workers=2) as mt:
             thread = [
-                mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
+                mt.submit(ato.get_data, now - timedelta(days=2), now - timedelta(days=2)),
                 mt.submit(megane.get_data, now - timedelta(days=1))
                 # mt.submit(ao.get_data, (now - timedelta(days=i))),
                 # mt.submit(bl.get_data, (now - timedelta(days=i))),

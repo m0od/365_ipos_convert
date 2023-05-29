@@ -9,7 +9,7 @@ $(document).ready(function () {
                 cookie: $('#cookie').val().trim(),
                 link: $('#link').val().trim()
             },
-            url: '/tool/sync/branch',
+            url: 'https://adapter.pos365.vn/tool/sync/branch',
             success: function (r) {
                 r.branch.forEach(function (value) {
                     $('#optBranch').append($('<option>', {
@@ -140,7 +140,56 @@ $(document).ready(function () {
                         link: link,
                         branch: branch
                     },
-                    url: '/tool/extract/products',
+                    url: 'https://adapter.pos365.vn/tool/extract/products',
+                    success: function (r) {
+                        $('#status').html(r);
+                        fuck_wss(r);
+                    },
+                    error: function (e) {
+                        $('#status').html(e);
+                    }
+                });
+                break;
+            case '2':
+                break;
+            default:
+                $('#status').html('Chưa chọn data cần xuất bạn ê');
+                break;
+
+        }
+    });
+    $(document).on('click', '[name="ImportOption"]', function (event) {
+        let opt = $('[name="ImportOption"]:checked').val()
+        if (opt === '1') {
+            $('#import').html('<input type="text" class="form-control form-control-sm" placeholder="Link Sheet" id="inputImport">');
+            // $('#inputSheet').removeClass('d-none');
+        } else {
+            $('#import').html('<input type="file" class="form-control form-control-sm" id="inputImport">');
+            // $('#inputFile').removeClass('d-none');
+            // $('#inputSheet').addClass('d-none');
+        }
+    })
+    $(document).on('click', '#btnImport', function (event) {
+        $('#status').empty();
+        let type = $('#typeImport').val();
+        let link = $('#link').val().trim();
+        let cookie = $('#cookie').val().trim();
+        let branch = $('#optBranch').val();
+        switch (type) {
+            case '1'://hàng hoá
+                $.ajax({
+                    type: "POST",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    data: {
+                        cookie: cookie,
+                        link: link,
+                        branch: branch,
+                        type: $('[name="ImportOption"]:checked').val(),
+                        data: $('#inputImport').val()
+                    },
+                    url: 'https://adapter.pos365.vn:6000/tool/import/products',
                     success: function (r) {
                         $('#status').html(r);
                         fuck_wss(r);
