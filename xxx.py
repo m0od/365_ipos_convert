@@ -5,6 +5,6 @@ import time
 from datetime import datetime
 
 import json
-a = json.loads('[]')
-print(type(a))
-print(f"|{', '.join(str(_[0]) for _ in a).strip()}|")
+b = ["[152759]", "[132942]", "[31236]"]
+x = {"ShowOnBranchId": b}
+print(json.dumps(x, separators=(',', ':')))

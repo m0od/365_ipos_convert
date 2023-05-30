@@ -191,6 +191,16 @@ class PosApi(object):
         except Exception as e:
             return {'status': False, 'err': str(e)}
 
+    def product_full_save(self, data):
+        # try:
+            # print(self.base_url)
+            data = json.dumps(data, separators=(',', ':'))
+            print(data)
+            res = self.browser.post(self.base_url + '/api/products', data=data)
+            # print(res.text)
+        # except Exception as e:
+        #     print(e)
+
     def account_save(self, name):
         try:
             data = json.dumps({
@@ -230,6 +240,18 @@ class PosApi(object):
 
         except Exception as e:
             return {'status': False, 'err': str(e)}
+
+    def search_pcode(self, code):
+        try:
+            p = {
+                'code': code
+            }
+            res = self.browser.get(self.base_url + '/api/products/getbycode', params=p)
+            if res.status_code == 200:
+                return res.json()['Id']
+            return None
+        except:
+            return None
 
     def account_list(self):
         try:
@@ -373,5 +395,42 @@ class PosApi(object):
                 res = self.browser.get(self.base_url + f'/api/products/{product_id}/suppliers')
                 if res.status_code == 200:
                     return ', '.join(f'{img.get("Supplier").get("Code")}' for img in res.json()).strip()
+            except:
+                pass
+
+    def category_list(self):
+        p = {
+            'Top': '50'
+        }
+        category = {}
+        while True:
+            res = self.browser.get(self.base_url + '/api/categories', params=p)
+            if res.status_code != 200: continue
+            js = res.json()
+            if len(js['results']) == 0: break
+            category.update({js['Name']: js['Id']})
+        return category
+
+    def category_save(self, name):
+        js = {
+            'Category': {
+                'Id': 0,
+                'Name': name
+            }
+        }
+        while True:
+            try:
+                res = self.browser.post(self.base_url + '/api/categories', json=js)
+                if res.status_code == 400:
+                    res = self.browser.get(self.base_url + '/api/categories', params={'Top': '50'})
+                    if res.status_code != 200: continue
+                    js = res.json()
+                    for _ in js['results']:
+                        if _['Name'] == name:
+                            return _['Id']
+                    continue
+                if res.status_code != 200: continue
+                js = res.json()
+                return js['Id']
             except:
                 pass

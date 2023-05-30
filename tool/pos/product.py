@@ -1,5 +1,11 @@
-class Product(object):
-    def __init__(self):
+import json
+
+from . import PosApi
+
+
+class Product(PosApi):
+    def __init__(self, domain, cookie):
+        super().__init__(domain, cookie=cookie)
         self.Id = None
         self.Code = None
         self.Code2 = None
@@ -28,7 +34,12 @@ class Product(object):
         self.BonusPointForAssistant = None
         self.BonusPointForAssistant2 = None
         self.BonusPointForAssistant3 = None
-
+        self.ShowOnBranchId = []
+        self.AttributesName = None
+        self.ProductImages = []
+        self.ProductAttributes = []
+        self.CompositeItemProducts = []
+        self.Formular = None
     def setMulPrinter(self, data):
         _ = data.strip().split(',')
         idx = 0
@@ -57,7 +68,7 @@ class Product(object):
                 pass
 
     def setSplitForSalesOrder(self, data):
-        _ = str(data.strip())
+        _ = str(data).strip()
         if _ == '1':
             self.SplitForSalesOrder = True
         else:
@@ -74,7 +85,7 @@ class Product(object):
             self.Name = self.Code
 
     def setSerial(self, data):
-        _ = str(data.strip())
+        _ = str(data).strip()
         if _ == '1':
             self.IsSerialNumberTracking = True
         else:
@@ -104,7 +115,7 @@ class Product(object):
                 c += 1
 
     def setVAT(self, data):
-        _ = str(data.strip())
+        _ = str(data).strip()
         if len(_) > 0:
             try:
                 self.PriceConfig.update({'VAT': float(_)})
@@ -112,7 +123,7 @@ class Product(object):
                 pass
 
     def setMaxQuantity(self, data):
-        _ = str(data.strip())
+        _ = str(data).strip()
         if len(_) > 0:
             try:
                 self.MaxQuantity = float(_)
@@ -120,7 +131,7 @@ class Product(object):
                 pass
 
     def setMinQuantity(self, data):
-        _ = str(data.strip())
+        _ = str(data).strip()
         if len(_) > 0:
             try:
                 self.MinQuantity = float(_)
@@ -128,22 +139,95 @@ class Product(object):
                 pass
 
     def setHidden(self, data):
-        _ = str(data.strip())
+        _ = str(data).strip()
         if _ == '1':
             self.Hidden = True
         else:
             self.Hidden = False
 
     def setPrintLabel(self, data):
-        _ = str(data.strip())
+        _ = str(data).strip()
         if _ == '1':
             self.PriceConfig.update({'DontPrintLabel': True})
         else:
             self.PriceConfig.update({'DontPrintLabel': False})
 
     def setOpenTopping(self, data):
-        _ = str(data.strip())
+        _ = str(data).strip()
         if _ == '1':
             self.PriceConfig.update({'OpenTopping': True})
         else:
             self.PriceConfig.update({'OpenTopping': False})
+
+    def setShowBranch(self, data):
+        _ = data.strip().split(',')
+        for i in range(len(_)):
+            if len(_[i].strip()) > 0:
+                self.ShowOnBranchId.append(json.dumps([int(_[i].strip())]))
+        # print(self.ShowOnBranchId)
+
+    def setImage(self, data):
+        _ = data.strip().split(',')
+        for i in range(len(_)):
+            self.ProductImages.append({'ImageURL':_[i].strip(), 'ThumbnailUrl': _[i].strip()})
+
+    def setProductAttributes(self, data):
+        _ = data.strip().split(',')
+        for i in range(len(_)):
+            if len(_[i].strip()) > 0:
+                self.ProductAttributes.append({
+                    'AttributeName': _[i].split(':')[0].strip(),
+                    'AttributeValue': _[i].split(':')[1].strip(),
+                })
+
+    def setCompositeItemProducts(self, data):
+        _ = data.strip().split(',')
+        for i in range(len(_)):
+            id = self.search_pcode(_[i].split('=')[0].strip())
+            if id is not None:
+                self.CompositeItemProducts.append({
+                    'ItemId': id,
+                    'Quantity': _[i].split('=')[1].strip()
+                })
+    def toJson(self):
+        if len(self.CategoryName) > 0:
+            self.CategoryId = self.category_save(self.CategoryName)
+        else:
+            self.CategoryId = None
+        js = {
+            'Product': {
+                'Id': self.Id,
+                'Code': self.Code,
+                'Code2': self.Code2,
+                'Code3': self.Code3,
+                'Code4': self.Code4,
+                'Code5': self.Code5,
+                'Name': self.Name,
+                'Price': self.Price,
+                'PriceLargeUnit': self.PriceLargeUnit,
+                'PriceConfig': json.dumps(self.PriceConfig),
+                'Printer': self.Printer,
+                'ProductImages': self.ProductImages,
+                'ProductType': self.ProductType,
+                'SplitForSalesOrder': self.SplitForSalesOrder,
+                'Unit': self.Unit,
+                'AttributesName': self.AttributesName,
+                'BonusPoint': self.BonusPoint,
+                'BonusPointForAssistant': self.BonusPointForAssistant,
+                'BonusPointForAssistant2': self.BonusPointForAssistant2,
+                'BonusPointForAssistant3': self.BonusPointForAssistant3,
+                'CategoryId': self.CategoryId,
+                'ConversionValue': self.ConversionValue,
+                'Hidden': self.Hidden,
+                'IsSerialNumberTracking': self.IsSerialNumberTracking,
+                'ShowOnBranchId': self.ShowOnBranchId,
+                'ProductAttributes': self.ProductAttributes,
+                'CompositeItemProducts': self.CompositeItemProducts,
+                'Formular': self.Formular
+            },
+            # 'ProductPartners': [{
+            #     'PartnerId': 0
+            # }]
+        }
+        # print(json.dumps(js))
+        self.product_full_save(js)

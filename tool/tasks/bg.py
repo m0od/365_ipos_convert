@@ -122,4 +122,4 @@ def import_product(domain=None, cookie=None, branch=None, importType=None, data=
     if importType == 1:
         sheet = Sheet()
         sheet.get_sheet_by_link(data)
-        sheet.extract()
+        sheet.extract(domain, cookie, branch)

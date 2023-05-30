@@ -20,7 +20,7 @@ class MatViet(object):
     def get_data(self):
         js = {
             'Tocken': self.Token,
-            'TransactionDate': '2023-05-28'
+            'TransactionDate': '2023-05-29'
         }
         res = self.browser.post(self.URL, json=js)
         if res.status_code != 200: return False

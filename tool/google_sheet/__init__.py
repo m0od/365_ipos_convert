@@ -78,14 +78,14 @@ class Sheet(object):
         )
         format_cell_range(ws, '1:1', fmt)
 
-    def extract(self):
+    def extract(self, domain=None, cookie=None, branch=None):
         ws = self.wb.get_worksheet(0)
         header = ws.row_values(1)
         ws.sort((header.index('Thành phần') + 1, 'asc'))
         records = ws.get_all_records()
         # print(data[0])
         for data in records:
-            p = Product()
+            p = Product(domain, cookie)
             p.setId(data['Id'])
             p.setMulCode(data['Mã hàng hóa'])
             p.setName(data['Tên hàng hóa'])
@@ -104,24 +104,34 @@ class Sheet(object):
             p.ConversionValue = data['Giá trị quy đổi']
             p.OrderQuickNotes = data['Ghi chú nhanh khi bán hàng'].strip()
             p.OnHand = data['Tồn kho']
+            p.ProductType = data['Loại hàng']
+            p.CategoryName = data['Tên nhóm']
+            p.Printer = data['Tên máy in']
             p.setMaxQuantity(data['Định mức tồn lớn nhất'])
             p.setMinQuantity(data['Định mức tồn nhỏ nhất'])
             p.setSplitForSalesOrder(data['Tách thành nhiều dòng khi bán hàng'])
-            p.update({
-                'Id': id,
-                'Code': code[0],
-                'Name': name,
-                'Unit': data['ĐVT'].strip(),
-                'LargeUnit': data['ĐVT Lớn'].strip(),
-                'LargeUnitCode': data['Mã ĐVT Lớn'].strip(),
-                'ConversionValue': data['Giá trị quy đổi'],
-                'OrderQuickNotes': data['Ghi chú nhanh khi bán hàng'].strip(),
-                'Price': data['Giá bán'],
-                'PriceLargeUnit': data['Giá bán ĐVT Lớn'],
-                'Cost': data['Giá vốn'],
-                'IsSerialNumberTracking': serial,
-                'Printer': data['Tên máy in'].strip()
-            })
+            p.setShowBranch(data['Chi nhánh hiển thị'])
+            p.setCompositeItemProducts(data['Thành phần'])
+            p.setProductAttributes(data['Thuộc tính'])
+            p.setImage(data['Hình ảnh'])
+            p.setBonus(data['Hoa hồng'])
+            p.toJson()
+            # break
+            # p.update({
+            #     'Id': id,
+            #     'Code': code[0],
+            #     'Name': name,
+            #     'Unit': data['ĐVT'].strip(),
+            #     'LargeUnit': data['ĐVT Lớn'].strip(),
+            #     'LargeUnitCode': data['Mã ĐVT Lớn'].strip(),
+            #     'ConversionValue': data['Giá trị quy đổi'],
+            #     'OrderQuickNotes': data['Ghi chú nhanh khi bán hàng'].strip(),
+            #     'Price': data['Giá bán'],
+            #     'PriceLargeUnit': data['Giá bán ĐVT Lớn'],
+            #     'Cost': data['Giá vốn'],
+            #     'IsSerialNumberTracking': serial,
+            #     'Printer': data['Tên máy in'].strip()
+            # })
             print(p)
 
 # Sheet().auth(None)
