@@ -20,7 +20,7 @@ class MatViet(object):
     def get_data(self):
         js = {
             'Tocken': self.Token,
-            'TransactionDate': '2023-05-29'
+            'TransactionDate': '2023-05-31'
         }
         res = self.browser.post(self.URL, json=js)
         if res.status_code != 200: return False
@@ -41,15 +41,21 @@ class MatViet(object):
                     'Price': p['Price']
                 })
             pms = []
+            if _['Code'].startswith('SO'):
+                total = 0
+            else:
+                total = _['Total']
             for pm in _['PaymentMethods']:
                 name = self.method.get(pm['Name']) is None and pm['Name'] or self.method.get(pm['Name'])
                 pms.append({
                     'Name': name,
                     'Value': pm['Value']
                 })
+                if _['Code'].startswith('SO'):
+                    total += pm['Value']
             send = {
                 'Code': _['Code'],
-                'Total': _['Total'],
+                'Total': total,
                 'TotalPayment': _['TotalPayment'],
                 'PaymentMethods': pms,
                 'Discount': _['Discount'],

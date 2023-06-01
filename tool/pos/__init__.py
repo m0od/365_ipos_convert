@@ -2,9 +2,8 @@ import requests
 import json
 
 
-class PosApi(object):
+class FullApi(object):
     def __init__(self, domain, cookie=None, user=None, password=None):
-        print('called')
         self.browser = requests.session()
         # self.browser.verify = False
         self.browser.headers.update({
@@ -24,7 +23,7 @@ class PosApi(object):
             res = self.browser.get(self.base_url + '/Config/VendorSession')
             if len(res.text) == 0:
                 return True
-        except Exception as e:
+        except:
             pass
         return False
 
@@ -193,13 +192,14 @@ class PosApi(object):
 
     def product_full_save(self, data):
         # try:
-            # print(self.base_url)
-            data = json.dumps(data, separators=(',', ':'))
-            print(data)
-            res = self.browser.post(self.base_url + '/api/products', data=data)
-            # print(res.text)
-        # except Exception as e:
-        #     print(e)
+        # print(self.base_url)
+        data = json.dumps(data, separators=(',', ':'))
+        print(data)
+        res = self.browser.post(self.base_url + '/api/products', data=data)
+        print(res.text)
+
+    # except Exception as e:
+    #     print(e)
 
     def account_save(self, name):
         try:
@@ -241,17 +241,31 @@ class PosApi(object):
         except Exception as e:
             return {'status': False, 'err': str(e)}
 
-    def search_pcode(self, code):
-        try:
-            p = {
-                'code': code
-            }
-            res = self.browser.get(self.base_url + '/api/products/getbycode', params=p)
-            if res.status_code == 200:
-                return res.json()['Id']
-            return None
-        except:
-            return None
+    def product_by_code(self, code):
+        while True:
+            try:
+                p = {
+                    'Filter': f"substringof('{code}',Code)",
+                    'Top': '50'
+                }
+                res = self.browser.get(self.base_url + '/api/products', params=p)
+                if res.status_code == 401:
+                    return {'err': f'Lỗi đăng nhập', 'status': False}
+                elif res.status_code != 200:
+                    continue
+                c = 0
+                js = res.json()
+                for _ in js['results']:
+                    if _['Code'] == code:
+                        c += 1
+                if c > 1:
+                    return {'err': f'Trùng mã hàng hoá', 'status': False}
+                elif c == 0:
+                    return {'Id': 0, 'status': True}
+                else:
+                    return {'Id': res.json()['Id'], 'status': True}
+            except:
+                pass
 
     def account_list(self):
         try:

@@ -1,9 +1,9 @@
 import json
 
-from . import PosApi
+from . import FullApi
 
 
-class Product(PosApi):
+class Product(FullApi):
     def __init__(self, domain, cookie):
         super().__init__(domain, cookie=cookie)
         self.Id = None
@@ -40,6 +40,7 @@ class Product(PosApi):
         self.ProductAttributes = []
         self.CompositeItemProducts = []
         self.Formular = None
+        self.OnHand = None
     def setMulPrinter(self, data):
         _ = data.strip().split(',')
         idx = 0
@@ -118,7 +119,8 @@ class Product(PosApi):
         _ = str(data).strip()
         if len(_) > 0:
             try:
-                self.PriceConfig.update({'VAT': float(_)})
+                if float(_) > 0:
+                    self.PriceConfig.update({'VAT': float(_)})
             except:
                 pass
 
@@ -183,7 +185,7 @@ class Product(PosApi):
     def setCompositeItemProducts(self, data):
         _ = data.strip().split(',')
         for i in range(len(_)):
-            id = self.search_pcode(_[i].split('=')[0].strip())
+            id = self.product_by_code(_[i].split('=')[0].strip())
             if id is not None:
                 self.CompositeItemProducts.append({
                     'ItemId': id,
@@ -225,6 +227,8 @@ class Product(PosApi):
                 'CompositeItemProducts': self.CompositeItemProducts,
                 'Formular': self.Formular
             },
+            'OnHand': self.OnHand,
+            'CompareOnHand': self.OnHand
             # 'ProductPartners': [{
             #     'PartnerId': 0
             # }]

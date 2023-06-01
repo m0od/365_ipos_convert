@@ -216,22 +216,22 @@
                                 id="typeImport">
                             <option selected></option>
                             <option value="1">Hàng hoá</option>
-{#                            <option value="2">Phòng bàn</option>#}
-{#                            <option value="3">Khách hàng</option>#}
-{#                            <option value="4">Nhà cung cấp</option>#}
-{#                            <option value="5">Đơn hàng</option>#}
-{#                            <option value="6">Trả hàng</option>#}
-{#                            <option value="7">Trả hàng NCC</option>#}
-{#                            <option value="8">Chuyển hàng nội bộ</option>#}
-{#                            <option value="9">Giao dịch khác</option>#}
-{#                            <option value="10">Kiểm kê</option>#}
-{#                            <option value="11">Thu chi</option>#}
-{#                            <option value="12">QL SX & sơ chế</option>#}
+                            {#                            <option value="2">Phòng bàn</option>#}
+                            {#                            <option value="3">Khách hàng</option>#}
+                            {#                            <option value="4">Nhà cung cấp</option>#}
+                            {#                            <option value="5">Đơn hàng</option>#}
+                            {#                            <option value="6">Trả hàng</option>#}
+                            {#                            <option value="7">Trả hàng NCC</option>#}
+                            {#                            <option value="8">Chuyển hàng nội bộ</option>#}
+                            {#                            <option value="9">Giao dịch khác</option>#}
+                            {#                            <option value="10">Kiểm kê</option>#}
+                            {#                            <option value="11">Thu chi</option>#}
+                            {#                            <option value="12">QL SX & sơ chế</option>#}
                         </select>
                     </div>
                 </td>
 
-                <td class="w-20">
+                <td class="w-15">
                     <div class="form-check form-check-inline pt-1">
                         <input class="form-check-input" type="radio" autocomplete="off"
                                name="ImportOption" value="1" checked>
@@ -244,8 +244,14 @@
                     </div>
 
                 </td>
+                <td class="w-25">
+                    <div class="form-check form-check-inline pt-1">
+                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked="">
+                        <label class="form-check-label text-light">Cập nhật Tồn kho & Giá vốn</label>
+                    </div>
+                </td>
                 <td id="import">
-{#                    <input type="file" class="form-control form-control-sm d-none" id="inputFile">#}
+                    <input type="text" class="form-control form-control-sm" placeholder="Link Sheet" id="inputImport">
                 </td>
             </tr>
         </table>

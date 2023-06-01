@@ -1,1 +1,1 @@
-from pos import PosApi
+from pos import FullApi
