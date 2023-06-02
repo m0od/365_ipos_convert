@@ -6,7 +6,8 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from . import ws,  api,  auth, insert
+from . import ws, api, auth, insert, extractData
+
 # from .config import Settings
 
 # with open('../.secret_key', 'a+b') as secret:
@@ -33,7 +34,7 @@ app.add_middleware(
 # app.add_middleware(SessionMiddleware, secret_key=key)
 app.include_router(auth.router, tags=['Authenticate'])
 # app.include_router(ws.router, prefix='/tool/ws', tags=['WebSocket'])
-# app.include_router(extractData.router, prefix='/tool/extract', tags=['Extract Data'])
+app.include_router(extractData.router, prefix='/tool/extract', tags=['Extract Data'])
 app.include_router(insert.router, tags=['Import Data'])
 # app.include_router(api.router, prefix='/tool', tags=['Extract Data'])
 

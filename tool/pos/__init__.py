@@ -193,10 +193,13 @@ class FullApi(object):
     def product_full_save(self, data):
         # try:
         # print(self.base_url)
-        data = json.dumps(data, separators=(',', ':'))
-        print(data)
+        data = json.dumps(ignore_null(data), separators=(',', ':'))
         res = self.browser.post(self.base_url + '/api/products', data=data)
-        print(res.text)
+        # print(res.text)
+        if res.status_code == 200:
+            return {'status': True}
+        else:
+            return {'status': False, 'err': res.status_code}
 
     # except Exception as e:
     #     print(e)
@@ -255,6 +258,7 @@ class FullApi(object):
                     continue
                 c = 0
                 js = res.json()
+                # print(js)
                 for _ in js['results']:
                     if _['Code'] == code:
                         c += 1
@@ -263,8 +267,9 @@ class FullApi(object):
                 elif c == 0:
                     return {'Id': 0, 'status': True}
                 else:
-                    return {'Id': res.json()['Id'], 'status': True}
-            except:
+                    return {'Id': js['results'][0]['Id'], 'status': True}
+            except Exception as e:
+                print(e)
                 pass
 
     def account_list(self):
@@ -425,6 +430,24 @@ class FullApi(object):
             category.update({js['Name']: js['Id']})
         return category
 
+    def search_partner(self, code):
+        js = {
+            'Filter': f"substringof('{code}',Code)",
+            'Top': '1'
+        }
+        while True:
+            try:
+                res = self.browser.get(self.base_url + '/api/partners', params=js)
+                if res.status_code != 200: continue
+                js = res.json()
+                if len(js['results']) == 0:
+                    return None
+                for _ in js['results']:
+                    if _['Code'] == code:
+                        return _['Id']
+            except:
+                pass
+
     def category_save(self, name):
         js = {
             'Category': {
@@ -448,3 +471,15 @@ class FullApi(object):
                 return js['Id']
             except:
                 pass
+
+
+def ignore_null(_):
+    def empty(x):
+        return x is None or x == {} or x == []
+
+    if not isinstance(_, (dict, list)):
+        return _
+    elif isinstance(_, list):
+        return [v for v in (ignore_null(v) for v in _) if not empty(v)]
+    else:
+        return {k: v for k, v in ((k, ignore_null(v)) for k, v in _.items()) if not empty(v)}

@@ -20,7 +20,7 @@ class MatViet(object):
     def get_data(self):
         js = {
             'Tocken': self.Token,
-            'TransactionDate': '2023-05-31'
+            'TransactionDate': '2023-06-01'
         }
         res = self.browser.post(self.URL, json=js)
         if res.status_code != 200: return False
@@ -65,8 +65,10 @@ class MatViet(object):
                 'OrderDetails': ods
             }
             if _['Status']==1:
-                print(send)
+                print(send['Code'], send['PurchaseDate'], send['Total'])
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
+            else:
+                print(_)
             # print(res.json())
 
 

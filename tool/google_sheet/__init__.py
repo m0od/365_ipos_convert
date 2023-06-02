@@ -78,7 +78,7 @@ class Sheet(object):
         )
         format_cell_range(ws, '1:1', fmt)
 
-    def extract(self, domain=None, cookie=None, branch=None):
+    def extract(self):
         ws = self.wb.get_worksheet(0)
         header = ws.row_values(1)
         ws.sort((header.index('Thành phần') + 1, 'asc'))

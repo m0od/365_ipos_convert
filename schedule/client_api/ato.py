@@ -1,6 +1,6 @@
 from os.path import dirname
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class ATO(object):
@@ -131,9 +131,11 @@ class ATO(object):
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
 
 
-if __name__.__contains__('schedule.client_api'):
+if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
+    # print(datetime.now() - timedelta(days=3))
+    # ATO().get_data(datetime.now() - timedelta(days=1), datetime.now() - timedelta(days=1))

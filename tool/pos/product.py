@@ -6,6 +6,8 @@ from . import FullApi
 class Product(FullApi):
     def __init__(self, domain, cookie):
         super().__init__(domain, cookie=cookie)
+        self.PartnerId = None
+        self.CategoryId = None
         self.Id = None
         self.Code = None
         self.Code2 = None
@@ -25,7 +27,6 @@ class Product(FullApi):
         self.SplitForSalesOrder = False
         self.OrderQuickNotes = None
         self.DontPrintLabel = False
-        self.CategoryName = None
         self.PriceConfig = {}
         self.ConversionValue = None
         self.MaxQuantity = 999
@@ -41,6 +42,7 @@ class Product(FullApi):
         self.CompositeItemProducts = []
         self.Formular = None
         self.OnHand = None
+
     def setMulPrinter(self, data):
         _ = data.strip().split(',')
         idx = 0
@@ -60,11 +62,18 @@ class Product(FullApi):
                 pass
 
     def setMulCode(self, data):
-        _ = list(filter(None, data.strip().split(',')))
-        self.Code = _[0]
+        # print(data)
+        _ = str(data).strip().split(',')
+        self.Code = _[0].strip()
+        c = 2
         for i in range(1, 5):
             try:
-                exec(f'self.Code{i + 1}={_[i]}')
+                if len(_[i].strip()) > 0:
+                    try:
+                        exec(f'self.Code{c}={_[i].strip()}')
+                        c += 1
+                    except:
+                        pass
             except:
                 pass
 
@@ -162,7 +171,7 @@ class Product(FullApi):
             self.PriceConfig.update({'OpenTopping': False})
 
     def setShowBranch(self, data):
-        _ = data.strip().split(',')
+        _ = str(data).strip().split(',')
         for i in range(len(_)):
             if len(_[i].strip()) > 0:
                 self.ShowOnBranchId.append(json.dumps([int(_[i].strip())]))
@@ -171,7 +180,7 @@ class Product(FullApi):
     def setImage(self, data):
         _ = data.strip().split(',')
         for i in range(len(_)):
-            self.ProductImages.append({'ImageURL':_[i].strip(), 'ThumbnailUrl': _[i].strip()})
+            self.ProductImages.append({'ImageURL': _[i].strip(), 'ThumbnailUrl': _[i].strip()})
 
     def setProductAttributes(self, data):
         _ = data.strip().split(',')
@@ -185,18 +194,38 @@ class Product(FullApi):
     def setCompositeItemProducts(self, data):
         _ = data.strip().split(',')
         for i in range(len(_)):
-            id = self.product_by_code(_[i].split('=')[0].strip())
-            if id is not None:
-                self.CompositeItemProducts.append({
-                    'ItemId': id,
-                    'Quantity': _[i].split('=')[1].strip()
-                })
-    def toJson(self):
-        if len(self.CategoryName) > 0:
-            self.CategoryId = self.category_save(self.CategoryName)
+            if len(_[i].strip()) > 0:
+                id = self.product_by_code(_[i].split('=')[0].strip())
+                if id is not None:
+                    self.CompositeItemProducts.append({
+                        'ItemId': id,
+                        'Quantity': _[i].split('=')[1].strip()
+                    })
+
+    # def ignore_null(_):
+    #     """recursively remove empty lists, empty dicts, or None elements from a dictionary"""
+    #
+    #     def empty(x):
+    #         return x is None or x == {} or x == []
+    #
+    #     if not isinstance(_, (dict, list)):
+    #         return _
+    #     elif isinstance(_, list):
+    #         return [v for v in (ignore_bull(v) for v in _) if not empty(v)]
+    #     else:
+    #         return {k: v for k, v in ((k, ignore_bull(v)) for k, v in _.items()) if not empty(v)}
+    def setCategory(self, data):
+        if len(str(data).strip()) > 0:
+            self.CategoryId = self.category_save(str(data).strip())
         else:
             self.CategoryId = None
-        js = {
+
+    def setPartner(self, data):
+        if len(str(data).strip()) == 0:
+            self.PartnerId = self.search_partner(str(data).strip())
+
+    def toJson(self):
+        return {
             'Product': {
                 'Id': self.Id,
                 'Code': self.Code,
@@ -227,11 +256,10 @@ class Product(FullApi):
                 'CompositeItemProducts': self.CompositeItemProducts,
                 'Formular': self.Formular
             },
-            'OnHand': self.OnHand,
-            'CompareOnHand': self.OnHand
-            # 'ProductPartners': [{
-            #     'PartnerId': 0
-            # }]
+            # 'OnHand': self.OnHand,
+            # 'CompareOnHand': self.OnHand
+            'ProductPartners': [{
+                'PartnerId': self.PartnerId
+            }]
         }
-        # print(json.dumps(js))
-        self.product_full_save(js)
+

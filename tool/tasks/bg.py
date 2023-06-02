@@ -24,7 +24,7 @@ if __name__:
     from tool.tasks import make_celery
     from .products import insert
     from .products import extract
-    from .products.insert import TestCeleryTask
+    from .products.insert import InsertProduct
     # from .task2 import task2
 
 # __all__ = ['insert']
@@ -38,7 +38,7 @@ r = redis.Redis(host='localhost', port=6380)
 
 # bg = Celery('kt365', backend=RESULT_BACKEND, broker=CELERY_BROKER_URL)
 bg = make_celery()
-test = bg.register_task(TestCeleryTask())
+insert_product = bg.register_task(InsertProduct())
 # @bg.task(name='xxx', base=CustomTask)
 # def xxx(self):
 #     print('running')
@@ -54,10 +54,10 @@ def extract_product(domain=None, cookie=None, branch=None):
     _COUNTER = counter
     count = 0
     # time.sleep(3)
-    pub = r.publish(
-        channel=rid,
-        message=json.dumps({'progress': round(float(100 / 100000) * 100, 2), 'status': False})
-    )
+    # pub = r.publish(
+    #     channel=rid,
+    #     message=json.dumps({'progress': round(float(100 / 100000) * 100, 2), 'status': False})
+    # )
 
     def func(skip, worker):
         # try:

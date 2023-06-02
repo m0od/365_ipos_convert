@@ -8,8 +8,8 @@ if __name__:
     PATH = dirname(dirname(dirname(dirname(__file__))))
     print(1, PATH)
     sys.path.append(PATH)
-    from tool.tasks.products.insert import TestCeleryTask
-    from tool.tasks.bg import extract_product, test
+    # from tool.tasks.products.insert import TestCeleryTask
+    from tool.tasks.bg import extract_product, insert_product
 # from ...tasks.products.insert import import_product
 router = APIRouter(prefix='/tool/import')
 
@@ -25,7 +25,7 @@ async def products(req: Request):
     data = data['data']
     # result = extract_product.delay(domain=link, cookie=cookie, branch=branch)
     # result = import_product.delay(domain=link, cookie=cookie, branch=branch, importType=int(importType), data=data)
-    result = test.delay()
+    result = insert_product.delay(domain=link, cookie=cookie, branch=branch, insert_type=int(importType), data=data)
     # l = TechLog()
     # l.rid = str(result.id)
     # l.task_name = 'extract_product'
