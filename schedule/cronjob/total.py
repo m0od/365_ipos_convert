@@ -27,10 +27,10 @@ def main():
                 mt.submit(bl.get_data, (now - timedelta(days=1))),
                 mt.submit(at.get_data, (now - timedelta(days=1))),
                 mt.submit(atk.get_data, (now - timedelta(days=1))),
-                mt.submit(jm.get_data, (now - timedelta(days=1)).strftime('%Y-%m-%d')),
+                mt.submit(jm.get_data, now - timedelta(days=1)),
                 mt.submit(lemino.get_data, now - timedelta(days=1)),
                 mt.submit(boo.get_data, now - timedelta(days=1)),
-                mt.submit(atz.get_data, (now - timedelta(days=1)).strftime('%Y-%m-%d')),
+                mt.submit(atz.get_data, now - timedelta(days=1)),
                 mt.submit(adore.get_data, now - timedelta(days=1), now),
                 mt.submit(kakao.get_data, now - timedelta(days=1), now),
                 mt.submit(sneaker.get_data, now - timedelta(days=1)),
@@ -43,7 +43,9 @@ def main():
         with futures.ThreadPoolExecutor(max_workers=2) as mt:
             thread = [
                 mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
-                mt.submit(megane.get_data, now - timedelta(days=1))
+                mt.submit(megane.get_data, now - timedelta(days=1)),
+                # mt.submit(jm.get_data, now - timedelta(days=1)),
+                # mt.submit(atz.get_data, now - timedelta(days=1)),
                 # mt.submit(ao.get_data, (now - timedelta(days=i))),
                 # mt.submit(bl.get_data, (now - timedelta(days=i))),
                 # mt.submit(at.get_data, (now - timedelta(days=i))),
