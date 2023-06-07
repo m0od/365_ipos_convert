@@ -5,7 +5,7 @@ import json
 
 from schedule.pos_api.adapter import submit_order
 
-url = "https://cuockid.pos365.vn/api/products"
+url = "https://quanly555.pos365.vn/api/products"
 
 # payload = json.dumps({
 #     "Product": {
@@ -15,13 +15,10 @@ url = "https://cuockid.pos365.vn/api/products"
 #
 #     },
 # }, separators=(',', ':'))
-headers = {
-  'Content-Type': 'application/json',
-  'Cookie': 'ss-id=GpFbtwoauyjUaYKtHWYA'
-}
+
 b = requests.session()
 b.headers.update({
-'Content-Type': 'application/json',
+    'Content-Type': 'application/json',
   # 'Cookie': 'ss-id=GpFbtwoauyjUaYKtHWYA'
 })
 # from concurrent import futures
@@ -42,23 +39,70 @@ b.headers.update({
 #
 r_date = '03/06/2023 21:28:50'
 print(datetime.strptime(r_date, '%d/%m/%Y %H:%M:%S'))
-# r = b.post('https://am062.pos365.vn/api/auth', json={
-#     'Username': 'admin',
-#     'Password': '123456'
-# })
+r = b.post('https://quanly555.pos365.vn/api/auth', json={
+    "Username": "quantri@pos365.vn",
+    "Password": "IT@P0s365kmS"
+})
 # retail = 'lyn_aeonhd'
 # token = '7d5545b898b1a57468ed47d1944e18b7d19cc43b76ef6d271226df64f25e407d'
-# skip = 0
-# while True:
-#     r = b.get('https://am062.pos365.vn/api/orders', params = {
-#         '$top': '50',
-#         '$skip': str(skip),
-#         '$filter': f"(PurchaseDate ge 'datetime''2023-05-31T17:00:00Z''' and PurchaseDate lt 'datetime''2023-06-01T17:00:00Z''')",
-#         'format': 'json'
-#     })
-#     if len(r.json()['results']) == 0: break
-#     for _ in r.json()['results']:
-#         if _.get('AccountId') == 978:
+skip = 0
+while True:
+    r = b.get('https://quanly555.pos365.vn/api/orders', params = {
+        '$top': '50',
+        '$skip': str(skip),
+        # '$filter': f"(PurchaseDate ge 'datetime''2023-05-31T17:00:00Z''' and PurchaseDate lt 'datetime''2023-06-01T17:00:00Z''')",
+        'format': 'json'
+    })
+    if len(r.json()['results']) == 0: break
+    for _ in r.json()['results']:
+        print(_['Id'], _['Code'])
+        # print(_['Code'])
+        # print(_['PurchaseDate'])
+        # print(_['Status'])
+        # print(_['Discount'])
+        # print(_['Total'])
+        # print(_['TotalPayment'])
+        # {
+        #     "Order": {
+        #         "Id": _['Id'],
+        #         "Code": _['Code'],
+        #         "Discount": _['Discount'],
+        #         "OrderDetails": [
+        #             {
+        #                 "ProductId": 0
+        #             }
+        #         ],
+        #         "PurchaseDate": "2022-06-02 04:11:66",
+        #         "Status": 2,
+        #         "Total": 608182,
+        #         "TotalPayment": 669000,
+        #         "VAT": 60818,
+        #         "AccountId": null
+        #     }
+        # }
+        trans = b.get('https://quanly555.pos365.vn/api/accountingtransaction', params={'Top': '50', 'Filter': f'OrderId eq {_["Id"]}'})
+        for __ in trans.json()['results']:
+            if __.get('AccountId') == 978:
+                js = {
+                    "AccountingTransaction": {
+                        "Id": __['Id'],
+                        "Amount": __['Amount'],
+                        "OrderId": __['OrderId'],
+                        'Description': __['Description'],
+                        "AccountingTransactionType": __['AccountingTransactionType'],
+                        'GroupId': __['GroupId'],
+                        "TransDate": __['TransDate'],
+                        "AccountId": None,
+                        'Status': __['Status'],
+                        "Code": __['Code']
+                    }
+                }
+                print(b.post('https://quanly555.pos365.vn/api/accountingtransaction', json=js).json())
+
+        # break
+    skip += 50
+    # break
+        # if _.get('AccountId') == 978:
 #             p_date = datetime.strptime(_['PurchaseDate'].split('.')[0], '%Y-%m-%dT%H:%M:%S')+ timedelta(hours=7)
 #             send = {
 #                 'Code': _['Code'],

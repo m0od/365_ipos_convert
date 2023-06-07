@@ -17,10 +17,10 @@ class MatViet(object):
         self.method = {
             'TIỀN MẶT': 'CASH'
         }
-    def get_data(self):
+    def get_data(self, date_from):
         js = {
             'Tocken': self.Token,
-            'TransactionDate': '2023-06-01'
+            'TransactionDate': date_from
         }
         res = self.browser.post(self.URL, json=js)
         if res.status_code != 200: return False
@@ -41,18 +41,18 @@ class MatViet(object):
                     'Price': p['Price']
                 })
             pms = []
-            if _['Code'].startswith('SO'):
-                total = 0
-            else:
-                total = _['Total']
+            # if _['Code'].startswith('SO'):
+            total = 0
+            # else:
+            #     total = _['Total']
             for pm in _['PaymentMethods']:
                 name = self.method.get(pm['Name']) is None and pm['Name'] or self.method.get(pm['Name'])
                 pms.append({
                     'Name': name,
                     'Value': pm['Value']
                 })
-                if _['Code'].startswith('SO'):
-                    total += pm['Value']
+                # if _['Code'].startswith('SO'):
+                total += pm['Value']
             send = {
                 'Code': _['Code'],
                 'Total': total,
@@ -68,7 +68,7 @@ class MatViet(object):
                 print(send['Code'], send['PurchaseDate'], send['Total'])
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
             else:
-                print(_)
+                submit_error(retailer=self.ADAPTER_RETAILER, reason=str(_))
             # print(res.json())
 
 
@@ -78,5 +78,5 @@ if str(__name__):
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    MatViet().get_data()
+    # MatViet().get_data()
 

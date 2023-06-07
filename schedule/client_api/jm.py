@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from os.path import dirname
 
 import requests
@@ -276,11 +276,14 @@ class JM(object):
                     x = _.find('td', {'class': 'dgColPayment'})
                     dup = []
                     for pm in x.findAll('label'):
+                        # print(pm)
                         pn = pm['title'].split(':')[0]
-                        pn = self.METHOD.get(pn)
-                        if pn not in dup:
-                            dup.append(pn)
-                            pms.append({'Name': self.METHOD.get(pn), 'Value': int(pm.text.strip().replace('.', ''))})
+                        if pn != 'Tiền khách đưa':
+                            pn = self.METHOD.get(pn)
+                            # print(pn)
+                            if pn not in dup:
+                                dup.append(pn)
+                                pms.append({'Name': pn, 'Value': int(pm.text.strip().replace('.', ''))})
                     x.unwrap()
                     dis_total = _.findAll('td', {'class': 'text-right'})
                     discount = dis_total[0].text.strip().split('(')[0].strip().replace('.', '')
@@ -300,13 +303,14 @@ class JM(object):
             page += 1
             # break
         for k, v in orders.items():
+            # print(v)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
 
     def get_data(self, from_date):
         if not self.auth(): return False
         from_date = from_date.strftime('%d/%m/%Y')
         self.get_orders(from_date)
-        self.get_returns(from_date)
+        # self.get_returns(from_date)
 
     # def get_data(self, from_date):
     #     if not self.auth(): return False
@@ -407,4 +411,4 @@ if __name__:
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
 
-    # JM().get_orders('')
+    # JM().get_data(datetime.now() - timedelta(days=1))

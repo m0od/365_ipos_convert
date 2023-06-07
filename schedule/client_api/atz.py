@@ -279,7 +279,7 @@ class ATZ(object):
                         pn = self.METHOD.get(pn)
                         if pn not in dup:
                             dup.append(pn)
-                            pms.append({'Name': self.METHOD.get(pn), 'Value': int(pm.text.strip().replace('.', ''))})
+                            pms.append({'Name': pn, 'Value': int(pm.text.strip().replace('.', ''))})
                     x.unwrap()
                     dis_total = _.findAll('td', {'class': 'text-right'})
                     discount = dis_total[0].text.strip().split('(')[0].strip().replace('.', '')
@@ -305,7 +305,7 @@ class ATZ(object):
     def get_data(self, from_date):
         if not self.auth(): return False
         from_date = from_date.strftime('%d/%m/%Y')
-        # self.get_orders(from_date)
+        self.get_orders(from_date)
         self.get_returns(from_date)
 
     # def get_data(self, from_date):

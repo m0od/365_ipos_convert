@@ -1,6 +1,8 @@
 from os.path import dirname
 
 
+
+
 def main():
     tgc_bloom = TGC_BLOOM()
     ao = AoKang()
@@ -18,9 +20,11 @@ def main():
     ato = ATO()
     megane = MeganePrince()
     aristino = Aristino()
+    matviet = MatViet()
+    elise = Elise()
     now = datetime.now(timezone('Etc/GMT-7'))
     if now.hour < 9:
-        with futures.ThreadPoolExecutor(max_workers=14) as mt:
+        with futures.ThreadPoolExecutor(max_workers=15) as mt:
             thread = [
                 mt.submit(tgc_bloom.get_data, now - timedelta(days=1)),
                 mt.submit(ao.get_data, (now - timedelta(days=1))),
@@ -35,15 +39,17 @@ def main():
                 mt.submit(kakao.get_data, now - timedelta(days=1), now),
                 mt.submit(sneaker.get_data, now - timedelta(days=1)),
                 mt.submit(vans.get_data, now - timedelta(days=1)),
-                mt.submit(aristino.get_data, now - timedelta(days=1))
+                mt.submit(aristino.get_data, now - timedelta(days=1)),
+                mt.submit(elise.get_data, now - timedelta(days=1))
             ]
             futures.as_completed(thread)
     else:
         # for i in range(1,24):
-        with futures.ThreadPoolExecutor(max_workers=2) as mt:
+        with futures.ThreadPoolExecutor(max_workers=3) as mt:
             thread = [
                 mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
                 mt.submit(megane.get_data, now - timedelta(days=1)),
+                mt.submit(matviet.get_data, now - timedelta(days=1))
                 # mt.submit(jm.get_data, now - timedelta(days=1)),
                 # mt.submit(atz.get_data, now - timedelta(days=1)),
                 # mt.submit(ao.get_data, (now - timedelta(days=i))),
@@ -77,6 +83,7 @@ if __name__ == '__main__':
     from schedule.client_api.balabala import Balabala
     from schedule.client_api.jm import JM
     from schedule.client_api.tgc_bloom import TGC_BLOOM
+    from schedule.client_api.matviet import MatViet
     from concurrent import futures
     from datetime import datetime, timedelta
     from pytz import timezone
@@ -84,6 +91,7 @@ if __name__ == '__main__':
     from schedule.client_api.adore import Adore
     from schedule.client_api.kakao import Kakao
     from schedule.client_api.aristino import Aristino
+    from schedule.client_api.elise import Elise
 
     warnings.filterwarnings('ignore')
     main()

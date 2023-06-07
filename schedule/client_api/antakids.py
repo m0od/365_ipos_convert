@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import pymssql
 from os.path import dirname
 
@@ -27,6 +29,7 @@ class AntaKids(object):
                          "AND ISNULL(dbo.SlBlD.ID_Kho, dbo.SlBlM.ID_Kho) = 169 " \
                          "ORDER BY dbo.SlBlM.ID"
         self.METHOD = {
+            'VISATTT_KI': 'THẺ',
             'VISATTT_A': 'THẺ',
             'TM.TNHA_AN': 'CASH',
             'TMTNHA_ANK': 'CASH',
@@ -114,10 +117,13 @@ class AntaKids(object):
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
 
 
-if __name__.__contains__('schedule.client_api'):
+if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
     from schedule.client_api.font_vi import Converter
+    # print(datetime.now() - timedelta(days=12))
+    # for i in range(1, 13):
+    #     AntaKids().get_data(datetime.now() - timedelta(days=i))
