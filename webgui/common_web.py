@@ -54,6 +54,19 @@ def local_update_log():
             db.session.rollback()
     return {}
 
+@common.route('/mail', methods=['GET'])
+def report_mail():
+    token = request.args.get('token')
+    if token != 'kt365aA@123':
+        return abort(404)
+    cfg = TenAntConfig.query.filter_by(mail=True).all()
+    if cfg is not None:
+        ret = []
+        for _ in cfg:
+            ret.append(_.domain)
+        return ret
+    return {}
+
 
 @common.route('/product', methods=['POST', 'GET'])
 def local_product():

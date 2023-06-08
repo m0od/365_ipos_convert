@@ -22,44 +22,19 @@ def submit_error(retailer=None, reason=None):
     except:
         pass
 
-urls = '''am002
-am008
-am011
-am013
-am016
-am026
-am033
-am037
-am038
-am041
-am043
-am051
-am055
-am056
-am059
-am060
-am061
-am063
-am065
-am069
-am100
-am101
-am102
-am104
-am105
-am108
-am109
-am110
-am113
-am124
-am125
-am126
-am130
-am134
-am140
-'''
+
+urls = []
+while True:
+    try:
+        urls = requests.get('https://adapter.pos365.vn/mail', params={'token': 'kt365aA@123'})
+        if urls.status_code != 200: continue
+        urls = urls.json()
+        break
+    except:
+        pass
+
 rows = ''
-for domain in urls.strip().split('\n'):
+for domain in urls:
     # print(domain)
     while True:
         # print(domain)

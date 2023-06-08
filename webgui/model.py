@@ -16,6 +16,7 @@ class TenAntConfig(db.Model):
     branch = db.Column(db.Text, default=None)
     store = db.Column(db.Integer, default=None)
     vat = db.Column(db.Float, default=0.1)
+    mail = db.Column(db.Boolean, default=True)
 
 
 class Log(db.Model):
