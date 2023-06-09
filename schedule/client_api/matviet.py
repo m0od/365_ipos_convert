@@ -3,7 +3,8 @@ import requests
 import hashlib
 import string
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
+
 
 class MatViet(object):
     def __init__(self):
@@ -17,10 +18,11 @@ class MatViet(object):
         self.method = {
             'TIỀN MẶT': 'CASH'
         }
+
     def get_data(self, date_from):
         js = {
             'Tocken': self.Token,
-            'TransactionDate': date_from
+            'TransactionDate': date_from.strftime('%Y-%m-%d')
         }
         res = self.browser.post(self.URL, json=js)
         if res.status_code != 200: return False
@@ -64,7 +66,7 @@ class MatViet(object):
                 'PurchaseDate': _['PaymentDate'],
                 'OrderDetails': ods
             }
-            if _['Status']==1:
+            if _['Status'] == 1:
                 print(send['Code'], send['PurchaseDate'], send['Total'])
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
             else:
@@ -78,5 +80,6 @@ if str(__name__):
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    # MatViet().get_data()
 
+    # MatViet().get_data(datetime.now() - timedelta(days=1))
+    # MatViet().get_data()

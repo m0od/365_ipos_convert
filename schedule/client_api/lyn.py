@@ -37,10 +37,12 @@ class Lyn(object):
                     'Filter': "PurchaseDate eq 'yesterday'"
                 }
                 res = self.browser.get(f'{self.MAIN}/api/orders', params=p)
-                if res.status_code != 200: continue
+                if res.status_code != 200:
+                    continue
                 js = res.json()
                 if len(js['results']) == 0: break
                 for _ in js['results']:
+                    print(_)
                     if _['TotalPayment'] < 0:
                         print(_)
                         id = _.get('AccountId')
