@@ -35,7 +35,7 @@ while True:
 
 rows = ''
 for domain in urls:
-    # print(domain)
+    print(domain)
     while True:
         # print(domain)
         b = requests.session()
@@ -66,6 +66,7 @@ for domain in urls:
             except Exception as e:
                 print(e)
                 submit_error(retailer=domain, reason=f'[REPORT] {str(e)}')
+# print(rows)
 #
 #
 now = datetime.now() - timedelta(days=1)
@@ -98,15 +99,17 @@ html = """
     </body>
 </html>
 """
+
 if len(rows) > 0:
     part2 = MIMEText(html.strip().format(rows), 'html')
     message.attach(part2)
-    ctx = ssl.create_default_context()
+    # ctx = ssl.create_default_context()
     while True:
         try:
-            server = smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx)
+            server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
             server.login(sender_email, password)
             server.sendmail(sender_email, toAddr, message.as_string())
             break
-        except:
+        except Exception as e:
+            print(e)
             pass
