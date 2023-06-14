@@ -35,7 +35,7 @@ class ATO(object):
             res = r.json()
             if res['success'] is False: return
             data = res['data']
-            print(data)
+            # print(data)
         except Exception as e:
             print(e)
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Data] {str(e)}')
@@ -137,5 +137,6 @@ if __name__:
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    # print(datetime.now() - timedelta(days=3))
-    # ATO().get_data(datetime.now() - timedelta(days=1), datetime.now() - timedelta(days=1))
+    # print(datetime.now() - timedelta(days=4))
+    # t = datetime.now() - timedelta(days=4)
+    # ATO().get_data(t, datetime.now() - timedelta(days=1))
