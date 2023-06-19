@@ -22,9 +22,10 @@ def main():
     aristino = Aristino()
     matviet = MatViet()
     elise = Elise()
+    dchic = Dchic()
     now = datetime.now(timezone('Etc/GMT-7'))
     if now.hour < 9:
-        with futures.ThreadPoolExecutor(max_workers=15) as mt:
+        with futures.ThreadPoolExecutor(max_workers=16) as mt:
             thread = [
                 mt.submit(tgc_bloom.get_data, now - timedelta(days=1)),
                 mt.submit(ao.get_data, (now - timedelta(days=1))),
@@ -40,7 +41,8 @@ def main():
                 mt.submit(sneaker.get_data, now - timedelta(days=1)),
                 mt.submit(vans.get_data, now - timedelta(days=1)),
                 mt.submit(aristino.get_data, now - timedelta(days=1)),
-                mt.submit(elise.get_data, now - timedelta(days=1))
+                mt.submit(elise.get_data, now - timedelta(days=1)),
+                mt.submit(dchic.get_data, now - timedelta(days=1))
             ]
             futures.as_completed(thread)
     else:
@@ -92,6 +94,7 @@ if __name__ == '__main__':
     from schedule.client_api.kakao import Kakao
     from schedule.client_api.aristino import Aristino
     from schedule.client_api.elise import Elise
+    from schedule.client_api.dchic import Dchic
 
     warnings.filterwarnings('ignore')
     main()
