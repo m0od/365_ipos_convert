@@ -85,9 +85,12 @@ class FixVAT(object):
 
     def payment_methods(self, target, browser, method, oid):
         while True:
+            # print(oid)
             r = browser.get(f"https://{target}.pos365.vn/api/accountingtransaction",
                             params={'Top': '50', 'Filter': f'OrderId eq {oid}'})
+            # print(r.status_code)
             if r.status_code != 200: continue
+            # print(r.text)
             _ = r.json()['results']
             pms = []
             for __ in _:
@@ -125,14 +128,17 @@ class FixVAT(object):
             r = browser.get(f"https://{target}.pos365.vn/api/orders", params={
                 'Top': '50',
                 'Skip': str(skip),
-                'Filter': "PurchaseDate eq 'yesterday'"
+                # 'Filter': "PurchaseDate eq 'yesterday'"
+                'Filter': "PurchaseDate ge 'datetime''2023-06-14T17:00:00Z''' and PurchaseDate lt 'datetime''2023-06-15T16:59:00Z'''"
             })
+
             if r.status_code != 200: continue
             js = r.json()
             if len(js['results']) == 0:
                 break
             js = js['results']
             for _ in js:
+                # print(111111, _)
                 code = _['Code']
                 pur_date = datetime.strptime(_['PurchaseDate'].split('.')[0], '%Y-%m-%dT%H:%M:%S') + timedelta(hours=7)
                 status = _['Status']
@@ -141,13 +147,11 @@ class FixVAT(object):
                 total = _['Total']
                 total_payment = _['TotalPayment']
                 pms = self.payment_methods(target, browser, method, _['Id'])
-
                 if len(pms) == 0:
                     pms.append({
                         'Name': 'CASH',
                         'Value': total
                     })
-                print(code, pms)
                 ods = self.order_detail(target, browser, _['Id'])
                 data = {
                     'Code': code,
@@ -160,6 +164,7 @@ class FixVAT(object):
                     'OrderDetails': ods,
                     'PaymentMethods': pms
                 }
+                print(data)
                 submit_order(retailer=token['retailer'], token=token['token'], data=data)
             skip += 50
         # print(target, token)

@@ -214,6 +214,27 @@ class API(object):
         except Exception as e:
             return {'status': False, 'err': str(e)}
 
+    def accounting_transaction_save(self, transation):
+        transation.update({
+            'Id': 0,
+            'AccountingTransactionType': 1,
+        })
+        data = {
+            'AccountingTransaction': transation
+        }
+        res = self.browser.post(self.base_url + '/api/accountingtransaction', json=data)
+        if res.status_code == 401:
+            session = self.auth()
+            return {'status': 0, 'ck': session}
+        elif res.status_code == 500:
+            return {'status': 1, 'message': f'[{res.status_code}] [POST]/api/returns'}
+        elif res.status_code == 400:
+            return {'status': 1, 'message': res.text}
+        elif res.status_code == 200:
+            return {'status': 2, 'message': res.json()}
+        else:
+            return {'status': 1, 'message': 'Unknown'}
+
     def get_product_by_code(self, code):
         try:
             p = {

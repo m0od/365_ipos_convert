@@ -23,7 +23,24 @@ def submit_order(retailer=None, token=None, data=None):
         except Exception as e:
             submit_error(retailer, f'{str(e)} {data}')
 
-
+def submit_payment(retailer=None, token=None, data=None):
+    while True:
+        try:
+            # print(retailer, token)
+            URL = 'https://adapter.pos365.vn/add_payments'
+            headers = {
+                'content-type': 'application/json',
+                'retailer': retailer,
+                'authorization': token
+            }
+            res = requests.post(URL, headers=headers, json=data, timeout=10)
+            # print(res.text)
+            if res.json()['result_id'] is not None: return True
+            return False
+        except ConnectionError as ce:
+            submit_error(retailer, f'{str(ce).split(":")[-1].strip()[:-3]} {data}')
+        except Exception as e:
+            submit_error(retailer, f'{str(e)} {data}')
 def submit_error(retailer=None, reason=None):
     try:
         TOKEN = '6094052614:AAHhC8l1GKHXwBlLCHxWXySLxOSjFnvteB4'

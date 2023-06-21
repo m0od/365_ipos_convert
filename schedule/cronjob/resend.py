@@ -36,14 +36,15 @@ while True:
         jobs = requests.get(f'{URl}/fetch_log', params=TOKEN).json()
         print(jobs)
         for job in jobs:
-            headers = {
-                'content-type': 'application/json',
-                'retailer': job['retailer'],
-                'authorization': job['token']
-            }
-            if job.get('store') is not None:
-                headers.update({'store': str(job['store'])})
-            submit_job(headers=headers, data=job['content'])
+            if job['type'] == 1:
+                headers = {
+                    'content-type': 'application/json',
+                    'retailer': job['retailer'],
+                    'authorization': job['token']
+                }
+                if job.get('store') is not None:
+                    headers.update({'store': str(job['store'])})
+                submit_job(headers=headers, data=job['content'])
         break
     except Exception as e:
         print(e)

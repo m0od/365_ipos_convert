@@ -276,6 +276,80 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
     log(self.request.id, ret)
     return ret
 
+@background.task(bind=True)
+def add_payment(self, domain, cfgId, ck, content, user, password):
+    content['OrderCode'] = content['OrderCode'].replace('_DEL', '')
+    count = 0
+    while count < 5:
+        api = API(domain, ck, user, password)
+        al = api.account_list()
+        if al['status'] is False:
+            session = api.auth()
+            if session is not None:
+                ck = session
+                try:
+                    requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': session})
+                except:
+                    pass
+        try:
+            pd = datetime.strptime(content['TransDate'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=None)
+            pd = pd.astimezone(timezone('Etc/Gmt+0'))
+            content.update({'TransDate': str(pd)})
+        except:
+            pass
+        data = content.copy()
+        if data.get('AccountId') is not None:
+            pm = data.get('AccountId').upper().strip()
+            res = requests.get(f'{LOCAL_URL}/payment', params={'cfgId': cfgId, 'name': pm}).json()
+            if res.get('status') is True:
+                data.update({'AccountId': res.get('AccountId')})
+            else:
+                res = api.account_save(pm)
+                if res.get('status') is True:
+                    data.update({'AccountId': res.get('AccountId')})
+                    requests.post(f'{LOCAL_URL}/payment', params={'cfgId': cfgId, 'name': pm, 'accId': res.get('Id')})
+                else:
+                    ret = {'status': False, 'result': res.get('err')}
+                    log(self.request.id, ret)
+                    return ret
+        id = api.order_get(content['OrderCode'])
+        if id['status'] is True:
+            if id.get('id') is not None:
+                data.update({'OrderId': id['id']})
+            else:
+                ret = {'status': True, 'result': id['err']}
+                log(self.request.id, ret)
+                return ret
+        else: #if int(content.get('Status')) == 2:
+            ret = {'status': True, 'result': id['err']}
+            log(self.request.id, ret)
+            return ret
+        print(data)
+        res = api.accounting_transaction_save(data)
+        if res['status'] == 0:
+            session = api.auth()
+            if session is not None:
+                ck = session
+                try:
+                    requests.patch(f'{LOCAL_URL}/cfg', data={'cfgId': cfgId, 'cookie': session})
+                except:
+                    pass
+            count += 1
+            continue
+        elif res['status'] == 1:
+            ret = {'status': False, 'result': res['message']}
+            log(self.request.id, ret)
+            return ret
+        elif res['status'] == 2:
+            ret = {'status': True, 'result': res['message']}
+            log(self.request.id, ret)
+            return ret
+        count += 1
+    ret = {'status': False, 'result': 'Over 5 times'}
+    log(self.request.id, ret)
+    return ret
+
+
 def log(id, result):
     try:
         print({'rid': id, 'result': str(result)})

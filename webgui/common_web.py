@@ -4,7 +4,7 @@ import uuid
 
 import requests
 from sqlalchemy import or_
-from common_celery import convert
+from common_celery import convert, add_payment
 from datetime import datetime, timedelta
 from flask import request, Blueprint, abort, render_template, Response, send_file, jsonify, redirect, url_for, session
 # from flask_sqlalchemy import SQLAlchemy
@@ -147,7 +147,8 @@ def local_fetch_log():
             'retailer': l.Log.branch,
             'token': l.token,
             'store': l.Log.store,
-            'content': json.loads(content)
+            'content': json.loads(content),
+            'type': l.Log.type
         })
     return jsonify(ret)
 
@@ -226,8 +227,44 @@ def setup():
             return {'status': True, 'retailer': cfg.branch, 'authorization': cfg.token}
         else:
             return {'status': False, 'message': 'Login Pos 365 Failed'}
-
-
+@common.route('/add_methods', methods=['POST'])
+def add_methods():
+    try:
+        branch = request.headers.get('Retailer').lower()
+        if branch is None: return abort(403)
+        token = request.headers.get('Authorization').lower()
+        if token is None: return abort(403)
+    except:
+        return abort(403)
+    store = request.headers.get('Store')
+    cfg = TenAntConfig.query.filter(TenAntConfig.branch == branch).first()
+    if cfg is None or cfg.token != token:
+        return abort(403)
+    try:
+        content = request.json
+        # now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        log = Log()
+        log.configId = cfg.id
+        log.branch = branch
+        log.store = store
+        log.code = content.get('Code')
+        log.content = str(content)
+        log.type = 2
+        try:
+            db.session.add(log)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        result = add_payment.delay(cfg.domain, cfg.id, cfg.cookie, content, cfg.user, cfg.password)
+        log.rid = str(result.id)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        return {'result_id': result.id}
+    except Exception as e:
+        print(e)
+        return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
 @common.route('/orders', methods=['POST'])
 def orders():
     try:
@@ -251,6 +288,7 @@ def orders():
         log.store = store
         log.code = content.get('Code')
         log.content = str(content)
+        log.type = 1
         try:
             db.session.add(log)
             db.session.commit()

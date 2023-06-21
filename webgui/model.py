@@ -32,6 +32,7 @@ class Log(db.Model):
     status = db.Column(db.Boolean, default=None)
     result = db.Column(db.Text, default=None)
     log_date = db.Column(db.DateTime, default=current_time())
+    type = db.Column(db.Integer, default=1)
 
 
 class TechLog(db.Model):

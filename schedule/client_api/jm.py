@@ -37,7 +37,8 @@ class JM(object):
             'Tiền khách đưa': 'CASH',
             'Chuyển khoản': 'CHUYỂN KHOẢN',
             'Tiền chuyển khoản trả khách': 'CHUYỂN KHOẢN',
-            'Tiền mặt trả khách': 'CASH'
+            'Tiền mặt trả khách': 'CASH',
+            'Tiền mặt': 'CASH'
         }
 
     def get_login_page(self):
@@ -205,6 +206,7 @@ class JM(object):
                     pass
             page += 1
         for k, v in returns.items():
+            print(v)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
             data = {
                 'Code': f'VAT_{v["Code"]}',
@@ -275,16 +277,29 @@ class JM(object):
                     _.find('td', {'class': 'dgColVat'}).unwrap()
                     x = _.find('td', {'class': 'dgColPayment'})
                     dup = []
+                    print(280, x.findAll('label'))
                     for pm in x.findAll('label'):
-                        # print(pm)
-                        pn = pm['title'].split(':')[0]
-                        if pn != 'Tiền khách đưa':
-                            pn = self.METHOD.get(pn)
-                            # print(pn)
-                            if pn not in dup:
-                                dup.append(pn)
-                                pms.append({'Name': pn, 'Value': int(pm.text.strip().replace('.', ''))})
+                        print(code, pm)
+                        try:
+                            pn = pm['title'].split(':')[0]
+                            # print(code, pm, pn)
+                            if pn != 'Tiền khách đưa':
+                                pn = self.METHOD.get(pn)
+                                # print(pn)
+                                if pn not in dup:
+                                    dup.append(pn)
+                                    pms.append({'Name': pn, 'Value': int(pm.text.strip().replace('.', ''))})
+                            else:
+                                pn = 'CASH'
+                                if pn not in dup:
+                                    dup.append(pn)
+                                    pms.append({'Name': pn, 'Value': int(pm.text.strip().replace('.', ''))})
+                        except:
+                            pass
+                    if len(pms) == 0:
+                        pms.append({'Name': 'CASH', 'Value': 0})
                     x.unwrap()
+                    # print(_.find('td', {'class': 'dgDescription'}).text.strip())
                     dis_total = _.findAll('td', {'class': 'text-right'})
                     discount = dis_total[0].text.strip().split('(')[0].strip().replace('.', '')
                     if len(discount) == 0: discount = '0'
@@ -298,19 +313,21 @@ class JM(object):
                         'VAT': 0,
                         'PurchaseDate': _.find('td', {'class': 'dgColDate'}).find('span')['title']
                     })
-                except:
+                except Exception as e:
+                    print(e)
                     pass
             page += 1
             # break
         for k, v in orders.items():
-            # print(v)
+            print(v)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
 
     def get_data(self, from_date):
         if not self.auth(): return False
         from_date = from_date.strftime('%d/%m/%Y')
+        # from_date = '20/06/2023'
         self.get_orders(from_date)
-        # self.get_returns(from_date)
+        self.get_returns(from_date)
 
     # def get_data(self, from_date):
     #     if not self.auth(): return False
