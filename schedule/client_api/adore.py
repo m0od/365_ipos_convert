@@ -3,7 +3,7 @@ import requests
 import hashlib
 import string
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def random_str():
@@ -17,7 +17,8 @@ class Adore(object):
         self.ADAPTER_TOKEN = '881f0d44a847ea776619db0d147a8d48fef95e5e4f9112a4b31db3409e4ceed2'
         # self.ADAPTER_RETAILER = 'retry'
         # self.ADAPTER_TOKEN = 'cf0f760c3c11b65139beaecd6e0dd12f80bc34a177704ffc497d2bf816d1ac2d'
-        self.API_MAN = 'api-man2.kiotviet.vn'
+        self.API_MANS = ['api-man.kiotviet.vn', 'api-man1.kiotviet.vn', 'api-man2.kiotviet.vn']
+        self.API_MAN = None
         self.DOMAIN = 'adoredress'
         self.BRANCH_ID = None
         self.USER = 'aeon.hd'
@@ -53,15 +54,19 @@ class Adore(object):
             params = {
                 'quan-ly': 'true'
             }
-            res = self.browser.post(f'https://{self.API_MAN}/api/account/login', json=js, params=params).json()
-            # print(res)
-            if res['isSuccess']:
-                self.TOKEN = res['token']
-                self.BRANCH_ID = str(res['currentBranch'])
-                return True
-            else:
-                submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[LOGIN] Invalid Login')
-                return False
+            for _ in self.API_MANS:
+                res = self.browser.post(f'https://{_}/api/account/login', json=js, params=params)
+                if res.status_code != 200: continue
+                self.API_MAN = _
+                res = res.json()
+                # print(res)
+                if res['isSuccess']:
+                    self.TOKEN = res['token']
+                    self.BRANCH_ID = str(res['currentBranch'])
+                    return True
+                else:
+                    submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[LOGIN] Invalid Login')
+                    return False
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[LOGIN] {str(e)}')
             return False
@@ -84,8 +89,9 @@ class Adore(object):
                 'authorization': f'Bearer {self.TOKEN}',
                 'branchId': self.BRANCH_ID
             })
-            res = self.browser.post(f'https://{self.API_MAN}/api/invoices/list', params=params)
-            res = res.json()
+
+            res = self.browser.post(f'https://{self.API_MAN}/api/invoices/list', params=params).json()
+            print(res)
             if len(res['Data']) == 0: break
             index = 0
             while index < len(res['Data']):
@@ -183,6 +189,7 @@ class Adore(object):
                 'branchId': self.BRANCH_ID
             })
             res = self.browser.get(f'https://{self.API_MAN}/api/returns', params=params).json()
+            print(res)
             if len(res['Data']) == 0: break
             index = 0
             while index < len(res['Data']):
@@ -237,9 +244,11 @@ class Adore(object):
             skip += 100
 
 
-if __name__.__contains__('schedule.client_api'):
+if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
+    # now = datetime.now()
+    # Adore().get_data(now - timedelta(days=10), now)

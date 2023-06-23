@@ -27,7 +27,7 @@ def submit_payment(retailer=None, token=None, data=None):
     while True:
         try:
             # print(retailer, token)
-            URL = 'https://adapter.pos365.vn/add_payments'
+            URL = 'https://adapter.pos365.vn/add_methods'
             headers = {
                 'content-type': 'application/json',
                 'retailer': retailer,

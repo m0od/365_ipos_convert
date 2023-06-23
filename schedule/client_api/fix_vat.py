@@ -15,42 +15,42 @@ class FixVAT(object):
             'retailer': 'hla_aeonhd',
             'token': 'a54e396bfd3ffc8bf01ed9dca0074bb480012c3c255ad446ee7f7a96a94eebb4'
         },
-        # 'am006': {
-        #     'username': 'admin',
-        #     'password': '123456',
-        #     'retailer': 'lugvn_aeonhd',
-        #     'token': '203cb103f845592d8c0640dedcd862bc1c43cca04c2d48e687ba4ea286496ab1'
-        # },
-        # 'am020': {
-        #     'username': 'fixvat',
-        #     'password': '123456',
-        #     'retailer': 'noithathoanmy_aeonhd',
-        #     'token': '605eb397b92c6afdb3ac7559fbf33bd41792a2a754bae974e6b558db6cf2a03b'
-        # },
-        # 'am039': {
-        #     'username': 'admin',
-        #     'password': '123456',
-        #     'retailer': 'lovekids_aeonhd',
-        #     'token': '51f3ea6b907b88fac941d28a48adba871f6eb7492f43a35d357dd59534cbcb6e'
-        # },
-        # 'am051': {
-        #     'username': 'admin',
-        #     'password': '123456',
-        #     'retailer': 'homechef_aeonhd',
-        #     'token': '9bf56eacdaef0a2bb89ec1a3e94c1ae5f9c88a9780785cdc4a25a7715f406be1'
-        # },
-        # 'am118': {
-        #     'username': 'fixvat',
-        #     'password': '123456',
-        #     'retailer': 'lizanamat_aeonhd',
-        #     'token': 'd85a236914ef0f607ebefbfb95821b9e8cd4dfcaedbbe9a9ec10c7005576439b'
-        # },
-        # 'am117': {
-        #     'username': 'admin',
-        #     'password': 'aeonhd',
-        #     'retailer': 'digibox_aeonhd',
-        #     'token': '99d464d3287b91a1b70a857c4faee950a048f65ef7728f5370905b72c75dbbfa'
-        # }
+        'am006': {
+            'username': 'admin',
+            'password': '123456',
+            'retailer': 'lugvn_aeonhd',
+            'token': '203cb103f845592d8c0640dedcd862bc1c43cca04c2d48e687ba4ea286496ab1'
+        },
+        'am020': {
+            'username': 'fixvat',
+            'password': '123456',
+            'retailer': 'noithathoanmy_aeonhd',
+            'token': '605eb397b92c6afdb3ac7559fbf33bd41792a2a754bae974e6b558db6cf2a03b'
+        },
+        'am039': {
+            'username': 'admin',
+            'password': '123456',
+            'retailer': 'lovekids_aeonhd',
+            'token': '51f3ea6b907b88fac941d28a48adba871f6eb7492f43a35d357dd59534cbcb6e'
+        },
+        'am051': {
+            'username': 'admin',
+            'password': '123456',
+            'retailer': 'homechef_aeonhd',
+            'token': '9bf56eacdaef0a2bb89ec1a3e94c1ae5f9c88a9780785cdc4a25a7715f406be1'
+        },
+        'am118': {
+            'username': 'fixvat',
+            'password': '123456',
+            'retailer': 'lizanamat_aeonhd',
+            'token': 'd85a236914ef0f607ebefbfb95821b9e8cd4dfcaedbbe9a9ec10c7005576439b'
+        },
+        'am117': {
+            'username': 'admin',
+            'password': 'aeonhd',
+            'retailer': 'digibox_aeonhd',
+            'token': '99d464d3287b91a1b70a857c4faee950a048f65ef7728f5370905b72c75dbbfa'
+        }
     }
 
     def __init__(self):
@@ -128,8 +128,8 @@ class FixVAT(object):
             r = browser.get(f"https://{target}.pos365.vn/api/orders", params={
                 'Top': '50',
                 'Skip': str(skip),
-                # 'Filter': "PurchaseDate eq 'yesterday'"
-                'Filter': "PurchaseDate ge 'datetime''2023-06-14T17:00:00Z''' and PurchaseDate lt 'datetime''2023-06-15T16:59:00Z'''"
+                'Filter': "PurchaseDate eq 'yesterday'"
+                # 'Filter': "PurchaseDate ge 'datetime''2023-06-14T17:00:00Z''' and PurchaseDate lt 'datetime''2023-06-15T16:59:00Z'''"
             })
 
             if r.status_code != 200: continue
@@ -164,8 +164,16 @@ class FixVAT(object):
                     'OrderDetails': ods,
                     'PaymentMethods': pms
                 }
-                print(data)
+                # print(data)
                 submit_order(retailer=token['retailer'], token=token['token'], data=data)
+                for __ in pms:
+                    if __['Value'] < 0:
+                        submit_payment(retailer=token['retailer'], token=token['token'], data={
+                            "OrderCode": data['Code'],
+                            "Amount": __['Value'],
+                            "TransDate": pur_date.strftime('%Y-%m-%d %H:%M:%S'),
+                            "AccountId": __['Name']
+                        })
             skip += 50
         # print(target, token)
 
@@ -183,6 +191,6 @@ if __name__:
 
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
-    from schedule.pos_api.adapter import submit_error, submit_order
+    from schedule.pos_api.adapter import submit_error, submit_order, submit_payment
 
     FixVAT().fix()

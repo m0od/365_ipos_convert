@@ -3,7 +3,7 @@ import requests
 import hashlib
 import string
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def random_str():
@@ -17,7 +17,8 @@ class Kakao(object):
         self.ADAPTER_TOKEN = '8add972c8f30406354872d3272f755fff035661f9ddd590e6e71c267b756a546'
         self.BRANCH_ID = None
         self.RETURN = []
-        self.API_MAN = 'api-man2.kiotviet.vn'
+        self.API_MAN = None
+        self.API_MANS = ['api-man.kiotviet.vn','api-man2.kiotviet.vn','api-man1.kiotviet.vn']
         self.DOMAIN = 'diossoft'
         self.USER = 'aeonmall'
         self.PASSWORD = '12345'
@@ -51,15 +52,19 @@ class Kakao(object):
             params = {
                 'quan-ly': 'true'
             }
-            res = self.browser.post(f'https://{self.API_MAN}/api/account/login', json=js, params=params).json()
-            # print(res)
-            if res['isSuccess']:
-                self.TOKEN = res['token']
-                self.BRANCH_ID = str(res['currentBranch'])
-                return True
-            else:
-                submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[LOGIN] Invalid Login')
-                return False
+            for _ in self.API_MANS:
+                res = self.browser.post(f'https://{_}/api/account/login', json=js, params=params)
+                if res.status_code != 200: continue
+                self.API_MAN = _
+                res = res.json()
+                # print(res)
+                if res['isSuccess']:
+                    self.TOKEN = res['token']
+                    self.BRANCH_ID = str(res['currentBranch'])
+                    return True
+                else:
+                    submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[LOGIN] Invalid Login')
+                    return False
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[LOGIN] {str(e)}')
             return False
@@ -234,9 +239,12 @@ class Kakao(object):
             skip += 100
 
 
-if __name__.__contains__('schedule.client_api'):
+if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
+
+    # now = datetime.now()
+    # Kakao().get_data(now - timedelta(days=10), now)
