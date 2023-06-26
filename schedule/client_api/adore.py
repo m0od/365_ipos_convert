@@ -28,7 +28,7 @@ class Adore(object):
         self.RETURN = []
         self.METHOD = {
             'CARD': 'THẺ',
-            'TRANSFER': 'CHUYỂN KHOẢN',
+            'TRANSFER': 'PAYOO',
             'CASH': 'CASH',
             'VOUCHER': 'VOUCHER'
         }

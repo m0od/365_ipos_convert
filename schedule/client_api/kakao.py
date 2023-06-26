@@ -27,7 +27,7 @@ class Kakao(object):
         self.TOKEN = None
         self.METHOD = {
             'CARD': 'THẺ',
-            'TRANSFER': 'CHUYỂN KHOẢN',
+            'TRANSFER': 'PAYOO',
             'CASH': 'CASH',
             'VOUCHER': 'VOUCHER'
         }

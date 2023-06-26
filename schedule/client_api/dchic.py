@@ -53,19 +53,21 @@ class Dchic(object):
                         'VAT': _['dt_vat'],
                         'Discount': _['ck'],
                         'OrderDetails': [],
-                        't_tt_the': _['t_tt_the'],
+                        'tt_ck': _['tt_ck'],
                         'tien_kh_tt': _['tien_kh_tt'],
-                        'tien_km_ttvoucher': _['tien_km_ttvoucher'],
+                        'tt_pos': _['tt_pos'],
+                        # 'tien_km_ttvoucher': _['tien_km_ttvoucher'],
                         'tien_qrcode': _['tien_qrcode'],
                         'tien_the_qt': _['tien_the_qt'],
                         'tien_tra_truoc': _['tien_tra_truoc']
                     }
                 else:
                     self.orders[code].update({
-                        't_tt_the': self.orders[code]['t_tt_the'] + _['t_tt_the'],
+                        'tt_ck': self.orders[code]['tt_ck'] + _['tt_ck'],
                         'tien_kh_tt': self.orders[code]['tien_kh_tt'] + _['tien_kh_tt'],
-                        'tien_km_ttvoucher': self.orders[code]['tien_km_ttvoucher'] + _['tien_km_ttvoucher'],
-                        'tien_qrcode': self.orders[code]['tien_qrcode'] +  _['tien_qrcode'],
+                        'tt_pos': self.orders[code]['tt_pos'] + _['tt_pos'],
+                        # 'tien_km_ttvoucher': self.orders[code]['tien_km_ttvoucher'] + _['tien_km_ttvoucher'],
+                        'tien_qrcode': self.orders[code]['tien_qrcode'] + _['tien_qrcode'],
                         'tien_the_qt': self.orders[code]['tien_the_qt'] + _['tien_the_qt'],
                         'tien_tra_truoc': self.orders[code]['tien_tra_truoc'] + _['tien_tra_truoc'],
                         'Total': self.orders[code]['Total'] + _['t_tt'],
@@ -77,10 +79,10 @@ class Dchic(object):
                 pms = []
                 if v['tien_kh_tt'] != 0:
                     pms.append({'Name': 'CASH', 'Value': v['tien_kh_tt']})
-                if v['t_tt_the'] != 0:
-                    pms.append({'Name': 'THẺ', 'Value': v['t_tt_the']})
-                if v['tien_km_ttvoucher'] != 0:
-                    pms.append({'Name': 'VOUCHER', 'Value': v['tien_km_ttvoucher']})
+                if v['tt_ck'] != 0:
+                    pms.append({'Name': 'CHUYỂN KHOẢN', 'Value': v['tt_ck']})
+                if v['tt_pos'] != 0:
+                    pms.append({'Name': 'PAYOO', 'Value': v['tt_pos']})
                 if v['tien_qrcode'] != 0:
                     pms.append({'Name': 'QRCODE', 'Value': v['tien_qrcode']})
                 if v['tien_the_qt'] != 0:
@@ -89,16 +91,19 @@ class Dchic(object):
                     pms.append({'Name': 'THẺ TRẢ TRƯỚC', 'Value': v['tien_tra_truoc']})
                 if len(pms) == 0:
                     pms.append({'Name': 'CASH', 'Value': 0})
-                v.pop('t_tt_the')
+                # v.pop('t_tt_the')
                 v.pop('tien_kh_tt')
-                v.pop('tien_km_ttvoucher')
+                v.pop('tt_ck')
+                v.pop('tt_pos')
+                # v.pop('tien_km_ttvoucher')
                 v.pop('tien_qrcode')
                 v.update({'PaymentMethods': pms})
-                # print(v)
+                print(v)
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
 
             return True
         except Exception as e:
+            print(e)
             submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
             return False
 
@@ -109,6 +114,7 @@ if __name__:
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    now = datetime.now()
+
+    # now = datetime.now()
     # print(now-timedelta(15+12))
-    Dchic().get_data(now - timedelta(days=1))
+    # Dchic().get_data(now - timedelta(days=25))
