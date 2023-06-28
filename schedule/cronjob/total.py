@@ -23,6 +23,7 @@ def main():
     matviet = MatViet()
     elise = Elise()
     dchic = Dchic()
+    hoangphuc = HoangPhuc()
     now = datetime.now(timezone('Etc/GMT-7'))
     if now.hour < 9:
         with futures.ThreadPoolExecutor(max_workers=16) as mt:
@@ -42,7 +43,8 @@ def main():
                 mt.submit(vans.get_data, now - timedelta(days=1)),
                 mt.submit(aristino.get_data, now - timedelta(days=1)),
                 mt.submit(elise.get_data, now - timedelta(days=1)),
-                mt.submit(dchic.get_data, now - timedelta(days=1))
+                mt.submit(dchic.get_data, now - timedelta(days=1)),
+                mt.submit(hoangphuc.get_data, now - timedelta(days=1))
             ]
             futures.as_completed(thread)
     else:
@@ -86,6 +88,7 @@ if __name__ == '__main__':
     from schedule.client_api.jm import JM
     from schedule.client_api.tgc_bloom import TGC_BLOOM
     from schedule.client_api.matviet import MatViet
+    from schedule.client_api.hoangphuc import HoangPhuc
     from concurrent import futures
     from datetime import datetime, timedelta
     from pytz import timezone
