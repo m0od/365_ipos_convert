@@ -370,7 +370,15 @@ class API(object):
             except Exception as e:
                 print(e)
                 pass
+    def branch_list(self):
+        try:
+            res = self.browser.get(self.base_url + '/Config/VendorSession')
+            # print(res.text.split('branchs:')[1].split('accounts')[0].strip()[:-1])
+            return json.loads(res.text.split('branchs:')[1].split('accounts')[0].strip()[:-1])
 
+        except Exception as e:
+            pass
+        return []
     def switch_branch(self, branch):
         p = {
             'branchId': branch

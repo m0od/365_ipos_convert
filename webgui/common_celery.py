@@ -34,6 +34,16 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                 except:
                     pass
         try:
+            if content.get('Branch') is not None:
+                branch = api.branch_list()
+                # print(branch)
+                if len(branch) > 0:
+                    for _ in branch:
+                        if _['Name'] == content.get('Branch').upper():
+                            if not api.switch_branch(_['Id']):
+                                return {'status': False}
+                            break
+
             # vat = 0
             try:
                 pd = datetime.strptime(content['PurchaseDate'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=None)
