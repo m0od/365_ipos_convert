@@ -108,6 +108,5 @@ if __name__:
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    now = datetime.now()
-    for i in range(1, 26):
-        HoangPhuc().get_data(now - timedelta(days=i))
+    # now = datetime.now()
+    # HoangPhuc().get_data(now - timedelta(days=1))
