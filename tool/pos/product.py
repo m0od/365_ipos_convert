@@ -184,11 +184,15 @@ class Product(FullApi):
 
     def setProductAttributes(self, data):
         _ = data.strip().split(',')
+        # print(_)
         for i in range(len(_)):
             if len(_[i].strip()) > 0:
+                tmp = _[i].strip()
+                if ':' not in tmp:
+                    tmp += ':'
                 self.ProductAttributes.append({
-                    'AttributeName': _[i].split(':')[0].strip(),
-                    'AttributeValue': _[i].split(':')[1].strip(),
+                    'AttributeName': tmp.split(':')[0].strip(),
+                    'AttributeValue': tmp.split(':')[1].strip(),
                 })
 
     def setCompositeItemProducts(self, data):
@@ -262,4 +266,3 @@ class Product(FullApi):
                 'PartnerId': self.PartnerId
             }]
         }
-

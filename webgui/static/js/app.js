@@ -9,7 +9,7 @@ $(document).ready(function () {
                 cookie: $('#cookie').val().trim(),
                 link: $('#link').val().trim()
             },
-            url: 'https://adapter.pos365.vn/tool/sync/branch',
+            url: 'https://adapter.pos365.vn:6000/tool/sync/branch',
             success: function (r) {
                 r.branch.forEach(function (value) {
                     $('#optBranch').append($('<option>', {
@@ -140,7 +140,7 @@ $(document).ready(function () {
                         link: link,
                         branch: branch
                     },
-                    url: 'https://adapter.pos365.vn/tool/extract/products',
+                    url: 'https://adapter.pos365.vn:6000/tool/extract/products',
                     success: function (r) {
                         $('#status').html(r);
                         fuck_wss(r);

@@ -302,6 +302,7 @@ def orders():
             raise MissingInformationException('Thiếu thông tin ngày bán (ReturnDate)')
         if content.get('PaymentMethods') is None or type(content.get('PaymentMethods')) != list:
             return MissingInformationException('Thiếu thông tin PTTT (PaymentMethods)')
+        now = datetime.now()
         for pm in content.get('PaymentMethods'):
             if type(pm) != dict:
                 raise MissingInformationException('Thông tin PTTT không hợp lệ')
@@ -311,6 +312,14 @@ def orders():
             for service in content.get('AdditionalServices'):
                 if type(service) != dict:
                     raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
+        if datetime.strptime(content.get('PurchaseDate'), '%Y-%m-%d %H:%M:%S') < datetime.now() - timedelta(days=2):
+            try:
+                db.session.delete(log)
+                db.session.commit()
+            except:
+                db.session.rollback()
+            return {'result_id': '00000000-0000-0000-0000-000000000000'}
+
         result = convert.delay(cfg.domain, cfg.id, cfg.cookie, content, cfg.user, cfg.password, cfg.vat)
         log.rid = str(result.id)
         try:

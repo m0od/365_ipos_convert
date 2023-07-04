@@ -9,6 +9,18 @@ from concurrent import futures
 class FixVAT(object):
     global URLS
     URLS = {
+        # 'amhp007': {
+        #     'username': 'fixvat',
+        #     'password': '123456',
+        #     'retailer': 'amhp007',
+        #     'token': 'e08a3aeb57ac74e651ae4a2ea11fae2ed8ce650d4f5df5a1bc47c56721454755'
+        # },
+        # 'amhp039': {
+        #     'username': 'fixvat',
+        #     'password': '123456',
+        #     'retailer': 'amhp039',
+        #     'token': 'e08a3aeb57ac74e651ae4a2ea11fae2ed8ce650d4f5df5a1bc47c56721454755'
+        # },
         'am002': {
             'username': 'admin',
             'password': '123456',
@@ -128,8 +140,8 @@ class FixVAT(object):
             r = browser.get(f"https://{target}.pos365.vn/api/orders", params={
                 'Top': '50',
                 'Skip': str(skip),
-                'Filter': "PurchaseDate eq 'yesterday'"
-                # 'Filter': "PurchaseDate ge 'datetime''2023-06-14T17:00:00Z''' and PurchaseDate lt 'datetime''2023-06-15T16:59:00Z'''"
+                # 'Filter': "PurchaseDate eq 'yesterday'"
+                'Filter': "PurchaseDate ge 'datetime''2023-06-30T17:00:00Z''' and PurchaseDate lt 'datetime''2023-07-02T16:59:00Z'''"
             })
 
             if r.status_code != 200: continue

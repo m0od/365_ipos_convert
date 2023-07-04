@@ -117,4 +117,4 @@ if __name__:
 
     # now = datetime.now()
     # print(now-timedelta(15+12))
-    # Dchic().get_data(now - timedelta(days=25))
+    # Dchic().get_data(now - timedelta(days=2))

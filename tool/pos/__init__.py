@@ -194,12 +194,13 @@ class FullApi(object):
         # try:
         # print(self.base_url)
         data = json.dumps(ignore_null(data), separators=(',', ':'))
-        res = self.browser.post(self.base_url + '/api/products', data=data)
-        # print(res.text)
-        if res.status_code == 200:
-            return {'status': True}
-        else:
-            return {'status': False, 'err': res.status_code}
+        while True:
+            res = self.browser.post(self.base_url + '/api/products', data=data)
+            print(f'199 ====> {data} {res.text}')
+            if res.status_code == 200:
+                return {'status': True}
+            # else:
+            #     return {'status': False, 'err': res.status_code}
 
     # except Exception as e:
     #     print(e)
@@ -248,7 +249,7 @@ class FullApi(object):
         while True:
             try:
                 p = {
-                    'Filter': f"substringof('{code}',Code)",
+                    'Filter': f"Code eq '{code}'",
                     'Top': '50'
                 }
                 res = self.browser.get(self.base_url + '/api/products', params=p)
@@ -262,6 +263,8 @@ class FullApi(object):
                 for _ in js['results']:
                     if _['Code'] == code:
                         c += 1
+                        # print(_)
+                        return {'Id': js['results'][0]['Id'], 'status': True}
                 if c > 1:
                     return {'err': f'Trùng mã hàng hoá', 'status': False}
                 elif c == 0:
@@ -459,11 +462,14 @@ class FullApi(object):
             try:
                 res = self.browser.post(self.base_url + '/api/categories', json=js)
                 if res.status_code == 400:
-                    res = self.browser.get(self.base_url + '/api/categories', params={'Top': '50'})
+                    res = self.browser.get(self.base_url + '/api/categories', params={'Filter': f"Name eq '{name}'"})
+                    # print(res.text)
+                    # print(name)
                     if res.status_code != 200: continue
                     js = res.json()
                     for _ in js['results']:
                         if _['Name'] == name:
+                            # print(_['Name'])
                             return _['Id']
                     continue
                 if res.status_code != 200: continue

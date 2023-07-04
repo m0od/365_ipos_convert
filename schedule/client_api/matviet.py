@@ -55,19 +55,48 @@ class MatViet(object):
                 })
                 # if _['Code'].startswith('SO'):
                 total += pm['Value']
-            send = {
-                'Code': _['Code'],
-                'Total': total,
-                'TotalPayment': _['TotalPayment'],
-                'PaymentMethods': pms,
-                'Discount': _['Discount'],
-                'Status': 2,
-                'VAT': _['Vat'],
-                'PurchaseDate': _['PaymentDate'],
-                'OrderDetails': ods
-            }
+
             if _['Status'] == 1:
+                send = {
+                    'Code': _['Code'],
+                    'Total': total,
+                    'TotalPayment': _['TotalPayment'],
+                    'PaymentMethods': pms,
+                    'Discount': _['Discount'],
+                    'Status': 2,
+                    'VAT': _['Vat'],
+                    'PurchaseDate': _['PaymentDate'],
+                    'OrderDetails': ods
+                }
                 print(send['Code'], send['PurchaseDate'], send['Total'])
+                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
+            elif _['Status'] == 3:
+                for __ in pms:
+                    __.update({'Value': abs(__['Value'])})
+                send = {
+                    'Code': _['Code'],
+                    'Total': abs(total),
+                    'TotalPayment': abs(_['TotalPayment']),
+                    'PaymentMethods': pms,
+                    'Discount': abs(_['Discount']),
+                    'Status': 0,
+                    'VAT': 0,
+                    'ReturnDate': _['PaymentDate'],
+                    'ReturnDetails': ods
+                }
+                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
+                send = {
+                    'Code': f'VAT_{_["Code"]}',
+                    'Total': 0,
+                    'TotalPayment': 0,
+                    'PaymentMethods': [{'Name': 'CASH', 'Value': 0}],
+                    'Discount': 0,
+                    'Status': 2,
+                    'VAT': 0,
+                    'AdditionalServices': [{'Name': 'Hoàn VAT', 'Value': _['Total']}],
+                    'PurchaseDate': _['PaymentDate'],
+                    'OrderDetails': []
+                }
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
             else:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=str(_))

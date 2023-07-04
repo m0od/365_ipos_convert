@@ -36,7 +36,7 @@ app.include_router(auth.router, tags=['Authenticate'])
 # app.include_router(ws.router, prefix='/tool/ws', tags=['WebSocket'])
 app.include_router(extractData.router, prefix='/tool/extract', tags=['Extract Data'])
 app.include_router(insert.router, tags=['Import Data'])
-# app.include_router(api.router, prefix='/tool', tags=['Extract Data'])
+app.include_router(api.router, prefix='/tool', tags=['Extract Data'])
 
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 # html = Jinja2Templates(directory="templates")

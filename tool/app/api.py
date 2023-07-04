@@ -10,7 +10,7 @@ from .role import auth_required
 
 router = APIRouter()
 @router.post('/sync/branch')
-@auth_required
+# @auth_required
 async def sync_branch(req: Request):
     try:
         data = await req.form()

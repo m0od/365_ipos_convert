@@ -53,7 +53,15 @@ def main():
             thread = [
                 mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
                 mt.submit(megane.get_data, now - timedelta(days=1)),
-                mt.submit(matviet.get_data, now - timedelta(days=1))
+                mt.submit(matviet.get_data, now - timedelta(days=1)),
+                # mt.submit(ao.get_data, (now - timedelta(days=1))),
+                # mt.submit(bl.get_data, (now - timedelta(days=1))),
+                # mt.submit(at.get_data, (now - timedelta(days=1))),
+                # mt.submit(atk.get_data, (now - timedelta(days=1))),
+                # mt.submit(ao.get_data, (now - timedelta(days=2))),
+                # mt.submit(bl.get_data, (now - timedelta(days=2))),
+                # mt.submit(at.get_data, (now - timedelta(days=2))),
+                # mt.submit(atk.get_data, (now - timedelta(days=2))),
                 # mt.submit(jm.get_data, now - timedelta(days=1)),
                 # mt.submit(atz.get_data, now - timedelta(days=1)),
                 # mt.submit(ao.get_data, (now - timedelta(days=i))),

@@ -15,7 +15,7 @@ class TenAntConfig(db.Model):
     token = db.Column(db.Text, default=None)
     branch = db.Column(db.Text, default=None)
     store = db.Column(db.Integer, default=None)
-    vat = db.Column(db.Float, default=0.1)
+    vat = db.Column(db.Float, default=0.08)
     mail = db.Column(db.Boolean, default=True)
 
 

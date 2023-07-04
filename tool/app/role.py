@@ -7,8 +7,9 @@ from fastapi import HTTPException, status
 def auth_required(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
-        # print(args)
+
         req = kwargs['req']
+        print(req.app.extra['extra'])
         # res = kwargs['res']
         secret_key = req.app.extra['extra']['secret_key']
         try:
