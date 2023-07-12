@@ -109,4 +109,4 @@ if __name__:
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
     # now = datetime.now()
-    # HoangPhuc().get_data(now - timedelta(days=1))
+    # HoangPhuc().get_data(now - timedelta(days=2))

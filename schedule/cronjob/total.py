@@ -24,6 +24,7 @@ def main():
     elise = Elise()
     dchic = Dchic()
     hoangphuc = HoangPhuc()
+    routine = Routine()
     now = datetime.now(timezone('Etc/GMT-7'))
     if now.hour < 9:
         with futures.ThreadPoolExecutor(max_workers=16) as mt:
@@ -49,11 +50,12 @@ def main():
             futures.as_completed(thread)
     else:
         # for i in range(1,24):
-        with futures.ThreadPoolExecutor(max_workers=3) as mt:
+        with futures.ThreadPoolExecutor(max_workers=4) as mt:
             thread = [
-                mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
-                mt.submit(megane.get_data, now - timedelta(days=1)),
-                mt.submit(matviet.get_data, now - timedelta(days=1)),
+                # mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
+                # mt.submit(megane.get_data, now - timedelta(days=1)),
+                # mt.submit(matviet.get_data, now - timedelta(days=1)),
+                mt.submit(routine.get_data),
                 # mt.submit(ao.get_data, (now - timedelta(days=1))),
                 # mt.submit(bl.get_data, (now - timedelta(days=1))),
                 # mt.submit(at.get_data, (now - timedelta(days=1))),
@@ -106,6 +108,6 @@ if __name__ == '__main__':
     from schedule.client_api.aristino import Aristino
     from schedule.client_api.elise import Elise
     from schedule.client_api.dchic import Dchic
-
+    from schedule.client_api.routine_amhd import Routine
     warnings.filterwarnings('ignore')
     main()

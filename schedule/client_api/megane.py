@@ -90,8 +90,17 @@ class MeganePrince(object):
                             'PaymentMethods': pms
                         }
                         submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
-                        if e_wallet < 0:
-                            submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
+                        for __ in pms:
+                            # print(__)
+                            if __['Value'] < 0:
+                                submit_payment(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data={
+                                    "OrderCode": f'{pur_date.strftime("%Y%m%d_%H")}',
+                                    "Amount": __['Value'],
+                                    "TransDate": pur_date.strftime('%Y-%m-%d %H:%M:%S'),
+                                    "AccountId": __['Name'].upper()
+                                })
+                        # if e_wallet < 0:
+                        #     submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
                         # break
                 return True
             else:
@@ -108,4 +117,4 @@ if __name__.__contains__('schedule.client_api'):
 
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
-    from schedule.pos_api.adapter import submit_error, submit_order
+    from schedule.pos_api.adapter import submit_error, submit_order, submit_payment

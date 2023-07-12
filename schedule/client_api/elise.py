@@ -33,7 +33,7 @@ class Elise(object):
                 'frPurchaseDate': f'{from_date.strftime("%Y-%m-%d")} 00:00:00',
                 'toPurchaseDate': f'{from_date.strftime("%Y-%m-%d")} 23:59:59'
             }
-            print(p, self.MAIN)
+            # print(p, self.MAIN)
             res = self.browser.get(self.MAIN, params=p)
             if res.status_code == 400:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason='BAD REQUEST')
@@ -70,7 +70,7 @@ class Elise(object):
                             'Price': __['price'],
                             'Quantity': abs(__['qty'])
                         })
-                    print(_)
+                    # print(_)
                     total = 0
                     for __ in _['paymentMethods']:
                         total += abs(__['value'])
@@ -121,7 +121,7 @@ class Elise(object):
                         'OrderDetails': ods
                     }
                     submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=data)
-                    print(data)
+                    # print(data)
                     # print(_['orderCode'])
                     # print(_['discount'])
                     # print(_['vat'])
@@ -141,4 +141,4 @@ if __name__:
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
 
-    Elise().get_data(datetime.now() - timedelta(days=1))
+    # Elise().get_data(datetime.now() - timedelta(days=1))

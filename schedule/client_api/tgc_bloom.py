@@ -2,7 +2,7 @@ from os.path import dirname
 import requests
 import json
 import xmltodict
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class TGC_BLOOM(object):
@@ -85,6 +85,7 @@ class TGC_BLOOM(object):
                 # if dic[tmp]['PaymentMethods'] != pm:
                 #     dic[tmp].update({'PaymentMethods': pm})
         except Exception as e:
+            # print(e)
             if content['exp_id'] == 'S00001':
                 submit_error(retailer=self.ADAPTER_RETAILER_BLOOM, reason=f'[Prepare Data] {str(e)}')
             else:
@@ -99,7 +100,9 @@ class TGC_BLOOM(object):
             'denngay': date_from.strftime('%d-%m-%Y')
         }
         try:
+            # print(1)
             res = requests.get(self.CLIENT_API, params=p).text
+            # print(res)
             xml = xmltodict.parse(res)
             js = json.dumps(xml['string'])
             js = json.loads(js)['#text']
@@ -124,21 +127,26 @@ class TGC_BLOOM(object):
                 js.update({'PaymentMethods': pms})
                 if js['exp_id'] == 'S00001':
                     js.pop('exp_id')
+                    # print(js)
                     submit_order(retailer=self.ADAPTER_RETAILER_BLOOM, token=self.ADAPTER_TOKEN_BLOOM, data=js)
                 else:
                     js.pop('exp_id')
+                    # print(js)
                     submit_order(retailer=self.ADAPTER_RETAILER_TGC, token=self.ADAPTER_TOKEN_TGC, data=js)
                 # print(js)
             # for _, js in self.TRANS_TGC.items():
             #     # print(js)
             #     submit_order(retailer=self.ADAPTER_RETAILER_TGC, token=self.ADAPTER_TOKEN_TGC, data=js)
         except Exception as e:
+            print(e)
             submit_error(retailer='TGC_BLOOM', reason=f'[Fetch Data] {str(e)}')
 
 
-if __name__.__contains__('schedule.client_api'):
+if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
+    # now = datetime.now()
+    # TGC_BLOOM().get_data(now - timedelta(days=1))
