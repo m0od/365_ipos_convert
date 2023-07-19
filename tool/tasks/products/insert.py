@@ -65,7 +65,7 @@ class InsertProduct(Task):
             # else:
             try:
                 p.Id = stt['Id']
-                p.setName(data['Tên hàng hóa'])
+                p.setName(str(data['Tên hàng hóa']))
                 p.setSerial(data['Quản lý theo Lô Hạn'])
                 p.setPrintLabel(data['Không in ra tem nhãn'])
                 p.setOpenTopping(data['Mở Extra/Topping khi chọn'])
@@ -76,14 +76,14 @@ class InsertProduct(Task):
                 p.PriceLargeUnit = str(data['Giá bán ĐVT Lớn']).strip()
                 p.Cost = str(data['Giá vốn']).strip()
 
-                p.Unit = data['ĐVT'].strip()
-                p.LargeUnit = data['ĐVT Lớn'].strip()
-                p.LargeUnitCode = data['Mã ĐVT Lớn'].strip()
+                p.Unit = str(data['ĐVT']).strip()
+                p.LargeUnit = str(data['ĐVT Lớn']).strip()
+                p.LargeUnitCode = str(data['Mã ĐVT Lớn']).strip()
                 p.ConversionValue = data['Giá trị quy đổi']
                 p.OrderQuickNotes = data['Ghi chú nhanh khi bán hàng'].strip()
                 p.OnHand = data['Tồn kho']
                 p.ProductType = data['Loại hàng']
-                # print(p.toJson())
+                print(p.toJson())
 
                 p.Printer = data['Tên máy in']
                 p.setMaxQuantity(data['Định mức tồn lớn nhất'])

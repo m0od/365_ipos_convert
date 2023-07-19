@@ -25,9 +25,10 @@ def main():
     dchic = Dchic()
     hoangphuc = HoangPhuc()
     routine = Routine()
+    pnj = PNJ_AMHD()
     now = datetime.now(timezone('Etc/GMT-7'))
-    if now.hour < 9:
-        with futures.ThreadPoolExecutor(max_workers=16) as mt:
+    if now.hour < 10:
+        with futures.ThreadPoolExecutor(max_workers=15) as mt:
             thread = [
                 mt.submit(tgc_bloom.get_data, now - timedelta(days=1)),
                 mt.submit(ao.get_data, (now - timedelta(days=1))),
@@ -45,36 +46,25 @@ def main():
                 mt.submit(aristino.get_data, now - timedelta(days=1)),
                 mt.submit(elise.get_data, now - timedelta(days=1)),
                 mt.submit(dchic.get_data, now - timedelta(days=1)),
-                mt.submit(hoangphuc.get_data, now - timedelta(days=1))
+                mt.submit(hoangphuc.get_data, now - timedelta(days=1)),
+                # mt.submit(pnj.get_data),
             ]
             futures.as_completed(thread)
-    else:
+    elif now.hour == 10:
         # for i in range(1,24):
         with futures.ThreadPoolExecutor(max_workers=4) as mt:
             thread = [
-                # mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
-                # mt.submit(megane.get_data, now - timedelta(days=1)),
-                # mt.submit(matviet.get_data, now - timedelta(days=1)),
+                mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
+                mt.submit(megane.get_data, now - timedelta(days=1)),
+                mt.submit(matviet.get_data, now - timedelta(days=1)),
                 mt.submit(routine.get_data),
-                # mt.submit(ao.get_data, (now - timedelta(days=1))),
-                # mt.submit(bl.get_data, (now - timedelta(days=1))),
-                # mt.submit(at.get_data, (now - timedelta(days=1))),
-                # mt.submit(atk.get_data, (now - timedelta(days=1))),
-                # mt.submit(ao.get_data, (now - timedelta(days=2))),
-                # mt.submit(bl.get_data, (now - timedelta(days=2))),
-                # mt.submit(at.get_data, (now - timedelta(days=2))),
-                # mt.submit(atk.get_data, (now - timedelta(days=2))),
-                # mt.submit(jm.get_data, now - timedelta(days=1)),
-                # mt.submit(atz.get_data, now - timedelta(days=1)),
-                # mt.submit(ao.get_data, (now - timedelta(days=i))),
-                # mt.submit(bl.get_data, (now - timedelta(days=i))),
-                # mt.submit(at.get_data, (now - timedelta(days=i))),
-                # mt.submit(atk.get_data, (now - timedelta(days=i)))
-                # mt.submit(aristino.get_data, now - timedelta(days=1))
-                # mt.submit(ao.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-                # mt.submit(bl.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-                # mt.submit(at.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
-                # mt.submit(atk.get_data, (now - timedelta(days=1)).strftime('%y%m%d')),
+            ]
+            futures.as_completed(thread)
+    elif now.hour == 12:
+        # for i in range(1,24):
+        with futures.ThreadPoolExecutor(max_workers=1) as mt:
+            thread = [
+                mt.submit(pnj.get_data)
             ]
             futures.as_completed(thread)
 
@@ -109,5 +99,6 @@ if __name__ == '__main__':
     from schedule.client_api.elise import Elise
     from schedule.client_api.dchic import Dchic
     from schedule.client_api.routine_amhd import Routine
+    from schedule.client_api.pnj_amhd import PNJ_AMHD
     warnings.filterwarnings('ignore')
     main()

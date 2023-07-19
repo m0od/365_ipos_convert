@@ -1,24 +1,44 @@
+import glob
+import os
 from datetime import datetime
+from os.path import dirname
 
 import openpyxl
 
-from pos_api.adapter import submit_order
 
 
 class PNJ_AMHD(object):
     def __init__(self):
-        self.ADAPTER_RETAILER = 'pnj_aeonhd'
+        self.ADAPTER_RETAILER = 'pnj{}_aeonhd'
         self.ADAPTER_TOKEN = '22e07b3b942190b5b91eaf88b8c7937741fcbbf9932def888c1aad9aa72fcba5'
-        self.FOLDER = '/home/pnj_amhd'
-        self.FILE = 'PNJ_IMPORT_20230601.xlsx'
+        self.FOLDER = 'pnj_amhd'
+        self.FULL_PATH = f'../home/{self.FOLDER}/'
+        self.EXT = '*xlsx'
+        self.DATA = None
+        self.ORDERS = {}
+        self.PMS = {}
+        self.ODS = {}
+
+    def scan_file(self):
+        # print(os.getcwd())
+        # print(os.path.getmtime(self.FULL_PATH))
+        # print(for name in glob.glob('/home/geeks/Desktop/gfg/data.txt'):)
+        files = glob.glob(self.FULL_PATH + self.EXT)
+        # print(files)
+        self.DATA = max(files, key=  os.path.getmtime)
+
+        print(self.DATA)
 
     def get_data(self):
-        dataframe = openpyxl.load_workbook(self.FILE, data_only=True)
+        self.scan_file()
+        dataframe = openpyxl.load_workbook(self.DATA, data_only=True)
+
         sheetOne = dataframe['Danh sách đơn hàng']
+        # print(sheetOne)
         orders = {}
         # Iterate the loop to read the cell values
         for row in range(2, sheetOne.max_row + 1):
-            # print(sheetOne[row][0].value)
+            print(sheetOne[row][0].value)
             code = sheetOne[row][0].value
             if code is None: break
             code = str(code)
@@ -26,9 +46,14 @@ class PNJ_AMHD(object):
             pur_date = str(sheetOne[row][2].value)
             # print(pur_date)
             pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M')
+            # print(pur_date)
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+            # print(pur_date)
             discount = str(sheetOne[row][3].value)
+
             total = str(sheetOne[row][4].value)
+
+
             vat = str(sheetOne[row][5].value)
             branch = str(sheetOne[row][6].value)
             # print(code, status, pur_date, discount, total, vat)
@@ -51,7 +76,7 @@ class PNJ_AMHD(object):
             #     if col[row].value is None: break
             #     print(col[row].value)
             # print('-'*5)
-
+        print(orders)
         # Read SheetTwo
         sheetTwo = dataframe['Phương thức thanh toán']
         # print(sheetTwo.max_row)
@@ -107,7 +132,7 @@ class PNJ_AMHD(object):
                         'Code': p_code,
                         'Name': name,
                         'Price': float(price),
-                        'Quantity': int(qty)
+                        'Quantity': float(qty)
                     }],
                 }
             else:
@@ -116,7 +141,7 @@ class PNJ_AMHD(object):
                         'Code': p_code,
                         'Name': name,
                         'Price': float(price),
-                        'Quantity': int(qty)
+                        'Quantity': float(qty)
                     }
                 )
         for k, v in ods.items():
@@ -131,8 +156,10 @@ class PNJ_AMHD(object):
             if v.get('OrderDetails') is None:
                 v['OrderDetails'] = []
             print(v)
+            retailer = self.ADAPTER_RETAILER.format(v['Branch'])
+            v.pop('Branch')
             if v['Status'] == 2:
-                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
+                submit_order(retailer=retailer, token=self.ADAPTER_TOKEN, data=v)
             elif v['Status'] == 1:
                 send = v.copy()
                 send.update({
@@ -146,20 +173,26 @@ class PNJ_AMHD(object):
                 })
                 send.pop('PurchaseDate')
                 send.pop('OrderDetails')
-                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
-                send = {
-                    'Code': f'VAT_{v["Code"]}',
-                    'Status': 2,
-                    'PurchaseDate': v['PurchaseDate'],
-                    'Total': 0,
-                    'TotalPayment': 0,
-                    'VAT': 0,
-                    'Discount': 0,
-                    'OrderDetails': [],
-                    'PaymentMethods': [{'Name': 'CASH', 'Value': 0}],
-                    'AdditionalServices': [{'Name': 'Hoàn VAT', 'Value': v['Total']}]
-                }
-                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
+                submit_order(retailer=retailer, token=self.ADAPTER_TOKEN, data=send)
+                # send = {
+                #     'Code': f'VAT_{v["Code"]}',
+                #     'Status': 2,
+                #     'PurchaseDate': v['PurchaseDate'],
+                #     'Total': 0,
+                #     'TotalPayment': 0,
+                #     'VAT': 0,
+                #     'Discount': 0,
+                #     'OrderDetails': [],
+                #     'PaymentMethods': [{'Name': 'CASH', 'Value': 0}],
+                #     'AdditionalServices': [{'Name': 'Hoàn VAT', 'Value': v['Total']}]
+                # }
+                # submit_order(retailer=retailer, token=self.ADAPTER_TOKEN, data=send)
 
+if __name__:
+    import sys
 
-PNJ_AMHD().get_data()
+    PATH = dirname(dirname(__file__))
+    # print(PATH)
+    sys.path.append(PATH)
+    from schedule.pos_api.adapter import submit_error, submit_order
+    # PNJ_AMHD().get_data()
