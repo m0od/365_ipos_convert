@@ -1,9 +1,9 @@
 import glob
 import os
+from datetime import datetime, timedelta
 from os.path import dirname
 
 import openpyxl
-
 
 
 class Routine(object):
@@ -12,7 +12,7 @@ class Routine(object):
         self.ADAPTER_TOKEN = '9016a35bbb92076a998c777bb7cf3924ec1c211692fdc76314d277b0f496a41b'
         self.FOLDER = 'routine_amhd'
         self.FULL_PATH = f'../home/{self.FOLDER}/'
-        self.EXT =  '*xlsx'
+        self.EXT = '*xlsx'
         self.DATA = None
         self.ORDERS = {}
         self.PMS = {}
@@ -40,6 +40,8 @@ class Routine(object):
             status = sheetOne[row][1].value
             pur_date = sheetOne[row][2].value
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+            now = datetime.now() - timedelta(days=1)
+            if pur_date.day < now.day: continue
             discount = abs(sheetOne[row][3].value)
             total = sheetOne[row][4].value
             vat = sheetOne[row][5].value
@@ -131,6 +133,7 @@ class Routine(object):
         for k, v in self.ORDERS.items():
             print(v)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
+
 
 if __name__:
     import sys

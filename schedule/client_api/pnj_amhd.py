@@ -1,6 +1,6 @@
 import glob
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from os.path import dirname
 
 import openpyxl
@@ -38,7 +38,7 @@ class PNJ_AMHD(object):
         orders = {}
         # Iterate the loop to read the cell values
         for row in range(2, sheetOne.max_row + 1):
-            print(sheetOne[row][0].value)
+            # print(sheetOne[row][0].value)
             code = sheetOne[row][0].value
             if code is None: break
             code = str(code)
@@ -48,14 +48,15 @@ class PNJ_AMHD(object):
             pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M')
             # print(pur_date)
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
-            # print(pur_date)
+            now = datetime.now() - timedelta(days=1)
+            if pur_date.day < now.day: continue
             discount = str(sheetOne[row][3].value)
 
             total = str(sheetOne[row][4].value)
 
 
             vat = str(sheetOne[row][5].value)
-            branch = str(sheetOne[row][6].value)
+            branch = sheetOne[row][6].value
             # print(code, status, pur_date, discount, total, vat)
             if orders.get(code) is None:
                 orders[code] = {
@@ -76,7 +77,7 @@ class PNJ_AMHD(object):
             #     if col[row].value is None: break
             #     print(col[row].value)
             # print('-'*5)
-        print(orders)
+        # print(orders)
         # Read SheetTwo
         sheetTwo = dataframe['Phương thức thanh toán']
         # print(sheetTwo.max_row)
@@ -110,7 +111,7 @@ class PNJ_AMHD(object):
         for k, v in pms.items():
             if orders.get(k) is not None:
                 orders[k].update(v)
-                print(orders[k])
+                # print(orders[k])
         #
         sheetThree = dataframe['Chi tiết đơn hàng']
 
@@ -148,17 +149,26 @@ class PNJ_AMHD(object):
             # print(k, v)
             if orders.get(k) is not None:
                 orders[k].update(v)
-                print(orders[k])
+                # print(orders[k])
 
         for k, v in orders.items():
             if v.get('PaymentMethods') is None:
                 v['PaymentMethods'] = [{'Name': 'CASH', 'Value': v['Total']}]
             if v.get('OrderDetails') is None:
                 v['OrderDetails'] = []
-            print(v)
-            retailer = self.ADAPTER_RETAILER.format(v['Branch'])
+            # print(v)
+            # try:
+            #     print(int(v['Branch']))
+            # except Exception as e:
+            #     print(e)
+            retailer = self.ADAPTER_RETAILER.format(str(int(v['Branch'])))
+            # print(retailer)
+            # try:
             v.pop('Branch')
+            # except:
+            #     pass
             if v['Status'] == 2:
+                # print(v)
                 submit_order(retailer=retailer, token=self.ADAPTER_TOKEN, data=v)
             elif v['Status'] == 1:
                 send = v.copy()
