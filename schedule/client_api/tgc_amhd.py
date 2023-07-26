@@ -5,14 +5,12 @@ import xmltodict
 from datetime import datetime, timedelta
 
 
-class TGC_BLOOM(object):
+class TGC(object):
     def __init__(self):
         self.ADAPTER_RETAILER_TGC = 'tgc_aeonhd'
         self.ADAPTER_TOKEN_TGC = '4a8055f47627ee8bb719328d32664d176eb3558dfc27e0e438d5970cb0bde152'
-        self.ADAPTER_RETAILER_BLOOM = 'bloom_aeonhd'
-        self.ADAPTER_TOKEN_BLOOM = 'f4537c11815d1aab2aca3bfeb95da0f9015f750d20ed823f334b04b3ef3859b6'
         self.CLIENT_API = 'http://online.phanmembanhang.net.vn/Admin/EstelleService.asmx/GetInfoSaleOrder'
-        self.TEN_ONLINE = 'estelle'
+        self.TEN_ONLINE = 'tokyoglass'
         self.TEN_DN = 'bcaeon'
         self.PASS = '123456789!'
         self.ORDERS = {}
@@ -85,10 +83,10 @@ class TGC_BLOOM(object):
                 # if dic[tmp]['PaymentMethods'] != pm:
                 #     dic[tmp].update({'PaymentMethods': pm})
         except Exception as e:
-            # print(e)
-            if content['exp_id'] == 'S00001':
-                submit_error(retailer=self.ADAPTER_RETAILER_BLOOM, reason=f'[Prepare Data] {str(e)}')
-            else:
+            print(86, e)
+            if content['exp_id'] == 'S00002':
+                # submit_error(retailer=self.ADAPTER_RETAILER_BLOOM, reason=f'[Prepare Data] {str(e)}')
+                # else:
                 submit_error(retailer=self.ADAPTER_RETAILER_TGC, reason=f'[Prepare Data] {str(e)}')
             pass
 
@@ -125,13 +123,13 @@ class TGC_BLOOM(object):
                     pms.append({'Name': 'THẺ', 'Value': js.get('TH')})
                     js.pop('TH')
                 js.update({'PaymentMethods': pms})
-                if js['exp_id'] == 'S00001':
+                if js['exp_id'] == 'S00002':
                     js.pop('exp_id')
                     # print(js)
-                    submit_order(retailer=self.ADAPTER_RETAILER_BLOOM, token=self.ADAPTER_TOKEN_BLOOM, data=js)
-                else:
-                    js.pop('exp_id')
-                    # print(js)
+                    #     submit_order(retailer=self.ADAPTER_RETAILER_BLOOM, token=self.ADAPTER_TOKEN_BLOOM, data=js)
+                    # else:
+                    #     js.pop('exp_id')
+                    print(js)
                     submit_order(retailer=self.ADAPTER_RETAILER_TGC, token=self.ADAPTER_TOKEN_TGC, data=js)
                 # print(js)
             # for _, js in self.TRANS_TGC.items():
@@ -149,4 +147,6 @@ if __name__:
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
     # now = datetime.now()
-    # TGC_BLOOM().get_data(now - timedelta(days=1))
+    # print(now - timedelta(days=28))
+    # for i in range(28, 1, -1):
+    # TGC().get_data(now - timedelta(days=1))

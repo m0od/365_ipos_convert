@@ -169,4 +169,4 @@ if __name__:
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
 
-    Lyn().get_data(datetime.now() - timedelta(days=1))
+    # Lyn().get_data(datetime.now() - timedelta(days=1))

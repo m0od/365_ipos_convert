@@ -4,7 +4,8 @@ from os.path import dirname
 
 
 def main():
-    tgc_bloom = TGC_BLOOM()
+    tgc = TGC()
+    bloom = Bloom()
     ao = AoKang()
     bl = Balabala()
     at = Anta()
@@ -28,9 +29,10 @@ def main():
     pnj = PNJ_AMHD()
     now = datetime.now(timezone('Etc/GMT-7'))
     if now.hour < 10:
-        with futures.ThreadPoolExecutor(max_workers=15) as mt:
+        with futures.ThreadPoolExecutor(max_workers=18) as mt:
             thread = [
-                mt.submit(tgc_bloom.get_data, now - timedelta(days=1)),
+                mt.submit(tgc.get_data, now - timedelta(days=1)),
+                mt.submit(bloom.get_data, now - timedelta(days=1)),
                 mt.submit(ao.get_data, (now - timedelta(days=1))),
                 mt.submit(bl.get_data, (now - timedelta(days=1))),
                 mt.submit(at.get_data, (now - timedelta(days=1))),
@@ -86,7 +88,8 @@ if __name__ == '__main__':
     from schedule.client_api.atz import ATZ
     from schedule.client_api.balabala import Balabala
     from schedule.client_api.jm import JM
-    from schedule.client_api.tgc_bloom import TGC_BLOOM
+    from schedule.client_api.tgc_amhd import TGC
+    from schedule.client_api.bloom_amhd import Bloom
     from schedule.client_api.matviet import MatViet
     from schedule.client_api.hoangphuc import HoangPhuc
     from concurrent import futures

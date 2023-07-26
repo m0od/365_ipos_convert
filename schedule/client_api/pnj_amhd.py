@@ -47,9 +47,11 @@ class PNJ_AMHD(object):
             # print(pur_date)
             pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M')
             # print(pur_date)
-            pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
             now = datetime.now() - timedelta(days=1)
+            # print(pur_date.day)
             if pur_date.day < now.day: continue
+            pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+
             discount = str(sheetOne[row][3].value)
 
             total = str(sheetOne[row][4].value)

@@ -26,7 +26,7 @@ class Routine(object):
         # print(files)
         self.DATA = max(files, key=os.path.getmtime)
 
-        # print()
+        print(self.DATA)
 
     def get_data(self):
         self.scan_file()
@@ -34,30 +34,38 @@ class Routine(object):
         sheetOne = dataframe['Danh sách đơn hàng']
         for row in range(2, sheetOne.max_row + 1):
             code = sheetOne[row][0].value
+            print(code)
             if code is None: continue
             if self.ORDERS.get(code) is None:
                 self.ORDERS.update({str(code).strip(): {}})
             status = sheetOne[row][1].value
             pur_date = sheetOne[row][2].value
-            pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
             now = datetime.now() - timedelta(days=1)
             if pur_date.day < now.day: continue
+            pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+
             discount = abs(sheetOne[row][3].value)
-            total = sheetOne[row][4].value
-            vat = sheetOne[row][5].value
+            if status == 2:
+                total = sheetOne[row][4].value
+                vat = sheetOne[row][5].value
+            else:
+                total = sheetOne[row][4].value * -1
+                vat = sheetOne[row][5].value * -1
             total_pm = sheetOne[row][6].value
             # print(type(pur_date))
-            print(code, pur_date, type(total), type(discount), type(total_pm))
-            if status == 2:
-                self.ORDERS.update({code: {
-                    'Code': str(code),
-                    'Status': 2,
-                    'PurchaseDate': pur_date,
-                    'Total': total,
-                    'TotalPayment': total_pm,
-                    'VAT': vat,
-                    'Discount': discount,
-                }})
+            # print(code, pur_date, type(total), type(discount), type(total_pm))
+            # if status == 2:
+            self.ORDERS.update({code: {
+                'Code': str(code),
+                'Status': 2,
+                'PurchaseDate': pur_date,
+                'Total': total,
+                'TotalPayment': total_pm,
+                'VAT': vat,
+                'Discount': discount,
+            }})
+
+
 
         sheetTwo = dataframe['Phương thức thanh toán']
         for row in range(2, sheetTwo.max_row + 1):
@@ -66,7 +74,7 @@ class Routine(object):
             code = str(code).strip()
             name = str(sheetTwo[row][1].value).replace('TTTM', '').strip()
             value = sheetTwo[row][2].value
-            print(code, name, value)
+            # print(code, name, value)
 
             if self.PMS.get(code) is None:
                 self.PMS[code] = {
@@ -102,7 +110,7 @@ class Routine(object):
             qty = sheetThree[row][3].value
             price = sheetThree[row][5].value
             price = price is not None and price or 0
-            print('==>', code, p_code, name, float(price), int(qty))
+            # print('==>', code, p_code, name, float(price), int(qty))
             if self.ODS.get(code) is None:
                 self.ODS[code] = {
                     'OrderDetails': [{
@@ -123,16 +131,21 @@ class Routine(object):
                 )
 
         for k, v in self.ODS.items():
-            print(k, v)
+            # print(k, v)
             if self.ORDERS.get(k) is not None:
                 self.ORDERS[k].update(v)
-                print(self.ORDERS[k])
+                # print(self.ORDERS[k])
             else:
                 print('unk')
 
         for k, v in self.ORDERS.items():
-            print(v)
-            submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
+            print(k, v)
+            if v.get('Code') is not None:
+                if v.get('PaymentMethods') is None:
+                    v['PaymentMethods'] = [{'Name': 'CASH', 'Value': 0}]
+                if v.get('OrderDetails') is None:
+                    v['OrderDetails'] = [{'ProductId': 0}]
+                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
 
 
 if __name__:
