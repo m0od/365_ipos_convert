@@ -312,7 +312,7 @@ def orders():
             for service in content.get('AdditionalServices'):
                 if type(service) != dict:
                     raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
-        if datetime.strptime(content.get('PurchaseDate'), '%Y-%m-%d %H:%M:%S') < datetime.now() - timedelta(days=2):
+        if content.get('PurchaseDate') is not None and datetime.strptime(content.get('PurchaseDate'), '%Y-%m-%d %H:%M:%S') < datetime.now() - timedelta(days=2):
             try:
                 db.session.delete(log)
                 db.session.commit()

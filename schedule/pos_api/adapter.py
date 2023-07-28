@@ -53,7 +53,7 @@ def submit_error(retailer=None, reason=None):
         }
         requests.post(URL, data=DATA)
     except Exception as e:
-        print(e)
+        print(56, e)
         pass
 
 if __name__ == '__main__':
