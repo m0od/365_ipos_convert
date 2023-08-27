@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import pymssql
 from os.path import dirname
 
@@ -113,10 +115,13 @@ class Anta(object):
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
 
 
-if __name__.__contains__('schedule.client_api'):
+if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
     from schedule.client_api.font_vi import Converter
+
+    # now = datetime.now()
+    # Anta().get_data(now - timedelta(days=1))

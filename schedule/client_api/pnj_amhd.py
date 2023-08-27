@@ -29,6 +29,7 @@ class PNJ_AMHD(object):
 
         print(self.DATA)
 
+
     def get_data(self):
         self.scan_file()
         dataframe = openpyxl.load_workbook(self.DATA, data_only=True)
@@ -42,15 +43,11 @@ class PNJ_AMHD(object):
             code = sheetOne[row][0].value
             if code is None: break
             code = str(code)
-            print(45, code)
             status = str(sheetOne[row][1].value).strip()
             pur_date = str(sheetOne[row][2].value).strip()
-            print(code, pur_date)
             pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M')
-            print(50, pur_date)
             now = datetime.now() - timedelta(days=1)
-            print(pur_date.day)
-            if pur_date.day < now.day: continue
+            if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
 
             discount = str(sheetOne[row][3].value)
@@ -60,7 +57,7 @@ class PNJ_AMHD(object):
 
             vat = str(sheetOne[row][5].value)
             branch = sheetOne[row][6].value
-            print(code, status, pur_date, discount, total, vat)
+            # print(code, status, pur_date, discount, total, vat)
             if orders.get(code) is None:
                 orders[code] = {
                     'Code': code,
@@ -80,7 +77,7 @@ class PNJ_AMHD(object):
             #     if col[row].value is None: break
             #     print(col[row].value)
             # print('-'*5)
-        print(orders)
+        # print(orders)
         # Read SheetTwo
         sheetTwo = dataframe['Phương thức thanh toán']
         # print(sheetTwo.max_row)
@@ -186,7 +183,7 @@ class PNJ_AMHD(object):
                 })
                 send.pop('PurchaseDate')
                 send.pop('OrderDetails')
-                print(send)
+                # print(send)
                 submit_order(retailer=retailer, token=self.ADAPTER_TOKEN, data=send)
                 # send = {
                 #     'Code': f'VAT_{v["Code"]}',
@@ -205,8 +202,9 @@ class PNJ_AMHD(object):
 if __name__:
     import sys
 
+    # PATH = dirname(dirname(__file__))
     PATH = dirname(dirname(dirname(__file__)))
     # print(PATH)
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    PNJ_AMHD().get_data()
+    # PNJ_AMHD().get_data()

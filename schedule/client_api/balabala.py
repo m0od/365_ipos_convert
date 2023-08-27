@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import pymssql
 from os.path import dirname
 
@@ -39,6 +41,7 @@ class Balabala(object):
             self.CURSOR = self.CONN.cursor(as_dict=True)
             return True
         except Exception as e:
+            print(e)
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[MSSQL Error] {str(e)}')
             return False
 
@@ -47,7 +50,7 @@ class Balabala(object):
         self.orders = {}
         if not self.login(): return False
         try:
-            # print(self.SQL_QUERY.format(date_from))
+            print(self.SQL_QUERY.format(date_from.strftime('%y%m%d')))
             self.CURSOR.execute(self.SQL_QUERY.format(date_from.strftime('%y%m%d')))
             row = self.CURSOR.fetchone()
             while row:
@@ -110,7 +113,7 @@ class Balabala(object):
             pass
         self.CONN.close()
         for _, js in self.orders.items():
-            # print(js)
+            print(js)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
 
         # return True
@@ -125,10 +128,12 @@ class Balabala(object):
     #         row = self.cursor.fetchone()
 
 
-if __name__.__contains__('schedule.client_api'):
+if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
     from schedule.client_api.font_vi import Converter
+    # now = datetime.now()
+    # Balabala().get_data(now - timedelta(days=1))

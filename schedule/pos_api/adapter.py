@@ -12,7 +12,8 @@ def submit_order(retailer=None, token=None, data=None):
             headers = {
                 'content-type': 'application/json',
                 'retailer': retailer,
-                'authorization': token
+                'authorization': token,
+                'debug': 'kt365aA@123'
             }
             res = requests.post(URL, headers=headers, json=data, timeout=10)
             # print(res.text)

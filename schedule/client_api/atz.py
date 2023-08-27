@@ -273,14 +273,20 @@ class ATZ(object):
                 try:
                     _.find('td', {'class': 'dgColVat'}).unwrap()
                     x = _.find('td', {'class': 'dgColPayment'})
+
                     dup = []
-                    for pm in x.findAll('label'):
-                        pn = pm['title'].split(':')[0]
-                        pn = self.METHOD.get(pn)
-                        if pn not in dup:
-                            dup.append(pn)
-                            pms.append({'Name': pn, 'Value': int(pm.text.strip().replace('.', ''))})
-                    x.unwrap()
+                    try:
+                        for pm in x.findAll('label'):
+                            pn = pm['title'].split(':')[0]
+                            pn = self.METHOD.get(pn)
+                            if pn not in dup:
+                                dup.append(pn)
+                                pms.append({'Name': pn, 'Value': int(pm.text.strip().replace('.', ''))})
+                        x.unwrap()
+                    except:
+                        pass
+                    if len(pms) == 0:
+                        pms.append({'Name': 'CASH', 'Value': 0})
                     dis_total = _.findAll('td', {'class': 'text-right'})
                     discount = dis_total[0].text.strip().split('(')[0].strip().replace('.', '')
                     if len(discount) == 0: discount = '0'
@@ -294,7 +300,8 @@ class ATZ(object):
                         'VAT': 0,
                         'PurchaseDate': _.find('td', {'class': 'dgColDate'}).find('span')['title']
                     })
-                except:
+                except Exception as e:
+                    # print(e)
                     pass
             page += 1
             # break

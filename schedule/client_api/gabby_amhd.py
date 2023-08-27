@@ -10,27 +10,29 @@ def random_str():
     return ''.join(random.choice(string.ascii_letters) for i in range(8)).encode('utf-8')
 
 
-class Kakao(object):
+class Gabby(object):
 
     def __init__(self):
-        self.ADAPTER_RETAILER = 'kakao_aeonhd'
-        self.ADAPTER_TOKEN = '8add972c8f30406354872d3272f755fff035661f9ddd590e6e71c267b756a546'
-        self.BRANCH_ID = None
-        self.RETURN = []
+        self.ADAPTER_RETAILER = 'gabby_amhd'
+        self.ADAPTER_TOKEN = '949bc15d0545793090028a4ea255f30075ed52798df455e6c3e09200dd10fff5'
+        # self.ADAPTER_RETAILER = '695'
+        # self.ADAPTER_TOKEN = 'cf0f760c3c11b65139beaecd6e0dd12f80bc34a177704ffc497d2bf816d1ac2d'
+        self.API_MANS = [ 'api-man.kiotviet.vn', 'api-man1.kiotviet.vn', 'api-man.kiotviet.vn']
         self.API_MAN = None
-        self.API_MANS = ['api-man2.kiotviet.vn','api-man.kiotviet.vn','api-man1.kiotviet.vn']
-        self.DOMAIN = 'diossoft'
-        self.USER = 'aeonmall'
-        self.PASSWORD = '12345'
+        self.DOMAIN = 'gabby'
+        self.BRANCH_ID = None
+        self.USER = 'admaeonhd'
+        self.PASSWORD = 'Aeon12345'
         self.FINGER = f'{hashlib.md5(random_str()).hexdigest()}_Firefox_Desktop_Windows'
         self.browser = requests.session()
-        self.TOKEN = None
+        self.RETURN = []
         self.METHOD = {
             'CARD': 'THẺ',
-            'TRANSFER': 'CHUYỂN KHOẢN',
+            'TRANSFER': 'PAYOO',
             'CASH': 'CASH',
             'VOUCHER': 'VOUCHER'
         }
+        self.TOKEN = None
 
     def login(self):
         try:
@@ -69,8 +71,6 @@ class Kakao(object):
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[LOGIN] {str(e)}')
             return False
 
-        # print(self.FINGER_PRINT)
-
     def get_data(self, d_from, d_to):
         if not self.login(): return
         skip = 0
@@ -85,12 +85,15 @@ class Kakao(object):
             }
             self.browser.headers.update({
                 'authorization': f'Bearer {self.TOKEN}',
-                'branchId': self.BRANCH_ID
+                'branchId': self.BRANCH_ID,
+                'retailer': self.DOMAIN
             })
             if self.API_MAN is None:
+            # print(self.TOKEN, self.BRANCH_ID, self.DOMAIN)
                 for _ in self.API_MANS:
                     try:
                         res = self.browser.post(f'https://{_}/api/invoices/list', params=params)
+                        print(res.text)
                         res = res.json()
                         self.API_MAN = _
                         break
@@ -98,9 +101,9 @@ class Kakao(object):
                         pass
             else:
                 res = self.browser.post(f'https://{self.API_MAN}/api/invoices/list', params=params)
+                print(res.text)
                 res = res.json()
-            if len(res['Data']) == 0:
-                break
+            if len(res['Data']) == 0: break
             index = 0
             while index < len(res['Data']):
                 id = res['Data'][index]['Id']
@@ -175,10 +178,10 @@ class Kakao(object):
                 }
                 if r_pay > 0:
                     send.update({'AdditionalServices': [{'Name': 'Hoàn VAT', 'Value': -r_pay}]})
-                # print(send)
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
                 index += 1
             skip += 100
+        self.get_return_data(d_from, d_to)
 
     def get_return_data(self, d_from, d_to):
         # if not self.login(): return
@@ -197,6 +200,7 @@ class Kakao(object):
                 'branchId': self.BRANCH_ID
             })
             res = self.browser.get(f'https://{self.API_MAN}/api/returns', params=params).json()
+            print(res)
             if len(res['Data']) == 0: break
             index = 0
             while index < len(res['Data']):
@@ -257,7 +261,5 @@ if __name__:
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-
     # now = datetime.now()
-    # print(now - timedelta(days=12))
-    # Kakao().get_data(now - timedelta(days=3), now - timedelta(days=2))
+    # Gabby().get_data(now - timedelta(days=1), now)

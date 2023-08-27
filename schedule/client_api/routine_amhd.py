@@ -34,14 +34,17 @@ class Routine(object):
         sheetOne = dataframe['Danh sách đơn hàng']
         for row in range(2, sheetOne.max_row + 1):
             code = sheetOne[row][0].value
-            print(code)
+            # print(code)
             if code is None: continue
+            code = code.strip()
+            if len(code) == 0: continue
             if self.ORDERS.get(code) is None:
                 self.ORDERS.update({str(code).strip(): {}})
             status = sheetOne[row][1].value
             pur_date = sheetOne[row][2].value
+            # print(code, pur_date)
             now = datetime.now() - timedelta(days=1)
-            if pur_date.day < now.day: continue
+            if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
 
             discount = abs(sheetOne[row][3].value)
@@ -139,7 +142,7 @@ class Routine(object):
                 print('unk')
 
         for k, v in self.ORDERS.items():
-            print(k, v)
+            print(v)
             if v.get('Code') is not None:
                 if v.get('PaymentMethods') is None:
                     v['PaymentMethods'] = [{'Name': 'CASH', 'Value': 0}]
@@ -152,8 +155,7 @@ if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
-    print(PATH)
+    # PATH = dirname(dirname(dirname(__file__)))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    # a = Routine()
-    # a.get_data()
+    # Routine().get_data()

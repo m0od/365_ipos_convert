@@ -1,11 +1,10 @@
+import json
 from datetime import datetime
 from html import escape
+
 import requests
 
 URl = 'https://adapter.pos365.vn'
-TOKEN = {'token': 'kt365aA@123'}
-
-
 def submit_error(retailer=None, reason=None):
     try:
         TELE_TOKEN = '6094052614:AAHhC8l1GKHXwBlLCHxWXySLxOSjFnvteB4'
@@ -30,23 +29,30 @@ def submit_job(headers=None, data=None):
         except Exception as e:
             submit_error(retailer=headers['retailer'], reason=f'{str(e)} {data}')
 
-
-while True:
+f = open('xxxx.json', 'r')
+s = f.read().strip()
+f.close()
+js = json.loads(s)
+f = open('token.json', 'r')
+s = f.read().strip()
+f.close()
+token = json.loads(s)
+author = {}
+for _ in token['data']:
+    author.update({_['branch']: _['token']})
+for _ in js['data']:
     try:
-        jobs = requests.get(f'{URl}/fetch_log', params=TOKEN)
-        print(jobs.text)
-        for job in jobs.json():
-            if job['type'] == 1:
-                headers = {
-                    'content-type': 'application/json',
-                    'retailer': job['retailer'],
-                    'authorization': job['token'],
-                    'debug': 'kt365aA@123'
-                }
-                if job.get('store') is not None:
-                    headers.update({'store': str(job['store'])})
-                submit_job(headers=headers, data=job['content'])
-        break
-    except Exception as e:
-        print(e)
-        pass
+
+        # print(_['branch'], author[_['branch']])
+        headers = {
+            'content-type': 'application/json',
+            'retailer': _['branch'],
+            'authorization': author[_['branch']],
+            'debug': 'kt365aA@123'
+        }
+        if _.get('store') is not None:
+            headers.update({'store': str(_['store'])})
+        submit_job(headers=headers, data=json.loads(_['content']))
+        # break
+    except:
+        print(_)

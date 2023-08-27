@@ -27,7 +27,7 @@ class Log(db.Model):
     branch = db.Column(db.Text, default=None)
     store = db.Column(db.Integer, default=None)
     code = db.Column(db.Text, default=None)
-    content = db.Column(db.Text, default=None)
+    content = db.Column(db.JSON, default=None)
     rid = db.Column(db.VARCHAR, default=None)
     status = db.Column(db.Boolean, default=None)
     result = db.Column(db.Text, default=None)

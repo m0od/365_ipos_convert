@@ -27,3 +27,5 @@ google
 python-multipart
 gunicorn
 pyjwt
+pandas
+xlsxwriter

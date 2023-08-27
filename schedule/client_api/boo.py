@@ -8,7 +8,7 @@ class Boo(object):
     def __init__(self):
         self.ADAPTER_RETAILER = 'boo_aeonhd'
         self.ADAPTER_TOKEN = '1066c597a758f4b4ba92d6ba46ec207a53a0fc471e23566f4c00f0c40d98d422'
-        self.API = 'https://odoo.boo.vn'
+        self.API = 'http://odoo.boo.vn'
         self.TOKEN = 'b75d4ddd-65b2-4841-80a5-f8269ad26078'
         self.STORE = '1.1.3.OPS.077'
         self.orders = {}
@@ -151,7 +151,7 @@ class Boo(object):
             # break
 
 
-if __name__.__contains__('schedule.client_api'):
+if __name__:
     import warnings
     import sys
 
@@ -159,3 +159,4 @@ if __name__.__contains__('schedule.client_api'):
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
+    # Boo().get_data(datetime.now() - timedelta(days=1))

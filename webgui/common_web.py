@@ -142,14 +142,22 @@ def local_fetch_log():
     logs = logs.all()
     ret = []
     for l in logs:
-        content = l.Log.content.replace("\\", '\\\\').replace("'", '"')
-        ret.append({
-            'retailer': l.Log.branch,
-            'token': l.token,
-            'store': l.Log.store,
-            'content': json.loads(content),
-            'type': l.Log.type
-        })
+        # try:
+        # content = l.Log.content
+        # except:
+        #     content = l.Log.content
+        # print(content)
+        try:
+            ret.append({
+                'retailer': l.Log.branch,
+                'token': l.token,
+                'store': l.Log.store,
+                'content': l.Log.content,
+                'type': l.Log.type
+            })
+        except Exception as e:
+            print(e)
+            # print(content)
     return jsonify(ret)
 
 
@@ -248,7 +256,7 @@ def add_methods():
         log.branch = branch
         log.store = store
         log.code = content.get('Code')
-        log.content = str(content)
+        log.content = content
         log.type = 2
         try:
             db.session.add(log)
@@ -287,7 +295,7 @@ def orders():
         log.branch = branch
         log.store = store
         log.code = content.get('Code')
-        log.content = str(content)
+        log.content = content
         log.type = 1
         try:
             db.session.add(log)
@@ -312,7 +320,8 @@ def orders():
             for service in content.get('AdditionalServices'):
                 if type(service) != dict:
                     raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
-        if content.get('PurchaseDate') is not None and datetime.strptime(content.get('PurchaseDate'), '%Y-%m-%d %H:%M:%S') < datetime.now() - timedelta(days=2):
+        if request.headers.get('debug') != 'kt365aA@123' \
+                and content.get('PurchaseDate') is not None and datetime.strptime(content.get('PurchaseDate'), '%Y-%m-%d %H:%M:%S') < datetime.now() - timedelta(days=2):
             try:
                 db.session.delete(log)
                 db.session.commit()

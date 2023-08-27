@@ -127,3 +127,5 @@ if __name__:
     # print(datetime.now() - timedelta(days=12))
     # for i in range(1, 13):
     #     AntaKids().get_data(datetime.now() - timedelta(days=i))
+    # now = datetime.now()
+    # AntaKids().get_data(now - timedelta(days=1))

@@ -48,7 +48,7 @@ class Aristino(object):
                     for r in js['Result'][1:]:
                         pur_date = r['ngay_ct'].replace('00:00:00', r['time0'].split('.')[0])
                         pur_date = datetime.strptime(pur_date.upper(), '%Y-%m-%dT%H:%M:%S')
-                        discount = r['diem_the'] + r['ck_them'] + r['voucher']
+                        discount = r['ck_them'] + r['voucher']
                         total = r['tt_truoc_ck'] - discount - r['doi_tra']
                         pm = []
                         if r['tien_mat'] != 0:
@@ -59,6 +59,8 @@ class Aristino(object):
                             pm.append({'Name': 'KHÁC', 'Value': r['tt_khac']})
                         if r['pay_qr'] != 0:
                             pm.append({'Name': 'QR', 'Value': r['pay_qr']})
+                        if r['diem_the'] != 0:
+                            pm.append({'Name': 'POINT', 'Value': r['diem_the']})
                         send = {
                             'Code': r['doi_tra'] == 0 and r['so_ct'] or f"DTH_{r['so_ct']}",
                             'Status': 2,
