@@ -28,13 +28,14 @@ def submit_job(headers=None, data=None):
             if res.json()['result_id'] is not None:
                 break
         except Exception as e:
-            submit_error(retailer=headers['retailer'], reason=f'{str(e)} {data}')
+            pass
+            # submit_error(retailer=headers['retailer'], reason=f'{str(e)} {data}')
 
 
 while True:
     try:
         jobs = requests.get(f'{URl}/fetch_log', params=TOKEN)
-        print(jobs.text)
+        # print(jobs.text)
         for job in jobs.json():
             if job['type'] == 1:
                 headers = {

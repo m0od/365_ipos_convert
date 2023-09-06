@@ -25,26 +25,28 @@ def main():
     elise = Elise()
     dchic = Dchic()
     hoangphuc = HoangPhuc()
-    routine = Routine()
+    ftp_routine = Routine()
     pnj = PNJ_AMHD()
     gabby = Gabby()
     jajang = JaJang()
-    typo = TYPO_AMHD()
-    banana_amhd = BANANA_REPUBLIC_AMHD()
-    tommy_amhd = TOMMY_AMHD()
-    cotton_on_amhd = COTTON_ON_AMHD()
-    mango_amhd = MANGO()
-    levis_amhd = LEVIS()
-    nike_amhd = NIKE_AMHD()
-    fitflop_amhd = FITFLOP_AMHD()
-    gap_kids_amhd = GAP_KIDS_AMHD()
-    mothercare = MOTHERCARE()
-    shooz_amhd =SHOOZ_AMHD()
-    yves_roucher = YVES_ROCHER_AMHD()
-    alfresco_amhd = ALFRESCO_AMHD()
+    ftp_typo = TYPO_AMHD()
+    ftp_banana_amhd = BANANA_REPUBLIC_AMHD()
+    ftp_tommy_amhd = TOMMY_AMHD()
+    ftp_cotton_on_amhd = COTTON_ON_AMHD()
+    ftp_mango_amhd = MANGO()
+    ftp_levis_amhd = LEVIS()
+    ftp_nike_amhd = NIKE_AMHD()
+    ftp_fitflop_amhd = FITFLOP_AMHD()
+    ftp_gap_kids_amhd = GAP_KIDS_AMHD()
+    ftp_mothercare = MOTHERCARE()
+    ftp_shooz_amhd =SHOOZ_AMHD()
+    ftp_yves_roucher = YVES_ROCHER_AMHD()
+    ftp_alfresco_amhd = ALFRESCO_AMHD()
+    ftp_vera_jockey_amhd = VERA_JOCKEY_AMHD()
     now = datetime.now(timezone('Etc/GMT-7'))
     if now.hour < 10:
-        with futures.ThreadPoolExecutor(max_workers=18) as mt:
+        # print('abc')
+        with futures.ThreadPoolExecutor(max_workers=17) as mt:
             thread = [
                 mt.submit(tgc.get_data, now - timedelta(days=1)),
                 mt.submit(bloom.get_data, now - timedelta(days=1)),
@@ -62,7 +64,7 @@ def main():
                 mt.submit(vans.get_data, now - timedelta(days=1)),
                 mt.submit(aristino.get_data, now - timedelta(days=1)),
                 mt.submit(elise.get_data, now - timedelta(days=1)),
-                mt.submit(dchic.get_data, now - timedelta(days=1)),
+                # mt.submit(dchic.get_data, now - timedelta(days=1)),
                 mt.submit(hoangphuc.get_data, now - timedelta(days=1)),
                 mt.submit(gabby.get_data, now - timedelta(days=1), now),
                 mt.submit(jajang.get_data, now - timedelta(days=1)),
@@ -70,25 +72,26 @@ def main():
             futures.as_completed(thread)
     elif now.hour == 10:
         # for i in range(1,24):
-        with futures.ThreadPoolExecutor(max_workers=17) as mt:
+        with futures.ThreadPoolExecutor(max_workers=18) as mt:
             thread = [
                 mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
                 mt.submit(megane.get_data, now - timedelta(days=1)),
                 mt.submit(matviet.get_data, now - timedelta(days=1)),
-                mt.submit(routine.get_data),
-                mt.submit(typo.get_data),
-                mt.submit(banana_amhd.get_data),
-                mt.submit(tommy_amhd.get_data),
-                mt.submit(cotton_on_amhd.get_data),
-                mt.submit(mango_amhd.get_data),
-                mt.submit(levis_amhd.get_data),
-                mt.submit(nike_amhd.get_data),
-                mt.submit(fitflop_amhd.get_data),
-                mt.submit(gap_kids_amhd.get_data),
-                mt.submit(mothercare.get_data),
-                mt.submit(shooz_amhd.get_data),
-                mt.submit(yves_roucher.get_data),
-                mt.submit(alfresco_amhd.get_data)
+                mt.submit(ftp_routine.get_data),
+                mt.submit(ftp_typo.get_data),
+                mt.submit(ftp_banana_amhd.get_data),
+                mt.submit(ftp_tommy_amhd.get_data),
+                mt.submit(ftp_cotton_on_amhd.get_data),
+                mt.submit(ftp_mango_amhd.get_data),
+                mt.submit(ftp_levis_amhd.get_data),
+                mt.submit(ftp_nike_amhd.get_data),
+                mt.submit(ftp_fitflop_amhd.get_data),
+                mt.submit(ftp_gap_kids_amhd.get_data),
+                mt.submit(ftp_mothercare.get_data),
+                mt.submit(ftp_shooz_amhd.get_data),
+                mt.submit(ftp_yves_roucher.get_data),
+                mt.submit(ftp_alfresco_amhd.get_data),
+                mt.submit(ftp_vera_jockey_amhd.get_data),
             ]
             futures.as_completed(thread)
     elif now.hour == 12:
@@ -120,6 +123,7 @@ if __name__ == '__main__':
     from schedule.client_api.bloom_amhd import Bloom
     from schedule.client_api.matviet import MatViet
     from schedule.client_api.hoangphuc import HoangPhuc
+    from schedule.client_api.vera_jockey_amhd import VERA_JOCKEY_AMHD
     from concurrent import futures
     from datetime import datetime, timedelta
     from pytz import timezone

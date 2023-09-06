@@ -144,7 +144,7 @@ class API(object):
             for i in res.json()['results']:
                 if i['Code'] == code:
                     return {'status': True, 'id': i['Id']}
-            return {'status': True, 'err': 'Order Not Found'}
+            return {'status': False, 'err': 'Order Not Found'}
         except Exception as e:
             return {'status': False, 'err': str(e)}
 

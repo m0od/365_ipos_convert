@@ -1,5 +1,5 @@
 from os.path import dirname
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 
 
@@ -21,6 +21,7 @@ class MeganePrince(object):
         self.browser.verify = False
         self.RETURN = []
         self.TOKEN = None
+        self.ORDERS = []
 
     def login(self):
         try:
@@ -78,7 +79,7 @@ class MeganePrince(object):
                             pms.append({'Name': 'VOUCHER', 'Value': voucher})
                         if e_wallet != 0:
                             pms.append({'Name': 'E-WALLET', 'Value': e_wallet})
-                        send = {
+                        self.ORDERS.append({
                             'Code': f'{pur_date.strftime("%Y%m%d_%H")}',
                             'Status': 2,
                             'PurchaseDate': pur_date.strftime('%Y-%m-%d %H:%M:%S'),
@@ -88,17 +89,18 @@ class MeganePrince(object):
                             'Discount': int(discount),
                             'OrderDetails': [],
                             'PaymentMethods': pms
-                        }
-                        submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
-                        for __ in pms:
-                            # print(__)
-                            if __['Value'] < 0:
-                                submit_payment(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data={
-                                    "OrderCode": f'{pur_date.strftime("%Y%m%d_%H")}',
-                                    "Amount": __['Value'],
-                                    "TransDate": pur_date.strftime('%Y-%m-%d %H:%M:%S'),
-                                    "AccountId": __['Name'].upper()
-                                })
+                        })
+            for _ in self.ORDERS:
+                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=_)
+            for _ in self.ORDERS:
+                for __ in _['PaymentMethods']:
+                    if __['Value'] < 0:
+                        submit_payment(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data={
+                            'OrderCode': _['Code'],
+                            'Amount': __['Value'],
+                            'TransDate': _['PurchaseDate'],
+                            'AccountId': __['Name'].upper()
+                        })
                         # if e_wallet < 0:
                         #     submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
                         # break
@@ -112,9 +114,11 @@ class MeganePrince(object):
             return False
 
 
-if __name__.__contains__('schedule.client_api'):
+if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
+    # PATH = dirname(dirname(dirname(__file__)))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order, submit_payment
+    # MeganePrince().get_data(datetime.now()-timedelta(days=4))

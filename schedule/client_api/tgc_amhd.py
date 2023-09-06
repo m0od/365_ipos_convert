@@ -149,4 +149,4 @@ if __name__:
     # now = datetime.now()
     # print(now - timedelta(days=28))
     # for i in range(28, 1, -1):
-    # TGC().get_data(now - timedelta(days=1))
+    # TGC().get_data(datetime.now() - timedelta(days=1))

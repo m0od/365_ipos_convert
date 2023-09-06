@@ -1,6 +1,5 @@
 import glob
 import os
-import shutil
 from datetime import datetime, timedelta
 from os.path import dirname
 
@@ -8,14 +7,14 @@ import openpyxl
 
 
 
-class SHOOZ_AMHD(object):
+class VERA_JOCKEY_AMHD(object):
     def __init__(self):
-        self.ADAPTER_RETAILER = 'shooz_amhd'
-        self.ADAPTER_TOKEN = '0f01518005cdb6b3817e126de95f13d0599f3885a534d43795db3c047b04f70e'
+        self.ADAPTER_RETAILER = 'verajockey_amhd'
+        self.ADAPTER_TOKEN = 'f6163a245cd2ac70fc6aa477eb3f9af4162fdcf48b979048ec94e2b9edf95712'
         # self.ADAPTER_RETAILER = '695'
         # self.ADAPTER_TOKEN = 'cf0f760c3c11b65139beaecd6e0dd12f80bc34a177704ffc497d2bf816d1ac2d'
 
-        self.FOLDER = 'shooz_amhd'
+        self.FOLDER = 'verajockey_amhd'
         self.FULL_PATH = f'../home/{self.FOLDER}/'
         self.EXT = '*xlsx'
         self.DATA = None
@@ -37,7 +36,7 @@ class SHOOZ_AMHD(object):
     def get_data(self):
         self.scan_file()
         dataframe = openpyxl.load_workbook(self.DATA, data_only=True)
-
+        # print('DSDH')
         sheet1 = dataframe['Danh sách đơn hàng']
         orders = {}
         # Iterate the loop to read the cell values
@@ -51,16 +50,19 @@ class SHOOZ_AMHD(object):
                 if len(code) == 0: continue
                 # print(code)
                 pur_date = sheet1[row][2].value
-                pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M')
+                pur_date = datetime.strptime(pur_date, '%d/%m/%Y %H:%M %p')
                 now = datetime.now() - timedelta(days=1)
                 if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
-                # discount = sheet1[row][3].value
                 try:
-                    total = float(sheet1[row][3].value)
+                    discount = float(sheet1[row][3].value)
+                except:
+                    discount = 0
+                try:
+                    total = float(sheet1[row][4].value)
                 except:
                     total = 0
-                vat = sheet1[row][4].value
+                vat = sheet1[row][5].value
                 if orders.get(code) is None:
                     orders.update({code:{
                         'Code': code,
@@ -69,17 +71,17 @@ class SHOOZ_AMHD(object):
                         'Total': total,
                         'TotalPayment': total,
                         'VAT': vat,
-                        'Discount': 0,
+                        'Discount': discount,
                     }})
                 else:
                     orders[code].update({
                         'Code': code,
                         'Status': 2,
-                        # 'PurchaseDate': pur_date,
+                        'PurchaseDate': pur_date,
                         'Total': orders[code]['Total'] + total,
                         'TotalPayment': orders[code]['Total'] + total,
                         'VAT': orders[code]['VAT'] + vat,
-                        'Discount': 0,
+                        'Discount': orders[code]['Discount'] + discount,
                     })
                 # send = {
                 #     'Code': code,
@@ -95,17 +97,20 @@ class SHOOZ_AMHD(object):
                 # submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
             except Exception as e:
                 print(e)
-                # submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
+                submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
 
+        # print('PTTT')
         sheet2 = dataframe['Phương thức thanh toán']
         pms = {}
         for row in range(2, sheet2.max_row + 1):
             code = sheet2[row][0].value
-            # print(code)
+
             if code is None: continue
             code = str(code).strip()
             code = code.replace("'", '').strip()
+            # print(code)
             if len(code) == 0: continue
+            # print(code)
             name = str(sheet2[row][1].value).strip().upper()
             if name == 'NONE' or name == 'TIỀN MẶT': name = 'CASH'
             # elif len(name) == 0:
@@ -117,6 +122,8 @@ class SHOOZ_AMHD(object):
         for k, v in pms.items():
             if orders.get(k) is not None:
                 orders[k].update({'PaymentMethods': v})
+        # for k, v in orders.items():
+        #     print(v)
         sheet3 = dataframe['Chi tiết đơn hàng']
         ods = {}
         for row in range(2, sheet3.max_row + 1):
@@ -156,18 +163,12 @@ class SHOOZ_AMHD(object):
             if orders.get(k) is not None:
                 orders[k].update({'OrderDetails': v})
         for k, v in orders.items():
+            # print(v)
             if v.get('OrderDetails') is None:
                 v.update({'OrderDetails': []})
             if v.get('PaymentMethods') is None:
                 print(v)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
-        try:
-            shutil.move(self.DATA,
-                        f'{self.FULL_PATH}/backup/{(datetime.now() - timedelta(days=1)).strftime("%Y%m%d")}.xlsx')
-        except Exception as e:
-            print(e)
-            pass
-
 if __name__:
     import sys
 
@@ -176,4 +177,4 @@ if __name__:
     # print(PATH)
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    # SHOOZ_AMHD().get_data()
+    # VERA_JOCKEY_AMHD().get_data()

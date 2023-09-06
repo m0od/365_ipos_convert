@@ -1,3 +1,4 @@
+import decimal
 import hashlib
 import json
 import uuid
@@ -53,6 +54,7 @@ def local_update_log():
         except:
             db.session.rollback()
     return {}
+
 
 @common.route('/mail', methods=['GET'])
 def report_mail():
@@ -235,6 +237,8 @@ def setup():
             return {'status': True, 'retailer': cfg.branch, 'authorization': cfg.token}
         else:
             return {'status': False, 'message': 'Login Pos 365 Failed'}
+
+
 @common.route('/add_methods', methods=['POST'])
 def add_methods():
     try:
@@ -250,13 +254,23 @@ def add_methods():
         return abort(403)
     try:
         content = request.json
+        hash = decimal.Decimal(int(hashlib.md5(content.get('OrderCode').encode('utf-8')).hexdigest(), 16))
+        now = datetime.now().replace(second=0, microsecond=0)
+        begin = datetime.now() - timedelta(minutes=10)
+        log = db.session.query(Log).filter(Log.hash == hash,
+                                           Log.rid is not None,
+                                           Log.log_date >= begin).first()
+        if log is not None:
+            if log.status is None:
+                return Response(json.dumps({'message': 'duplicate'}), status=400, mimetype='application/json')
         # now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         log = Log()
         log.configId = cfg.id
         log.branch = branch
         log.store = store
-        log.code = content.get('Code')
+        log.code = content.get('OrderCode')
         log.content = content
+        log.hash = hash
         log.type = 2
         try:
             db.session.add(log)
@@ -273,6 +287,8 @@ def add_methods():
     except Exception as e:
         print(e)
         return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
+
+
 @common.route('/orders', methods=['POST'])
 def orders():
     try:
@@ -288,20 +304,17 @@ def orders():
         return abort(403)
     try:
         content = request.json
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print(f"{branch} {now} -> {content}")
-        log = Log()
-        log.configId = cfg.id
-        log.branch = branch
-        log.store = store
-        log.code = content.get('Code')
-        log.content = content
-        log.type = 1
-        try:
-            db.session.add(log)
-            db.session.commit()
-        except:
-            db.session.rollback()
+        # now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # print(f"{branch} {now} -> {content}")
+        hash = decimal.Decimal(int(hashlib.md5(content.get('Code').encode('utf-8')).hexdigest(), 16))
+        now = datetime.now().replace(second=0, microsecond=0)
+        begin = datetime.now() - timedelta(minutes=10)
+        log = db.session.query(Log).filter(Log.hash == hash,
+                                           Log.rid is not None,
+                                           Log.log_date >= begin).first()
+        if log is not None:
+            if log.status is None:
+                return Response(json.dumps({'message': 'duplicate'}), status=400, mimetype='application/json')
         if content.get('Code') is None or len(str(content.get('Code').strip())) == 0:
             raise MissingInformationException('Thiếu thông tin mã đơn hàng (Code)')
         if content.get('PurchaseDate') is not None and len(str(content.get('PurchaseDate').strip())) == 0:
@@ -321,14 +334,24 @@ def orders():
                 if type(service) != dict:
                     raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
         if request.headers.get('debug') != 'kt365aA@123' \
-                and content.get('PurchaseDate') is not None and datetime.strptime(content.get('PurchaseDate'), '%Y-%m-%d %H:%M:%S') < datetime.now() - timedelta(days=2):
-            try:
-                db.session.delete(log)
-                db.session.commit()
-            except:
-                db.session.rollback()
+                and content.get('PurchaseDate') is not None \
+                and datetime.strptime(content.get('PurchaseDate'),
+                                      '%Y-%m-%d %H:%M:%S') < now - timedelta(days=2):
             return {'result_id': '00000000-0000-0000-0000-000000000000'}
-
+        log = Log()
+        log.configId = cfg.id
+        log.branch = branch
+        log.store = store
+        log.code = content.get('Code')
+        log.content = content
+        log.type = 1
+        log.hash = hash
+        try:
+            db.session.add(log)
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            db.session.rollback()
         result = convert.delay(cfg.domain, cfg.id, cfg.cookie, content, cfg.user, cfg.password, cfg.vat)
         log.rid = str(result.id)
         try:
@@ -337,7 +360,6 @@ def orders():
             db.session.rollback()
         return {'result_id': result.id}
     except Exception as e:
-        print(e)
         return Response(json.dumps({'message': str(e)}), status=400, mimetype='application/json')
 
 
@@ -368,3 +390,25 @@ def task_result(id):
         }
         response = Response(json.dumps(response), status=400, mimetype='application/json')
     return response
+
+
+# @common.route("/resett", methods=['GET','POST'])
+# def resett():
+#     print(123123123123)
+#     index = 19664
+#     logs = db.session.query(Log).filter(Log.id>2000000).all()
+#     # # print(logs)
+#     # # print(123123123123)
+#     # # print(logs.id)
+#     # # # print(len(logs))
+#     for _ in logs:
+#         print(_.id)
+#         _.id = index
+#         if index %200 == 0:
+#             try:
+#                 db.session.commit()
+#
+#             except:
+#                 db.session.rollback()
+#         index += 1
+#     return {}

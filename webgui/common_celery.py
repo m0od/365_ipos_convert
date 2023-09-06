@@ -215,7 +215,7 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                     if id.get('id') is not None:
                         content.update({'Id': id['id']})
                     else:
-                        ret = {'status': True, 'result': id['err']}
+                        ret = {'status': False, 'result': id['err']}
                         log(self.request.id, ret)
                         return ret
                 else:
@@ -235,7 +235,7 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                 if id.get('id') is not None:
                     content.update({'Id': id['id']})
                 else:
-                    ret = {'status': True, 'result': id['err']}
+                    ret = {'status': False, 'result': id['err']}
                     log(self.request.id, ret)
                     return ret
             else:
@@ -310,31 +310,33 @@ def add_payment(self, domain, cfgId, ck, content, user, password):
         data = content.copy()
         if data.get('AccountId') is not None:
             pm = data.get('AccountId').upper().strip()
-            res = requests.get(f'{LOCAL_URL}/payment', params={'cfgId': cfgId, 'name': pm}).json()
-            if res.get('status') is True:
-                data.update({'AccountId': res.get('AccountId')})
+            if pm in ['CASH', 'COD']:
+                data.update({'AccountId': None})
             else:
-                res = api.account_save(pm)
+                res = requests.get(f'{LOCAL_URL}/payment', params={'cfgId': cfgId, 'name': pm}).json()
                 if res.get('status') is True:
                     data.update({'AccountId': res.get('AccountId')})
-                    requests.post(f'{LOCAL_URL}/payment', params={'cfgId': cfgId, 'name': pm, 'accId': res.get('Id')})
                 else:
-                    ret = {'status': False, 'result': res.get('err')}
-                    log(self.request.id, ret)
-                    return ret
+                    res = api.account_save(pm)
+                    if res.get('status') is True:
+                        data.update({'AccountId': res.get('AccountId')})
+                        requests.post(f'{LOCAL_URL}/payment', params={'cfgId': cfgId, 'name': pm, 'accId': res.get('Id')})
+                    else:
+                        ret = {'status': False, 'result': res.get('err')}
+                        log(self.request.id, ret)
+                        return ret
         id = api.order_get(content['OrderCode'])
         if id['status'] is True:
             if id.get('id') is not None:
                 data.update({'OrderId': id['id']})
             else:
-                ret = {'status': True, 'result': id['err']}
+                ret = {'status': False, 'result': id['err']}
                 log(self.request.id, ret)
                 return ret
         else: #if int(content.get('Status')) == 2:
-            ret = {'status': True, 'result': id['err']}
+            ret = {'status': False, 'result': id['err']}
             log(self.request.id, ret)
             return ret
-        print(data)
         res = api.accounting_transaction_save(data)
         if res['status'] == 0:
             session = api.auth()

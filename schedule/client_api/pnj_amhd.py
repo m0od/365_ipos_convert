@@ -1,6 +1,9 @@
 import glob
 import os
+import smtplib
 from datetime import datetime, timedelta
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from os.path import dirname
 
 import openpyxl
@@ -198,12 +201,38 @@ class PNJ_AMHD(object):
                 #     'AdditionalServices': [{'Name': 'Hoàn VAT', 'Value': v['Total']}]
                 # }
                 # submit_order(retailer=retailer, token=self.ADAPTER_TOKEN, data=send)
-
+        if len(orders.items()) == 0:
+            now = datetime.now() - timedelta(days=1)
+            port = 465  # For SSL
+            password = 'abqqzkkrgftlodny'
+            smtp_server = "smtp.gmail.com"
+            sender_email = "tungpt@pos365.vn"  # Enter your address
+            to_email = 'vuong.tt01@pnj.com.vn'  # Enter receiver address
+            cc_email = 'tungpt@pos365.vn'
+            message = MIMEMultipart("alternative")
+            message["Subject"] = f'Report 0 orders PNJ-AMHD {now.strftime("%Y-%m-%d")}'
+            message["From"] = 'tungpt@pos365.vn'
+            message["To"] = to_email
+            # message["Cc"] = cc_email
+            toAddr = [to_email]
+            # if len(rows) > 0:
+                # part2 = MIMEText(html.strip().format(rows), 'html')
+                # message.attach(part2)
+                # ctx = ssl.create_default_context()
+            while True:
+                try:
+                    server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+                    server.login(sender_email, password)
+                    server.sendmail(sender_email, toAddr, message.as_string())
+                    break
+                except Exception as e:
+                    print(e)
+                    pass
 if __name__:
     import sys
 
-    # PATH = dirname(dirname(__file__))
-    PATH = dirname(dirname(dirname(__file__)))
+    PATH = dirname(dirname(__file__))
+    # PATH = dirname(dirname(dirname(__file__)))
     # print(PATH)
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order

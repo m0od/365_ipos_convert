@@ -13,6 +13,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from gspread_formatting import *
 import requests
 import pandas as pd
+
 JSON_CRED = {
     "type": "service_account",
     "project_id": "kt365-387014",
@@ -118,23 +119,19 @@ map_pm = {
 
 
 def auth(domain):
-    while True:
-        try:
-            b = requests.session()
-            b.headers.update({'content-type': 'application/json'})
-            r = b.post(f'https://{domain}.pos365.vn/api/auth', json={
-                # 'Username': 'quantri@pos365.vn',
-                # 'Password': 'IT@P0s365kmS'
-                'Username': 'report',
-                'Password': '123123123'
-            })
-            if r.status_code == 200:
-                return b
-            else:
-                print(domain, r.json())
-                return None
-        except:
-            pass
+    b = requests.session()
+    b.headers.update({'content-type': 'application/json'})
+    r = b.post(f'https://{domain}.pos365.vn/api/auth', json={
+        # 'Username': 'quantri@pos365.vn',
+        # 'Password': 'IT@P0s365kmS'
+        'Username': 'report',
+        'Password': '123123123'
+    })
+    if r.status_code == 200:
+        return b
+    else:
+        print(domain, r.json())
+        return None
 
 
 def get_accounts(browser, domain):
@@ -145,10 +142,15 @@ def get_accounts(browser, domain):
             if r.status_code != 200: continue
             js = r.json()
             for _ in js:
-                # print(map_pm.get(_['Name'].upper()), _['Name'])
-                accs.update({
-                    _['Id']: map_pm.get(_['Name'].upper())
-                })
+                if map_pm.get(_['Name'].upper()) is not None:
+                    # print(map_pm.get(_['Name'].upper()), _['Name'])
+                    accs.update({
+                        _['Id']: map_pm.get(_['Name'].upper())
+                    })
+                else:
+                    accs.update({
+                        _['Id']: _['Name'].strip().upper()
+                    })
             break
         except:
             continue
@@ -233,6 +235,7 @@ def get_branch(browser, domain):
         except:
             pass
 
+
 if __name__ == '__main__':
     PATH = dirname(__file__)
     print(PATH)
@@ -241,12 +244,15 @@ if __name__ == '__main__':
     data_order = {'Tenant': [], 'Mã hoá đơn': [], 'Ngày GD': [], 'Chiết khấu': [],
                   'Tổng hoá đơn': [], 'Khách thanh toán': [], 'VAT': [],
                   'CASH': [], 'CREDIT CARD': [], 'BANK TRANSFER': [], 'ZALOPAY': [], 'VNPAY': [], 'VIETTELPAY': [],
-                  'DATHANG': [], 'VOUCHER': [], 'POINT': [], 'MOCA': [], 'MOMO': [], 'GRAB': [], 'SHOPEE': [], 'BAEMIN': [],
+                  'DATHANG': [], 'VOUCHER': [], 'POINT': [], 'MOCA': [], 'MOMO': [], 'GRAB': [], 'SHOPEE': [],
+                  'BAEMIN': [],
                   'GOJEK': [], 'OTHER': []}
     data_return = {'Tenant': [], 'Mã hoá đơn': [], 'Ngày GD': [], 'Chiết khấu': [], 'Tổng hoá đơn': [],
                    'Tổng chi': []}
     data_product = {'Tenant': [], 'Mã hoá đơn': [], 'Ngày GD': [], 'Tên sản phẩm': [], 'Số lương': [], 'Đơn giá': []}
+    tmp_order = []
     for am_num in range(1, 200):
+
         domain = 'am{:03d}'.format(am_num)
         print(domain)
         b = auth(domain)
@@ -271,42 +277,36 @@ if __name__ == '__main__':
                 # print(exxx)
                 attr = {}
                 # print(attr is None)
-            pm = {
-                'CASH': 0,
-                'CREDIT CARD': 0,
-                'BANK TRANSFER': 0,
-                'ZALOPAY': 0,
-                'VNPAY': 0,
-                'VIETTELPAY': 0,
-                'DATHANG': 0,
-                'VOUCHER': 0,
-                'POINT': 0,
-                'MOCA': 0,
-                'MOMO': 0,
-                'GRAB': 0,
-                'SHOPEE': 0,
-                'BAEMIN': 0,
-                'GOJEK': 0,
-                'OTHER': 0,
+            discount = _.get('Discount') is not None and _['Discount'] or 0
+            content = {
+                'Tenant': branch.get(_['BranchId']),
+                'Mã hoá đơn': _['Code'],
+                'Ngày GD': pur_date,
+                'Chiết khấu': discount,
+                'Tổng hoá đơn': _['Total'],
+                'Khách thanh toán': _['TotalPayment'],
+                'VAT': _['VAT'] is not None and _['VAT'] or 0
             }
             # print(attr)
             if attr.get('PaymentMethods') is not None:
                 # print(_['MoreAttributes'])
                 for __ in attr['PaymentMethods']:
                     if __.get('AccountId') is None or pm_name.get(__['AccountId']) is None:
-                        pm.update({'CASH': __['Value']})
+                        content.update({'CASH': __['Value']})
+                    # elif  pm_name.get(__['AccountId']) is None:
+                    #     pm.update({'CASH': __['Value']})
                     else:
-                        pm.update({pm_name[__['AccountId']]: __['Value']})
-            pm_str = '\t'.join(str(i) for i in list(pm.values()))
-            # print(pm.values())
-            discount = _.get('Discount') is not None and _['Discount'] or 0
-            row = [branch.get(_['BranchId']), _['Code'], pur_date, discount, _['Total'], _['TotalPayment'], _['VAT']]
-            row.extend(list(pm.values()))
-            index = 0
-            for k in data_order.keys():
-                data_order[k].append(row[index])
-                index += 1
-            # data_order.append(row)
+                        content.update({pm_name[__['AccountId']]: __['Value']})
+            tmp_order.append(content)
+
+
+        #     row = [branch.get(_['BranchId']), _['Code'], pur_date, discount, _['Total'], _['TotalPayment'], _['VAT']]
+        #     row.extend(list(pm.values()))
+        #     index = 0
+        #     for k in data_order.keys():
+        #         data_order[k].append(row[index])
+        #         index += 1
+        #     # data_order.append(row)
             for __ in _['OrderDetails']:
                 products.append({
                     'id': __['ProductId'],
@@ -349,15 +349,27 @@ if __name__ == '__main__':
             for k in data_return.keys():
                 data_return[k].append(row[index])
                 index += 1
+    for _ in tmp_order:
+        for k in _.keys():
+            if data_order.get(k) is None:
+                data_order.update({k: []})
+    print(data_order)
+    for _ in tmp_order:
+        row = [_.get(k) is not None and _.get(k) or 0 for k in data_order.keys()]
+        print(len(row), row)
+        index = 0
+        for k in data_order.keys():
+            data_order[k].append(row[index])
+            index += 1
+
+
         # break
-
-
 
     df1 = pd.DataFrame(data_order)
     df2 = pd.DataFrame(data_product)
     df3 = pd.DataFrame(data_return)
     now = datetime.now() - timedelta(days=1)
-    f_path = f"{PATH}/dailyreport{now.strftime('%d%m%Y')}.xlsx"
+    f_path = f"{PATH}/monthlyreport{now.strftime('%d%m%Y')}.xlsx"
     writer = pd.ExcelWriter(f_path, engine='xlsxwriter')
 
     df1.to_excel(writer, sheet_name='Order', index=False)
@@ -365,34 +377,32 @@ if __name__ == '__main__':
     df3.to_excel(writer, sheet_name='Return', index=False)
 
     writer.close()
-
-    port = 465  # For SSL
-    password = 'abqqzkkrgftlodny'
-    smtp_server = "smtp.gmail.com"
-    sender_email = "tungpt@pos365.vn"  # Enter your address
-    to_email = 'hadong.accounting@aeonmall-vn.com'  # Enter receiver address
-    # to_email = 'marinmmo@gmail.com'
-    cc_email = 'duongnguyen@pos365.vn'
-    # cc_email = 'tungpt@pos365.vn'
-    message = MIMEMultipart()
-    message["Subject"] = f'dailyreport{now.strftime("%d%m%Y")}'
-    message["From"] = 'tungpt@pos365.vn'
-    message["To"] = to_email
-    message["Cc"] = cc_email
-    toAddr = [to_email, cc_email]
-    part = MIMEBase('application', "octet-stream")
-    with open(f_path, 'rb') as file:
-        part.set_payload(file.read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition',
-                    'attachment; filename={}'.format(Path(f_path).name))
-    message.attach(part)
-    while True:
-        try:
-            server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-            server.login(sender_email, password)
-            server.sendmail(sender_email, toAddr, message.as_string())
-            break
-        except Exception as e:
-            print(e)
-            pass
+    #
+    # port = 465  # For SSL
+    # password = 'abqqzkkrgftlodny'
+    # smtp_server = "smtp.gmail.com"
+    # sender_email = "tungpt@pos365.vn"  # Enter your address
+    # to_email = 'hadong.accounting@aeonmall-vn.com'  # Enter receiver address
+    # cc_email = 'duongnguyen@pos365.vn'
+    # message = MIMEMultipart()
+    # message["Subject"] = f'dailyreport{now.strftime("%d%m%Y")}'
+    # message["From"] = 'tungpt@pos365.vn'
+    # message["To"] = to_email
+    # message["Cc"] = cc_email
+    # toAddr = [to_email, cc_email]
+    # part = MIMEBase('application', "octet-stream")
+    # with open(f_path, 'rb') as file:
+    #     part.set_payload(file.read())
+    # encoders.encode_base64(part)
+    # part.add_header('Content-Disposition',
+    #                 'attachment; filename={}'.format(Path(f_path).name))
+    # message.attach(part)
+    # while True:
+    #     try:
+    #         server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+    #         server.login(sender_email, password)
+    #         server.sendmail(sender_email, toAddr, message.as_string())
+    #         break
+    #     except Exception as e:
+    #         print(e)
+    #         pass

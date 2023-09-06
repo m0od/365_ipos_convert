@@ -51,8 +51,8 @@ class ALFRESCO_AMHD(object):
                 if len(code) == 0: break
                 pur_date = sheet1[row][7].value
                 pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M%S')
-                # now = datetime.now() - timedelta(days=1)
-                # # if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
+                now = datetime.now() - timedelta(days=1)
+                if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
                 # print(code, pur_date)
 
@@ -158,9 +158,9 @@ class ALFRESCO_AMHD(object):
 if __name__:
     import sys
 
-    # PATH = dirname(dirname(__file__))
-    PATH = dirname(dirname(dirname(__file__)))
+    PATH = dirname(dirname(__file__))
+    # PATH = dirname(dirname(dirname(__file__)))
     # print(PATH)
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    ALFRESCO_AMHD().get_data()
+    # ALFRESCO_AMHD().get_data()
