@@ -6,10 +6,10 @@ from os.path import dirname
 from requests_toolbelt import MultipartEncoder
 from bs4 import BeautifulSoup
 
-class ATZ(object):
+class MULGATI_AMHD(object):
     def __init__(self):
-        self.ADAPTER_RETAILER = 'atz_aeonhd'
-        self.ADAPTER_TOKEN = 'bf7d42474649167185485a1ffabb1e2fc5f02ed7f55a19ee19e18a3411c5959c'
+        self.ADAPTER_RETAILER = 'mulgati_aeonhd'
+        self.ADAPTER_TOKEN = 'dbb831aa0f237e97d5b15c6116f8bcb6ff47f869aa4ba0544d89fa81b9e5833a'
         self.MAIN = 'https://nhanh.vn'
         self.VERSION = '2.0'
         self.APPID = '73156'
@@ -63,16 +63,8 @@ class ATZ(object):
         if not self.login():
             submit_error(retailer=self.ADAPTER_RETAILER, reason='[Login Fail]')
             return False
-        # if not self.oauth():
-        #     submit_error(retailer=self.ADAPTER_RETAILER, reason='[Request Oauth Fail]')
-        #     return False
-        # if not self.access_code():
-        #     submit_error(retailer=self.ADAPTER_RETAILER, reason='[Get ACCESS_CODE Fail]')
-        #     return False
-        # if not self.access_token():
-        #     submit_error(retailer=self.ADAPTER_RETAILER, reason='[Get ACCESS_TOKEN Fail]')
-        #     return False
         return True
+
     def get_returns(self, from_date):
         page = 1
         returns = {}
