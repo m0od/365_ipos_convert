@@ -6,6 +6,7 @@ from os.path import dirname
 from requests_toolbelt import MultipartEncoder
 from bs4 import BeautifulSoup
 
+
 class MULGATI_AMHD(object):
     def __init__(self):
         self.ADAPTER_RETAILER = 'mulgati_aeonhd'
@@ -242,7 +243,6 @@ class MULGATI_AMHD(object):
         from_date = from_date.strftime('%d/%m/%Y')
         self.get_orders(from_date)
         self.get_returns(from_date)
-
 
 
 if __name__:

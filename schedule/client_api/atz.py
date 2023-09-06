@@ -6,6 +6,7 @@ from os.path import dirname
 from requests_toolbelt import MultipartEncoder
 from bs4 import BeautifulSoup
 
+
 class ATZ(object):
     def __init__(self):
         self.ADAPTER_RETAILER = 'atz_aeonhd'
@@ -73,6 +74,7 @@ class ATZ(object):
         #     submit_error(retailer=self.ADAPTER_RETAILER, reason='[Get ACCESS_TOKEN Fail]')
         #     return False
         return True
+
     def get_returns(self, from_date):
         page = 1
         returns = {}
@@ -250,7 +252,6 @@ class ATZ(object):
         from_date = from_date.strftime('%d/%m/%Y')
         self.get_orders(from_date)
         self.get_returns(from_date)
-
 
 
 if __name__:
