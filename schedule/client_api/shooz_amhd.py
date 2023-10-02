@@ -7,7 +7,6 @@ from os.path import dirname
 import openpyxl
 
 
-
 class SHOOZ_AMHD(object):
     def __init__(self):
         self.ADAPTER_RETAILER = 'shooz_amhd'
@@ -29,10 +28,9 @@ class SHOOZ_AMHD(object):
         # print(for name in glob.glob('/home/geeks/Desktop/gfg/data.txt'):)
         files = glob.glob(self.FULL_PATH + self.EXT)
         # print(files)
-        self.DATA = max(files, key=  os.path.getmtime)
+        self.DATA = max(files, key=os.path.getmtime)
 
         print(self.DATA)
-
 
     def get_data(self):
         self.scan_file()
@@ -62,7 +60,7 @@ class SHOOZ_AMHD(object):
                     total = 0
                 vat = sheet1[row][4].value
                 if orders.get(code) is None:
-                    orders.update({code:{
+                    orders.update({code: {
                         'Code': code,
                         'Status': 2,
                         'PurchaseDate': pur_date,
@@ -159,7 +157,7 @@ class SHOOZ_AMHD(object):
             if v.get('OrderDetails') is None:
                 v.update({'OrderDetails': []})
             if v.get('PaymentMethods') is None:
-                print(v)
+                v.update({'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]})
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
         try:
             shutil.move(self.DATA,
@@ -167,6 +165,7 @@ class SHOOZ_AMHD(object):
         except Exception as e:
             print(e)
             pass
+
 
 if __name__:
     import sys
@@ -176,4 +175,5 @@ if __name__:
     # print(PATH)
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
+
     # SHOOZ_AMHD().get_data()

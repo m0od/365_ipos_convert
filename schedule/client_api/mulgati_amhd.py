@@ -12,11 +12,8 @@ class MULGATI_AMHD(object):
         self.ADAPTER_RETAILER = 'mulgati_aeonhd'
         self.ADAPTER_TOKEN = 'dbb831aa0f237e97d5b15c6116f8bcb6ff47f869aa4ba0544d89fa81b9e5833a'
         self.MAIN = 'https://nhanh.vn'
-        self.VERSION = '2.0'
-        self.APPID = '73156'
-        self.USERNAME = 'adminamhd'
-        self.PASSWORD = '123456'
-        self.API = 'https://open.nhanh.vn'
+        self.USERNAME = 'nhanvienmulgati'
+        self.PASSWORD = 'Mulgati@123'
         self.browser = requests.session()
         self.STORE_ID = None
         self.CSRF = None
@@ -115,8 +112,18 @@ class MULGATI_AMHD(object):
                 try:
                     discount = raw[3].text.strip().split('(')[0].strip().replace('.', '')
                     if len(discount) == 0: discount = 0
-                    pms = [{'Name': self.METHOD.get(raw[4].i['title'].strip()),
-                            'Value': int(raw[4].text.strip().replace('.', ''))}]
+                except:
+                    discount = 0
+                try:
+                    name = self.METHOD.get(raw[4].i['title'].strip())
+                except:
+                    name = 'CASH'
+                try:
+                    value = int(raw[4].text.strip().replace('.', ''))
+                except:
+                    value = 0
+                pms = [{'Name': name, 'Value': value}]
+                try:
                     total = raw[6].text.strip().replace('.', '').strip()
                     if len(total) == 0: total = 0
                     returns[code].update({
@@ -251,4 +258,5 @@ if __name__:
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    # ATZ().get_data(datetime.now() - timedelta(days=1))
+
+    # MULGATI_AMHD().get_data(datetime.now() - timedelta(days=1))

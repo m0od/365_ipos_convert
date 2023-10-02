@@ -12,11 +12,8 @@ class ATZ(object):
         self.ADAPTER_RETAILER = 'atz_aeonhd'
         self.ADAPTER_TOKEN = 'bf7d42474649167185485a1ffabb1e2fc5f02ed7f55a19ee19e18a3411c5959c'
         self.MAIN = 'https://nhanh.vn'
-        self.VERSION = '2.0'
-        self.APPID = '73156'
         self.USERNAME = 'adminamhd'
         self.PASSWORD = '123456'
-        self.API = 'https://open.nhanh.vn'
         self.browser = requests.session()
         self.STORE_ID = None
         self.CSRF = None
@@ -124,8 +121,18 @@ class ATZ(object):
                 try:
                     discount = raw[3].text.strip().split('(')[0].strip().replace('.', '')
                     if len(discount) == 0: discount = 0
-                    pms = [{'Name': self.METHOD.get(raw[4].i['title'].strip()),
-                            'Value': int(raw[4].text.strip().replace('.', ''))}]
+                except:
+                    discount = 0
+                try:
+                    name = self.METHOD.get(raw[4].i['title'].strip())
+                except:
+                    name = 'CASH'
+                try:
+                    value = int(raw[4].text.strip().replace('.', ''))
+                except:
+                    value = 0
+                pms = [{'Name': name, 'Value': value}]
+                try:
                     total = raw[6].text.strip().replace('.', '').strip()
                     if len(total) == 0: total = 0
                     returns[code].update({

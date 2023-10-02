@@ -29,24 +29,28 @@ def main():
     pnj = PNJ_AMHD()
     gabby = Gabby()
     jajang = JaJang()
-    ftp_typo = TYPO_AMHD()
-    ftp_banana_amhd = BANANA_REPUBLIC_AMHD()
-    ftp_tommy_amhd = TOMMY_AMHD()
-    ftp_cotton_on_amhd = COTTON_ON_AMHD()
-    ftp_mango_amhd = MANGO()
-    ftp_levis_amhd = LEVIS()
-    ftp_nike_amhd = NIKE_AMHD()
-    ftp_fitflop_amhd = FITFLOP_AMHD()
-    ftp_gap_kids_amhd = GAP_KIDS_AMHD()
-    ftp_mothercare = MOTHERCARE()
+    mulgati_amhd = MULGATI_AMHD()
+    acfc_typo = TYPO_AMHD()
+    acfc_banana_amhd = BANANA_REPUBLIC_AMHD()
+    acfc_tommy_amhd = TOMMY_AMHD()
+    acfc_cotton_on_amhd = COTTON_ON_AMHD()
+    acfc_mango_amhd = MANGO()
+    acfc_levis_amhd = LEVIS()
+    acfc_nike_amhd = NIKE_AMHD()
+    acfc_fitflop_amhd = FITFLOP_AMHD()
+    acfc_gap_kids_amhd = GAP_KIDS_AMHD()
+    acfc_mothercare = MOTHERCARE()
     ftp_shooz_amhd =SHOOZ_AMHD()
     ftp_yves_roucher = YVES_ROCHER_AMHD()
     ftp_alfresco_amhd = ALFRESCO_AMHD()
     ftp_vera_jockey_amhd = VERA_JOCKEY_AMHD()
+    ftp_timezone_amhd = TimeZoneAMHD()
+    ftp_nkid_amhd = NKID_AMHD()
+    ftp_mc_donald_amhd = McDonaldAMHD()
     now = datetime.now(timezone('Etc/GMT-7'))
     if now.hour < 10:
         # print('abc')
-        with futures.ThreadPoolExecutor(max_workers=17) as mt:
+        with futures.ThreadPoolExecutor(max_workers=19) as mt:
             thread = [
                 mt.submit(tgc.get_data, now - timedelta(days=1)),
                 mt.submit(bloom.get_data, now - timedelta(days=1)),
@@ -64,41 +68,43 @@ def main():
                 mt.submit(vans.get_data, now - timedelta(days=1)),
                 mt.submit(aristino.get_data, now - timedelta(days=1)),
                 mt.submit(elise.get_data, now - timedelta(days=1)),
-                # mt.submit(dchic.get_data, now - timedelta(days=1)),
+                mt.submit(dchic.get_data, now - timedelta(days=1)),
                 mt.submit(hoangphuc.get_data, now - timedelta(days=1)),
                 mt.submit(gabby.get_data, now - timedelta(days=1), now),
                 mt.submit(jajang.get_data, now - timedelta(days=1)),
+                mt.submit(mulgati_amhd.get_data, now - timedelta(days=1)),
             ]
             futures.as_completed(thread)
     elif now.hour == 10:
-        # for i in range(1,24):
-        with futures.ThreadPoolExecutor(max_workers=18) as mt:
+        with futures.ThreadPoolExecutor(max_workers=3) as mt:
             thread = [
                 mt.submit(ato.get_data, now - timedelta(days=1), now - timedelta(days=1)),
                 mt.submit(megane.get_data, now - timedelta(days=1)),
                 mt.submit(matviet.get_data, now - timedelta(days=1)),
+            ]
+            futures.as_completed(thread)
+    elif now.hour == 12:
+        with futures.ThreadPoolExecutor(max_workers=19) as mt:
+            thread = [
+                mt.submit(pnj.get_data),
+                mt.submit(acfc_typo.get_data),
+                mt.submit(acfc_banana_amhd.get_data),
+                mt.submit(acfc_tommy_amhd.get_data),
+                mt.submit(acfc_cotton_on_amhd.get_data),
+                mt.submit(acfc_mango_amhd.get_data),
+                mt.submit(acfc_levis_amhd.get_data),
+                mt.submit(acfc_nike_amhd.get_data),
+                mt.submit(acfc_fitflop_amhd.get_data),
+                mt.submit(acfc_gap_kids_amhd.get_data),
+                mt.submit(acfc_mothercare.get_data),
                 mt.submit(ftp_routine.get_data),
-                mt.submit(ftp_typo.get_data),
-                mt.submit(ftp_banana_amhd.get_data),
-                mt.submit(ftp_tommy_amhd.get_data),
-                mt.submit(ftp_cotton_on_amhd.get_data),
-                mt.submit(ftp_mango_amhd.get_data),
-                mt.submit(ftp_levis_amhd.get_data),
-                mt.submit(ftp_nike_amhd.get_data),
-                mt.submit(ftp_fitflop_amhd.get_data),
-                mt.submit(ftp_gap_kids_amhd.get_data),
-                mt.submit(ftp_mothercare.get_data),
                 mt.submit(ftp_shooz_amhd.get_data),
                 mt.submit(ftp_yves_roucher.get_data),
                 mt.submit(ftp_alfresco_amhd.get_data),
                 mt.submit(ftp_vera_jockey_amhd.get_data),
-            ]
-            futures.as_completed(thread)
-    elif now.hour == 12:
-        # for i in range(1,24):
-        with futures.ThreadPoolExecutor(max_workers=1) as mt:
-            thread = [
-                mt.submit(pnj.get_data)
+                mt.submit(ftp_timezone_amhd.get_data),
+                mt.submit(ftp_nkid_amhd.get_data),
+                mt.submit(ftp_mc_donald_amhd.get_data),
             ]
             futures.as_completed(thread)
 
@@ -150,5 +156,9 @@ if __name__ == '__main__':
     from schedule.client_api.shooz_amhd import SHOOZ_AMHD
     from schedule.client_api.yves_amhd import YVES_ROCHER_AMHD
     from schedule.client_api.alfresco_amhd import ALFRESCO_AMHD
+    from schedule.client_api.timezone_amhd import TimeZoneAMHD
+    from schedule.client_api.nkid_amhd import NKID_AMHD
+    from schedule.client_api.mcdonald_amhd import McDonaldAMHD
+    from schedule.client_api.mulgati_amhd import MULGATI_AMHD
     warnings.filterwarnings('ignore')
     main()

@@ -9,7 +9,7 @@ class TimeZoneAMHD(object):
             self.ADAPTER_RETAILER = 'timezone_amhd'
             self.ADAPTER_TOKEN = 'fb7226b8d3033064611519b2683d15fa9ce2ce80b4a44c6a40dcf28d55a42af3'
             self.FOLDER = 'timezone_amhd'
-            self.FULL_PATH = f'../home/{self.FOLDER}/'
+            self.FULL_PATH = f'../home/{self.FOLDER}/TEEG_Test/'
             self.EXT = '*txt'
             self.DATA = None
             self.ORDERS = {}
@@ -77,8 +77,8 @@ class TimeZoneAMHD(object):
 if __name__:
     import sys
 
-    PATH = dirname(dirname(dirname(__file__)))
-    # print(PATH)
+    PATH = dirname(dirname(__file__))
+    # PATH = dirname(dirname(dirname(__file__)))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
     # TimeZoneAMHD().get_data()

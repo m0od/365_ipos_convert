@@ -107,8 +107,9 @@ if str(__name__):
     import sys
 
     PATH = dirname(dirname(__file__))
+    # PATH = dirname(dirname(dirname(__file__)))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
 
-    # MatViet().get_data(datetime.now() - timedelta(days=1))
+    # MatViet().get_data(datetime.now() - timedelta(days=2))
     # MatViet().get_data()

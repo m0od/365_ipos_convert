@@ -159,6 +159,7 @@ def local_fetch_log():
             })
         except Exception as e:
             print(e)
+            # return jsonify([(str(e))])
             # print(content)
     return jsonify(ret)
 
@@ -328,6 +329,7 @@ def orders():
             if type(pm) != dict:
                 raise MissingInformationException('Thông tin PTTT không hợp lệ')
         if content.get('AdditionalServices') is not None:
+            # print(content.get('AdditionalServices'))
             if type(content.get('AdditionalServices')) != list:
                 raise MissingInformationException('Thông tin Phụ phí không hợp lệ')
             for service in content.get('AdditionalServices'):
@@ -336,7 +338,7 @@ def orders():
         if request.headers.get('debug') != 'kt365aA@123' \
                 and content.get('PurchaseDate') is not None \
                 and datetime.strptime(content.get('PurchaseDate'),
-                                      '%Y-%m-%d %H:%M:%S') < now - timedelta(days=2):
+                                      '%Y-%m-%d %H:%M:%S') < now - timedelta(days=1, hours=12):
             return {'result_id': '00000000-0000-0000-0000-000000000000'}
         log = Log()
         log.configId = cfg.id
@@ -390,7 +392,6 @@ def task_result(id):
         }
         response = Response(json.dumps(response), status=400, mimetype='application/json')
     return response
-
 
 # @common.route("/resett", methods=['GET','POST'])
 # def resett():

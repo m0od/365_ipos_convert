@@ -90,6 +90,9 @@ class MeganePrince(object):
                             'OrderDetails': [],
                             'PaymentMethods': pms
                         })
+            else:
+                submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[FETCH DATA] api status {res.status_code}')
+                return False
             for _ in self.ORDERS:
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=_)
             for _ in self.ORDERS:
@@ -105,9 +108,7 @@ class MeganePrince(object):
                         #     submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
                         # break
                 return True
-            else:
-                submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[FETCH DATA] api status {res.status_code}')
-                return False
+
         except Exception as e:
             print(e)
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[FETCH DATA] {str(e)}')

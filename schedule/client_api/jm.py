@@ -17,21 +17,11 @@ class JM(object):
         # self.ADAPTER_TOKEN = 'cf0f760c3c11b65139beaecd6e0dd12f80bc34a177704ffc497d2bf816d1ac2d'
         self.MAIN = 'https://nhanh.vn'
         self.VERSION = '2.0'
-        self.APPID = '73543'
         self.USERNAME = 'cht_hn10'
         self.PASSWORD = 'jm246810'
-        self.SECRET_KEY = 'fobDBuxWyFrfKyjZEIy2FSJYVftb0uXEVGcS83ywEfHwS8p6VaKgMNkZqlnEsG6M' \
-                          'iV4ZaxFTGGBo4XD2jQSSrBx8WR3vFyCuaqriOnX1AnokQ0W3qhUTbXseWjejiWFt'
-        self.API = 'https://open.nhanh.vn'
         self.browser = requests.session()
-        self.RETURN_LINK = 'https://pos365.vn'
-        self.NUC_TK = None
         self.STORE_ID = None
-        self.ACCESS_CODE = None
-        self.BUSINESS_ID = None
-        self.DEPOT_ID = None
         self.CSRF = None
-        # self.ROUTE = 'jm'
         self.METHOD = {
             'Quẹt thẻ': 'THẺ',
             'Tiền khách đưa': 'CASH',
@@ -88,63 +78,6 @@ class JM(object):
         #     return False
         return True
 
-    def oauth(self):
-        try:
-            data = {
-                'version': self.VERSION,
-                'appId': self.APPID,
-                'returnLink': self.RETURN_LINK,
-            }
-            res = self.browser.get(f'{self.MAIN}/oauth', params=data)
-            if res.status_code != 200: return False
-            self.NUC_TK = res.text.split('data-nuctk="')[1].split('"')[0]
-            if len(self.NUC_TK) > 0: return True
-            return False
-        except:
-            return False
-
-    def access_code(self):
-        try:
-            data = {
-                'appId': self.APPID,
-                'returnLink': self.RETURN_LINK,
-                'permissions[]': [
-                    'pos.orderList', 'pos.orderHistory',
-                    'pos.billList', 'pos.billmex', 'pos.billRequirement',
-                ],
-                'storeId': self.STORE_ID,
-                'nuctk': self.NUC_TK
-            }
-            self.browser.headers.update({'content-type': 'application/x-www-form-urlencoded'})
-            res = self.browser.post(f'{self.MAIN}/openapi/addaccesscode', data=data)
-            print(res.text)
-            if res.status_code != 200: return False
-            self.ACCESS_CODE = res.json()['redirect'].split('accessCode=')[1]
-            if len(self.ACCESS_CODE) > 0: return True
-            return False
-        except:
-            return False
-
-    def access_token(self):
-        try:
-            data = {
-                'version': self.VERSION,
-                'appId': self.APPID,
-                'accessCode': self.ACCESS_CODE,
-                'secretKey': self.SECRET_KEY,
-            }
-            m = MultipartEncoder(fields=data)
-            self.browser.headers.update({'content-type': m.content_type})
-            res = self.browser.post(f'{self.MAIN}/oauth/access_token', data=m)
-            if res.status_code != 200: return False
-            self.ACCESS_TOKEN = res.json()['accessToken']
-            self.BUSINESS_ID = str(res.json()['businessId'])
-            self.DEPOT_ID = res.json()['depotIds']
-            if len(self.ACCESS_TOKEN) > 0: return True
-            return False
-        except:
-            return False
-
     def get_returns(self, from_date):
         page = 1
         returns = {}
@@ -190,8 +123,18 @@ class JM(object):
                 try:
                     discount = raw[3].text.strip().split('(')[0].strip().replace('.', '')
                     if len(discount) == 0: discount = 0
-                    pms = [{'Name': self.METHOD.get(raw[4].i['title'].strip()),
-                            'Value': int(raw[4].text.strip().replace('.', ''))}]
+                except:
+                    discount = 0
+                try:
+                    name = self.METHOD.get(raw[4].i['title'].strip())
+                except:
+                    name = 'CASH'
+                try:
+                    value = int(raw[4].text.strip().replace('.', ''))
+                except:
+                    value = 0
+                pms = [{'Name': name, 'Value': value}]
+                try:
                     total = raw[6].text.strip().replace('.', '').strip()
                     if len(total) == 0: total = 0
                     returns[code].update({
@@ -328,97 +271,6 @@ class JM(object):
         # from_date = '20/06/2023'
         self.get_orders(from_date)
         self.get_returns(from_date)
-
-    # def get_data(self, from_date):
-    #     if not self.auth(): return False
-    #     for did in self.DEPOT_ID:
-    #         page = 1
-    #         while True:
-    #             try:
-    #                 data = {
-    #                     'version': self.VERSION,
-    #                     'appId': self.APPID,
-    #                     'businessId': self.BUSINESS_ID,
-    #                     'accessToken': self.ACCESS_TOKEN,
-    #                     'data': json.dumps({
-    #                         'fromDate': from_date,
-    #                         'toDate': from_date,
-    #                         'depotId': str(did),
-    #                         'icpp': '20',
-    #                         'mode': '2',
-    #                         'page': str(page)
-    #                     })
-    #                 }
-    #                 m = MultipartEncoder(fields=data)
-    #                 self.browser.headers.update({'content-type': m.content_type})
-    #                 res = self.browser.post(f'{self.API}/api/bill/search', data=m)
-    #                 js = res.json()
-    #                 if (len(js) == 0): break
-    #                 for raw_code, bill in js['data']['bill'].items():
-    #                     if bill['type'] == '1':
-    #                         minus = -1
-    #                         code = f'VAT_{raw_code}'
-    #                     else:
-    #                         minus = 1
-    #                         code = raw_code
-    #                     pm = []
-    #                     if int(bill['creditMoney']) > 0:
-    #                         pm.append({'Name': 'THẺ', 'Value': bill['creditMoney'] * minus})
-    #                     if int(bill['moneyTransfer']) > 0:
-    #                         pm.append({'Name': 'CHUYỂN KHOẢN', 'Value': bill['moneyTransfer'] * minus})
-    #                     if int(bill['cash']) > 0:
-    #                         pm.append({'Name': 'CASH', 'Value': bill['cash'] * minus})
-    #                     od = []
-    #                     for pc, pv in bill['products'].items():
-    #                         od.append({
-    #                             'Code': pv['code'].strip(),
-    #                             'Name': pv['name'].strip(),
-    #                             'Price': pv['money'],
-    #                             'Quantity': int(pv['quantity'])
-    #                         })
-    #
-    #                     data = {
-    #                         'Code': raw_code,
-    #                         'Total': bill['money'],
-    #                         'TotalPayment': bill['money'],
-    #                         'PaymentMethods': pm,
-    #                         'VAT': 0,
-    #                         'Discount': int(bill['discount']),
-    #                     }
-    #                     if minus == 1:
-    #                         data.update({
-    #                             'Status': 2,
-    #                             'OrderDetails': od,
-    #                             'PurchaseDate': bill['createdDateTime'],
-    #                         })
-    #                         submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=data)
-    #                     else:
-    #                         data.update({
-    #                             'Status': 0,
-    #                             'ReturnDetails': od,
-    #                             'ReturnDate': bill['createdDateTime'],
-    #                         })
-    #                         submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=data)
-    #                         data = {
-    #                             'Code': code,
-    #                             'Total': 0,
-    #                             'TotalPayment': 0,
-    #                             'PaymentMethods': pm,
-    #                             'Discount': 0,
-    #                             'Status': 2,
-    #                             'VAT': 0,
-    #                             'AdditionalServices': [{'Name': 'Hoàn VAT', 'Value': bill['money'] * minus}],
-    #                             'PurchaseDate': bill['createdDateTime'],
-    #                             'OrderDetails': []
-    #                         }
-    #                         submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=data)
-    #                 if page == js['data']['totalPages']:
-    #                     break
-    #                 page += 1
-    #             except Exception as e:
-    #                 submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Data] {str(e)}')
-    #                 pass
-
 
 
 if __name__:

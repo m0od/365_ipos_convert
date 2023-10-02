@@ -65,7 +65,7 @@ class HoangPhuc(object):
                 ret_send = {
                     'Code': code,
                     'ReturnDate': pur_date.strftime('%Y-%m-%d %H:%M:%S'),
-                    'Discount': discount,
+                    'Discount': abs(discount),
                     'Total': abs(_['Revenue']),
                     'TotalPayment': abs(_['Revenue']),
                     'Status': 0,

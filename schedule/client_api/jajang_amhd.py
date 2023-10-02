@@ -67,7 +67,9 @@ if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
+    # PATH = dirname(dirname(dirname(__file__)))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
     # now = datetime.now()
-    # JaJang().get_data(now - timedelta(days=1))
+    # print(now - timedelta(days=40))
+    # JaJang().get_data(now - timedelta(days=40))

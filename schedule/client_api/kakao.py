@@ -18,7 +18,7 @@ class Kakao(object):
         self.BRANCH_ID = None
         self.RETURN = []
         self.API_MAN = None
-        self.API_MANS = ['api-man2.kiotviet.vn','api-man.kiotviet.vn','api-man1.kiotviet.vn']
+        self.API_MANS = ['api-man2.kiotviet.vn', 'api-man.kiotviet.vn', 'api-man1.kiotviet.vn']
         self.DOMAIN = 'diossoft'
         self.USER = 'aeonmall'
         self.PASSWORD = '12345'
@@ -179,6 +179,7 @@ class Kakao(object):
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
                 index += 1
             skip += 100
+        self.get_return_data(d_from, d_to)
 
     def get_return_data(self, d_from, d_to):
         # if not self.login(): return
@@ -197,6 +198,7 @@ class Kakao(object):
                 'branchId': self.BRANCH_ID
             })
             res = self.browser.get(f'https://{self.API_MAN}/api/returns', params=params).json()
+            print(res)
             if len(res['Data']) == 0: break
             index = 0
             while index < len(res['Data']):
@@ -255,9 +257,10 @@ if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
+    # PATH = dirname(dirname(dirname(__file__)))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
 
     # now = datetime.now()
     # print(now - timedelta(days=12))
-    # Kakao().get_data(now - timedelta(days=3), now - timedelta(days=2))
+    # Kakao().get_data(now - timedelta(days=5), now - timedelta(days=4))

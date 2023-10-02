@@ -30,9 +30,11 @@ class AoKang(object):
                          "ORDER BY dbo.SlBlM.ID"
         self.METHOD = {
             'HS.VISATTT_AO': 'THẺ',
-            'HS.TM_AO': 'CASH',
+            'HS.TM_AO': 'CHUYỂN KHOẢN',
             'TM_EXULL': 'CASH',
-            'HS.TM.TNHA_AO': 'CASH'
+            'HS.TM.TNHA_AO': 'CASH',
+            'HS.COD_ONLINE_AO': 'CHUYỂN KHOẢN',
+            'VHS.COD_ONLINE_A': 'CHUYỂN KHOẢN'
         }
 
     def login(self):
@@ -127,4 +129,4 @@ if __name__:
     from schedule.client_api.font_vi import Converter
     #
     # now = datetime.now()
-    # AoKang().get_data(now - timedelta(days=1))
+    # AoKang().get_data(datetime.now() - timedelta(days=5))

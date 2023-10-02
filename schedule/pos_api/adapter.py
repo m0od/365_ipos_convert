@@ -41,7 +41,8 @@ def submit_payment(retailer=None, token=None, data=None):
         except ConnectionError as ce:
             submit_error(retailer, f'{str(ce).split(":")[-1].strip()[:-3]} {data}')
         except Exception as e:
-            submit_error(retailer, f'{str(e)} {data}')
+            # submit_error(retailer, f'{str(e)} {data}')
+            pass
 def submit_error(retailer=None, reason=None):
     try:
         TOKEN = '6094052614:AAHhC8l1GKHXwBlLCHxWXySLxOSjFnvteB4'

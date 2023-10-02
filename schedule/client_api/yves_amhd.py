@@ -164,7 +164,9 @@ class YVES_ROCHER_AMHD(object):
             if v.get('OrderDetails') is None:
                 v.update({'OrderDetails': []})
             if v.get('PaymentMethods') is None:
-                print(v)
+                v.update({'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]})
+                # print(167, v)
+            # print(v)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
 if __name__:
     import sys

@@ -27,13 +27,13 @@ class Log(db.Model):
     branch = db.Column(db.Text, default=None)
     store = db.Column(db.Integer, default=None)
     code = db.Column(db.Text, default=None)
-    content = db.Column(db.Text, default=None)
+    content = db.Column(db.JSON, default=None)
     rid = db.Column(db.VARCHAR, default=None)
     status = db.Column(db.Boolean, default=None)
     result = db.Column(db.Text, default=None)
     log_date = db.Column(db.DateTime, default=current_time())
     type = db.Column(db.Integer, default=1)
-    hash = db.Column(db.DECIMAL(64,0), default=None)
+    hash = db.Column(db.DECIMAL(64, 0), default=None)
 
 
 class TechLog(db.Model):

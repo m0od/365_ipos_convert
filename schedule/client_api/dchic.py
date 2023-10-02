@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timedelta
 from os.path import dirname
 
@@ -31,8 +32,8 @@ class Dchic(object):
             # print(res.text)
             js = res.json()
             for _ in js:
-                code = _['so_ct']
                 pur_date = datetime.strptime(_['ngay_ct'], '%d/%m/%Y %H:%M:%S')
+                code = f"{_['so_ct']}_{pur_date.strftime('%y%m%d')}"
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
                 if self.orders.get(code) is None:
                     # pms = []
@@ -116,5 +117,8 @@ if __name__:
     from schedule.pos_api.adapter import submit_error, submit_order
 
     # now = datetime.now()
-    # print(now-timedelta(15+12))
-    # Dchic().get_data(now - timedelta(days=2))
+    # print(datetime.now() - timedelta(89))
+    # for i in range(1,0,-1):
+    #     print(datetime.now() - timedelta(i))
+    #     Dchic().get_data(datetime.now()-timedelta(i))
+    # Dchic().fix()

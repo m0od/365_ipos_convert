@@ -22,11 +22,11 @@ class NKID_AMHD(object):
         self.PMS = {}
         self.ODS = {}
 
-    def scan_file(self):
+    def scan_file(self, prefix):
         # print(os.getcwd())
         # print(os.path.getmtime(self.FULL_PATH))
         # print(for name in glob.glob('/home/geeks/Desktop/gfg/data.txt'):)
-        files = glob.glob(self.FULL_PATH + self.EXT)
+        files = glob.glob(self.FULL_PATH + prefix)
         # print(files)
         self.DATA = max(files, key=  os.path.getmtime)
 
@@ -34,12 +34,16 @@ class NKID_AMHD(object):
 
 
     def get_data(self):
-        self.scan_file()
+        self.scan_file('*tw*txt')
         f = open(self.DATA, 'r')
         lines = f.read().strip().split('\n')
         f.close()
+        self.scan_file('*ts*txt')
+        f = open(self.DATA, 'r')
+        lines.extend(f.read().strip().split('\n'))
+        f.close()
         for line in lines:
-            _ = line.split('\t')
+            _ = line.split('|')
             print(_)
             code = _[0].strip()
             # if code != 'CA_230829_10000002623349': continue
@@ -98,10 +102,10 @@ class NKID_AMHD(object):
 if __name__:
     import sys
 
-    # PATH = dirname(dirname(__file__))
-    PATH = dirname(dirname(dirname(__file__)))
+    PATH = dirname(dirname(__file__))
+    # PATH = dirname(dirname(dirname(__file__)))
     # print(PATH)
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order, submit_payment
 
-    NKID_AMHD().get_data()
+    # NKID_AMHD().get_data()

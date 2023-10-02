@@ -7,13 +7,12 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from os.path import dirname
 from pathlib import Path
-# import xlsxwriter
+
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from gspread_formatting import *
 import requests
 import pandas as pd
-
 JSON_CRED = {
     "type": "service_account",
     "project_id": "kt365-387014",
@@ -34,7 +33,7 @@ SCOPE = [
 FOLDER = '1B0ZaHo3h2MLpX7HSRZjtZ3Fux59AHUzH'
 
 map_pm = {
-    'LANDLORD-CASH': None, 'CASH TTTM': None,
+    'LANDLORD-CASH': None, 'CASH TTTM': None, 'TIỀM MẶT': None,
 
     'CÀ THẺ': 'CREDIT CARD', 'PAYOO-POS': 'CREDIT CARD', 'PAYOO': 'CREDIT CARD',
     'POS': 'CREDIT CARD', 'CREDIT CARD': 'CREDIT CARD', 'STORE CREDIT': 'CREDIT CARD',
@@ -65,11 +64,12 @@ map_pm = {
     'PLATFORM': 'BANK TRANSFER', 'SKYBANK': 'BANK TRANSFER', 'SKYLINE': 'BANK TRANSFER',
     'SKYPOINT': 'BANK TRANSFER', 'WEBSITE_PAYMENT': 'BANK TRANSFER', 'HS.COD_ONLINE_AO': 'BANK TRANSFER',
     'VHS.COD_ONLINE_A': 'BANK TRANSFER', 'E-WALLET': 'BANK TRANSFER', 'CK': 'BANK TRANSFER',
+    'VCB POS BANKING': 'BANK TRANSFER', 'TRANSFER': 'BANK TRANSFER',
 
-    'ZALO-PAY': 'ZALOPAY', 'ZALO PAY': 'BANK TRANSFER', 'ZALO_ONLINE': 'BANK TRANSFER',
+    'ZALO-PAY': 'ZALOPAY', 'ZALO PAY': 'ZALOPAY', 'ZALO_ONLINE': 'ZALOPAY',
     'ZALOPAYQR4': 'ZALOPAY',
 
-    'VNPAY-QR': 'VNPAY', 'VNPAY-POS': 'VNPAY', 'VNPAY': 'VNPAY', ' VN PAY': 'VNPAY',
+    'VNPAY-QR': 'VNPAY', 'VNPAY-POS': 'VNPAY', 'VNPAY': 'VNPAY', 'VN PAY': 'VNPAY',
     'VNPAY_APP': 'VNPAY', 'VNPAY_OD_ONLINE': 'VNPAY', 'VNPAY_ONLINE': 'VNPAY',
     'VNPAYOFFLINE': 'VNPAY', 'VNPAYQR4': 'VNPAY', 'VNPAY - TĨNH': 'VNPAY',
 
@@ -87,6 +87,7 @@ map_pm = {
     'PHIẾU QUÀ TẶNG': 'VOUCHER', 'GOTIT': 'VOUCHER', ' GOT IT': 'VOUCHER',
 
     'CUSTOMER LOYALTY': 'POINT', 'PARAFAIT CARD': 'POINT', 'KHTT': 'POINT',
+    'REWARD POINT': 'POINT', 'REWARD POINT(TEMP)': 'POINT',
 
     'MOCA': 'MOCA', 'GRAB MOCA': 'MOCA', 'GRAP FOOD': 'MOCA',
 
@@ -97,6 +98,7 @@ map_pm = {
 
     'GRAB': 'GRAB', 'GRABPAY': 'GRAB', 'GRAB_ONLINE': 'GRAB',
     'MOCA1': 'GRAB', 'MOCAQR4': 'GRAB', 'GRAB WALLET': 'GRAB',
+    'GRABFOOD': 'GRAB',
 
     'SHOPEEPAY': 'SHOPEE', 'SHOPEEFOOD': 'SHOPEE', 'NOW': 'SHOPEE',
     'AIRPAY': 'SHOPEE', 'AIRPAY_APP': 'SHOPEE', 'AIRPAYQR4': 'SHOPEE',
@@ -115,6 +117,7 @@ map_pm = {
     'TGPOINT': 'OTHER', 'TGTOKENQR4': 'OTHER', 'VIN': 'OTHER',
     'VINIDPAY': 'OTHER', 'BE FOOD': 'OTHER', 'BE': 'OTHER',
     'ĐỔI HÀNG': 'OTHER', 'KHÁC': 'OTHER', 'VINID': 'OTHER', 'BANK ACCOUNT': 'OTHER',
+    'TẠO P. ĐỔI TRẢ': 'OTHER', 'THU P. ĐỔI TRẢ': 'OTHER', 'MEMBERSHIP': 'OTHER',
 }
 
 
@@ -122,10 +125,8 @@ def auth(domain):
     b = requests.session()
     b.headers.update({'content-type': 'application/json'})
     r = b.post(f'https://{domain}.pos365.vn/api/auth', json={
-        # 'Username': 'quantri@pos365.vn',
-        # 'Password': 'IT@P0s365kmS'
-        'Username': 'report',
-        'Password': '123123123'
+        'Username': 'quantri@pos365.vn',
+        'Password': 'IT@P0s365kmS'
     })
     if r.status_code == 200:
         return b
@@ -143,7 +144,6 @@ def get_accounts(browser, domain):
             js = r.json()
             for _ in js:
                 if map_pm.get(_['Name'].upper()) is not None:
-                    # print(map_pm.get(_['Name'].upper()), _['Name'])
                     accs.update({
                         _['Id']: map_pm.get(_['Name'].upper())
                     })
@@ -154,7 +154,6 @@ def get_accounts(browser, domain):
             break
         except:
             continue
-
     return accs
 
 
@@ -167,8 +166,7 @@ def get_orders(browser, domain):
                 'format': 'json',
                 'Top': '50',
                 'Skip': str(skip),
-                # 'Filter': "PurchaseDate eq 'yesterday' and Status eq 2",
-                'Filter': "PurchaseDate eq 'lastmonth' and Status eq 2",
+                'Filter': "PurchaseDate eq 'yesterday' and Status eq 2",
                 'Includes': 'OrderDetails',
                 'Orderby': 'PurchaseDate'
             }
@@ -192,8 +190,7 @@ def get_returns(browser, domain):
                 'format': 'json',
                 'Top': '50',
                 'Skip': str(skip),
-                # 'Filter': "ReturnDate eq 'yesterday' and Status eq 2",
-                'Filter': "ReturnDate eq 'lastmonth' and Status eq 2",
+                'Filter': "ReturnDate eq 'yesterday' and Status eq 2",
                 'Orderby': 'ReturnDate'
             }
             r = browser.get(f'https://{domain}.pos365.vn/api/returns', params=p)
@@ -235,7 +232,6 @@ def get_branch(browser, domain):
         except:
             pass
 
-
 if __name__ == '__main__':
     PATH = dirname(__file__)
     print(PATH)
@@ -254,7 +250,6 @@ if __name__ == '__main__':
     for am_num in range(1, 200):
 
         domain = 'am{:03d}'.format(am_num)
-        print(domain)
         b = auth(domain)
         if b is None: continue
         branch = get_branch(b, domain)
@@ -287,7 +282,6 @@ if __name__ == '__main__':
                 'Khách thanh toán': _['TotalPayment'],
                 'VAT': _['VAT'] is not None and _['VAT'] or 0
             }
-            # print(attr)
             if attr.get('PaymentMethods') is not None:
                 # print(_['MoreAttributes'])
                 for __ in attr['PaymentMethods']:
@@ -298,15 +292,16 @@ if __name__ == '__main__':
                     else:
                         content.update({pm_name[__['AccountId']]: __['Value']})
             tmp_order.append(content)
-
-
-        #     row = [branch.get(_['BranchId']), _['Code'], pur_date, discount, _['Total'], _['TotalPayment'], _['VAT']]
-        #     row.extend(list(pm.values()))
-        #     index = 0
-        #     for k in data_order.keys():
-        #         data_order[k].append(row[index])
-        #         index += 1
-        #     # data_order.append(row)
+            # pm_str = '\t'.join(str(i) for i in list(pm.values()))
+            # print(pm.values())
+            # discount = _.get('Discount') is not None and _['Discount'] or 0
+            # row = [branch.get(_['BranchId']), _['Code'], pur_date, discount, _['Total'], _['TotalPayment'], _['VAT']]
+            # row.extend(list(pm.values()))
+            # index = 0
+            # for k in data_order.keys():
+            #     data_order[k].append(row[index])
+            #     index += 1
+            # data_order.append(row)
             for __ in _['OrderDetails']:
                 products.append({
                     'id': __['ProductId'],
@@ -353,23 +348,60 @@ if __name__ == '__main__':
         for k in _.keys():
             if data_order.get(k) is None:
                 data_order.update({k: []})
-    print(data_order)
     for _ in tmp_order:
-        row = [_.get(k) is not None and _.get(k) or 0 for k in data_order.keys()]
+        row = [_.get(k) is not None and _.get(k) or '' for k in data_order.keys()]
         print(len(row), row)
         index = 0
         for k in data_order.keys():
             data_order[k].append(row[index])
             index += 1
+    #
+    # cred = ServiceAccountCredentials.from_json_keyfile_dict(JSON_CRED, SCOPE)
+    # client = gspread.authorize(cred)
+    # wb = None
+    # sheet_id = None
+    # sheet_url = None
+    #
+    # title = f"DAILY REPORT {datetime.now().strftime('%d-%m-%y %H:%M')}"
+    # wb = client.create(title, folder_id=FOLDER)
+    # print('CREATED')
+    #
+    # sheet_id = wb.id
+    # sheet_url = wb.url
+    # print(sheet_url)
+    # ws = wb.get_worksheet(0)
+    # ws.update_title('Order')
+    #
+    # values = [
+    #     ['Tenant', 'Mã hoá đơn', 'Ngày GD', 'Tên sản phẩm', 'Tổng hoá đơn', 'Khách thanh toán', 'VAT',
+    #      'CASH', 'CREDIT CARD', 'BANK TRANSFER', 'ZALOPAY', 'VNPAY', 'VIETTELPAY', 'DATHANG',
+    #      'VOUCHER', 'POINT', 'MOCA', 'MOMO', 'GRAB', 'SHOPEE', 'BAEMIN', 'GOJEK', 'OTHER']]
+    # values.extend(data_order)
+    # ws.insert_rows(values)
+    # set_frozen(ws, rows=1, cols=0)
+    # fmt = CellFormat(
+    #     backgroundColor=Color(147 / 255, 204 / 255, 234 / 255),  # set it to yellow
+    #     textFormat=TextFormat(bold=True),
+    # )
+    # format_cell_range(ws, '1:1', fmt)
+    # ws = wb.add_worksheet('Product', 1000, 1000)
+    # values = [
+    #     ['Tenant', 'Mã hoá đơn', 'Ngày GD', 'Tên sản phẩm', 'Số lương', 'Đơn giá']]
+    # values.extend(data_product)
+    # ws.insert_rows(values)
+    # set_frozen(ws, rows=1, cols=0)
+    # fmt = CellFormat(
+    #     backgroundColor=Color(147 / 255, 204 / 255, 234 / 255),  # set it to yellow
+    #     textFormat=TextFormat(bold=True),
+    # )
+    # format_cell_range(ws, '1:1', fmt)
 
-
-        # break
 
     df1 = pd.DataFrame(data_order)
     df2 = pd.DataFrame(data_product)
     df3 = pd.DataFrame(data_return)
     now = datetime.now() - timedelta(days=1)
-    f_path = f"{PATH}/monthlyreport{now.strftime('%d%m%Y')}.xlsx"
+    f_path = f"{PATH}/dailyreport{now.strftime('%d%m%Y')}.xlsx"
     writer = pd.ExcelWriter(f_path, engine='xlsxwriter')
 
     df1.to_excel(writer, sheet_name='Order', index=False)
@@ -377,32 +409,35 @@ if __name__ == '__main__':
     df3.to_excel(writer, sheet_name='Return', index=False)
 
     writer.close()
-    #
-    # port = 465  # For SSL
-    # password = 'abqqzkkrgftlodny'
-    # smtp_server = "smtp.gmail.com"
-    # sender_email = "tungpt@pos365.vn"  # Enter your address
-    # to_email = 'hadong.accounting@aeonmall-vn.com'  # Enter receiver address
-    # cc_email = 'duongnguyen@pos365.vn'
-    # message = MIMEMultipart()
-    # message["Subject"] = f'dailyreport{now.strftime("%d%m%Y")}'
-    # message["From"] = 'tungpt@pos365.vn'
-    # message["To"] = to_email
-    # message["Cc"] = cc_email
-    # toAddr = [to_email, cc_email]
-    # part = MIMEBase('application', "octet-stream")
-    # with open(f_path, 'rb') as file:
-    #     part.set_payload(file.read())
-    # encoders.encode_base64(part)
-    # part.add_header('Content-Disposition',
-    #                 'attachment; filename={}'.format(Path(f_path).name))
-    # message.attach(part)
-    # while True:
-    #     try:
-    #         server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-    #         server.login(sender_email, password)
-    #         server.sendmail(sender_email, toAddr, message.as_string())
-    #         break
-    #     except Exception as e:
-    #         print(e)
-    #         pass
+
+
+    port = 465  # For SSL
+    password = 'abqqzkkrgftlodny'
+    smtp_server = "smtp.gmail.com"
+    sender_email = "tungpt@pos365.vn"  # Enter your address
+    # to_email = 'marinmmo@gmail.com'
+    to_email = 'hadong.accounting@aeonmall-vn.com'  # Enter receiver address
+    cc_email = 'duongnguyen@pos365.vn'
+    message = MIMEMultipart()
+    message["Subject"] = f'dailyreport{now.strftime("%d%m%Y")}'
+    message["From"] = 'tungpt@pos365.vn'
+    message["To"] = to_email
+    message["Cc"] = cc_email
+    # toAddr = [to_email]
+    toAddr = [to_email, cc_email]
+    part = MIMEBase('application', "octet-stream")
+    with open(f_path, 'rb') as file:
+        part.set_payload(file.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition',
+                    'attachment; filename={}'.format(Path(f_path).name))
+    message.attach(part)
+    while True:
+        try:
+            server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+            server.login(sender_email, password)
+            server.sendmail(sender_email, toAddr, message.as_string())
+            break
+        except Exception as e:
+            print(e)
+            pass

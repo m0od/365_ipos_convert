@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from os.path import dirname
 import requests
 
@@ -80,13 +80,13 @@ class Aristino(object):
             return False
 
 
-if __name__.__contains__('schedule.client_api'):
+if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-
+    # Aristino().get_data(datetime.now() - timedelta(days=2))
 # if __name__ == '__main__':
 #     import sys
 #
