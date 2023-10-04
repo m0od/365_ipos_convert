@@ -141,15 +141,18 @@ class Vans(object):
 
     def get_payment_config(self):
         self.PAYMENT = []
+        c = 0
         while True:
             try:
-                res = self.browser.get(f"{self.API}/backendg2/api/Card")
+                URL = f"{self.API}/backendg{c % 2 + 1}/api/Card"
+                res = self.browser.get(URL)
                 for i in res.json()['Data']:
                     if not i['Inactive']:
                         self.PAYMENT.append(i['CardName'])
                 break
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Payment] {str(e)}')
+                c += 1
                 pass
 
 
@@ -161,4 +164,4 @@ if __name__:
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    # Vans().get_data(datetime.now() - timedelta(days=13))
+    # Vans().get_data(datetime.now() - timedelta(days=1))

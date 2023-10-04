@@ -131,6 +131,7 @@ class SneakerBuzz(object):
             res = self.browser.get(f"{self.API}/backendg2/api/SAInvoices/ReportSAInvocieDetails", params=params).json()
 
             for i in res['Data'][0]['SAInvocieDetails']:
+                # print(i['InventoryItemName'])
                 soup = BeautifulSoup(i['EncodeInventoryItemName'], 'html.parser')
                 detail.append({
                     'Code': i['SKUCode'].strip(),
@@ -145,15 +146,18 @@ class SneakerBuzz(object):
 
     def get_payment_config(self):
         self.PAYMENT = []
+        c = 0
         while True:
             try:
-                res = self.browser.get(f"{self.API}/backendg2/api/Card")
+                URL = f"{self.API}/backendg{c % 2 + 1}/api/Card"
+                res = self.browser.get(URL)
                 for i in res.json()['Data']:
                     if not i['Inactive']:
                         self.PAYMENT.append(i['CardName'])
                 break
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Payment] {str(e)}')
+                c += 1
                 pass
 
 
@@ -164,4 +168,4 @@ if __name__:
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
 
-    # SneakerBuzz().get_data(datetime.now() - timedelta(days=13))
+    # SneakerBuzz().get_data(datetime.now() - timedelta(days=1))

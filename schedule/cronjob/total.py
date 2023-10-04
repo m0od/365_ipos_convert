@@ -47,6 +47,7 @@ def main():
     ftp_timezone_amhd = TimeZoneAMHD()
     ftp_nkid_amhd = NKID_AMHD()
     ftp_mc_donald_amhd = McDonaldAMHD()
+    ftp_mr_dak_amhd = MR_DAK_AMHD()
     now = datetime.now(timezone('Etc/GMT-7'))
     if now.hour < 10:
         # print('abc')
@@ -84,7 +85,7 @@ def main():
             ]
             futures.as_completed(thread)
     elif now.hour == 12:
-        with futures.ThreadPoolExecutor(max_workers=19) as mt:
+        with futures.ThreadPoolExecutor(max_workers=20) as mt:
             thread = [
                 mt.submit(pnj.get_data),
                 mt.submit(acfc_typo.get_data),
@@ -105,6 +106,7 @@ def main():
                 mt.submit(ftp_timezone_amhd.get_data),
                 mt.submit(ftp_nkid_amhd.get_data),
                 mt.submit(ftp_mc_donald_amhd.get_data),
+                mt.submit(ftp_mr_dak_amhd.get_data),
             ]
             futures.as_completed(thread)
 
@@ -160,5 +162,6 @@ if __name__ == '__main__':
     from schedule.client_api.nkid_amhd import NKID_AMHD
     from schedule.client_api.mcdonald_amhd import McDonaldAMHD
     from schedule.client_api.mulgati_amhd import MULGATI_AMHD
+    from schedule.client_api.mr_dak_amhd import MR_DAK_AMHD
     warnings.filterwarnings('ignore')
     main()
