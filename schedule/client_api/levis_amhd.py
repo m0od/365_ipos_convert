@@ -92,7 +92,7 @@ class LEVIS(object):
                     })
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
-        for k, v in self.ORDERS:
+        for k, v in self.ORDERS.items():
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
         try:
             shutil.move(self.DATA, '../home/backup_do_not_remove')
