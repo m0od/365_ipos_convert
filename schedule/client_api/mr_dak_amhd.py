@@ -123,4 +123,4 @@ if __name__:
     PATH = dirname(dirname(dirname(__file__)))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    MR_DAK_AMHD().get_data()
+    # MR_DAK_AMHD().get_data()
