@@ -83,12 +83,10 @@ class GAP_KIDS_AMHD(object):
                     })
                 else:
                     self.ORDERS[code].update({
-                        {
-                            'Total': self.ORDERS[code]['Total'] + total,
-                            'TotalPayment': self.ORDERS[code]['TotalPayment'] + total,
-                            'VAT': self.ORDERS[code]['VAT'] + vat,
-                            'Discount': 0,
-                        }
+                        'Total': self.ORDERS[code]['Total'] + total,
+                        'TotalPayment': self.ORDERS[code]['TotalPayment'] + total,
+                        'VAT': self.ORDERS[code]['VAT'] + vat,
+                        'Discount': 0,
                     })
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))

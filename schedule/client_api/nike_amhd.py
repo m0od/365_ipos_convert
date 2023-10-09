@@ -7,7 +7,6 @@ from os.path import dirname
 import csv
 
 
-
 class NIKE_AMHD(object):
     def __init__(self):
         self.ADAPTER_RETAILER = 'nike_amhd'
@@ -29,10 +28,9 @@ class NIKE_AMHD(object):
         # print(for name in glob.glob('/home/geeks/Desktop/gfg/data.txt'):)
         files = glob.glob(self.FULL_PATH + self.EXT)
         # print(files)
-        self.DATA = max(files, key=  os.path.getmtime)
+        self.DATA = max(files, key=os.path.getmtime)
 
         print(self.DATA)
-
 
     def get_data(self):
         self.scan_file()
@@ -83,12 +81,10 @@ class NIKE_AMHD(object):
                     })
                 else:
                     self.ORDERS[code].update({
-                        {
-                            'Total': self.ORDERS[code]['Total'] + total,
-                            'TotalPayment': self.ORDERS[code]['TotalPayment'] + total,
-                            'VAT': self.ORDERS[code]['VAT'] + vat,
-                            'Discount': 0,
-                        }
+                        'Total': self.ORDERS[code]['Total'] + total,
+                        'TotalPayment': self.ORDERS[code]['TotalPayment'] + total,
+                        'VAT': self.ORDERS[code]['VAT'] + vat,
+                        'Discount': 0,
                     })
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
@@ -98,6 +94,7 @@ class NIKE_AMHD(object):
             shutil.move(self.DATA, '../home/backup_do_not_remove')
         except:
             pass
+
 
 if __name__:
     import sys

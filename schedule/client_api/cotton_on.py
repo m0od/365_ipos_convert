@@ -83,19 +83,17 @@ class COTTON_ON_AMHD(object):
                     })
                 else:
                     self.ORDERS[code].update({
-                        {
-                            'Total': self.ORDERS[code]['Total'] + total,
-                            'TotalPayment': self.ORDERS[code]['TotalPayment'] + total,
-                            'VAT': self.ORDERS[code]['VAT'] + vat,
-                            'Discount': 0,
-                        }
+                        'Total': self.ORDERS[code]['Total'] + total,
+                        'TotalPayment': self.ORDERS[code]['TotalPayment'] + total,
+                        'VAT': self.ORDERS[code]['VAT'] + vat,
+                        'Discount': 0,
                     })
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
         for k, v in self.ORDERS.items():
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
         try:
-            shutil.move(self.DATA, '../home/backup_do_not_remove')
+            shutil.move(self.DATA, '../home/backup_do_not_remove',)
         except:
             pass
 if __name__:
