@@ -1,5 +1,6 @@
 import glob
 import os
+import shutil
 from datetime import datetime, timedelta
 from os.path import dirname
 
@@ -56,14 +57,14 @@ class YVES_ROCHER_AMHD(object):
                 # if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
                 try:
-                    discount = abs(float(sheet1[row][3].value))
+                    discount = float(sheet1[row][3].value)
                 except:
                     discount = 0
                 try:
-                    total = float(sheet1[row][4].value) - discount
+                    total = float(sheet1[row][4].value) + discount
                 except:
                     total = 0
-                vat = sheet1[row][5].value
+                vat = float(sheet1[row][5].value)
                 if orders.get(code) is None:
                     orders.update({code:{
                         'Code': code,
@@ -72,7 +73,7 @@ class YVES_ROCHER_AMHD(object):
                         'Total': total,
                         'TotalPayment': total,
                         'VAT': vat,
-                        'Discount': discount,
+                        'Discount': abs(discount),
                     }})
                 else:
                     orders[code].update({
@@ -82,7 +83,7 @@ class YVES_ROCHER_AMHD(object):
                         'Total': orders[code]['Total'] + total,
                         'TotalPayment': orders[code]['Total'] + total,
                         'VAT': orders[code]['VAT'] + vat,
-                        'Discount': orders[code]['Discount'] + discount,
+                        'Discount': orders[code]['Discount'] + abs(discount),
                     })
                 # send = {
                 #     'Code': code,
@@ -168,12 +169,16 @@ class YVES_ROCHER_AMHD(object):
                 # print(167, v)
             # print(v)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
+        try:
+            shutil.move(self.DATA, f'{self.FULL_PATH}bak')
+        except:
+            pass
 if __name__:
     import sys
 
-    PATH = dirname(dirname(__file__))
-    # PATH = dirname(dirname(dirname(__file__)))
+    # PATH = dirname(dirname(__file__))
+    PATH = dirname(dirname(dirname(__file__)))
     # print(PATH)
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    # YVES_ROCHER_AMHD().get_data()
+    YVES_ROCHER_AMHD().get_data()

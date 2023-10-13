@@ -16,7 +16,7 @@ def submit_order(retailer=None, token=None, data=None):
                 'debug': 'kt365aA@123'
             }
             res = requests.post(URL, headers=headers, json=data, timeout=10)
-            print(res.text)
+            # print(res.text)
             if res.json()['result_id'] is not None: return True
             return False
         except ConnectionError as ce:

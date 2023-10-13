@@ -30,6 +30,7 @@ def main():
     gabby = Gabby()
     jajang = JaJang()
     mulgati_amhd = MULGATI_AMHD()
+    rabity_amhd = RABITY_AMHD()
     acfc_typo = TYPO_AMHD()
     acfc_banana_amhd = BANANA_REPUBLIC_AMHD()
     acfc_tommy_amhd = TOMMY_AMHD()
@@ -51,7 +52,7 @@ def main():
     now = datetime.now(timezone('Etc/GMT-7'))
     if now.hour < 10:
         # print('abc')
-        with futures.ThreadPoolExecutor(max_workers=19) as mt:
+        with futures.ThreadPoolExecutor(max_workers=20) as mt:
             thread = [
                 mt.submit(tgc.get_data, now - timedelta(days=1)),
                 mt.submit(bloom.get_data, now - timedelta(days=1)),
@@ -74,6 +75,7 @@ def main():
                 mt.submit(gabby.get_data, now - timedelta(days=1), now),
                 mt.submit(jajang.get_data, now - timedelta(days=1)),
                 mt.submit(mulgati_amhd.get_data, now - timedelta(days=1)),
+                mt.submit(rabity_amhd.get_data, now - timedelta(days=1), now)
             ]
             futures.as_completed(thread)
     elif now.hour == 10:
@@ -163,5 +165,6 @@ if __name__ == '__main__':
     from schedule.client_api.mcdonald_amhd import McDonaldAMHD
     from schedule.client_api.mulgati_amhd import MULGATI_AMHD
     from schedule.client_api.mr_dak_amhd import MR_DAK_AMHD
+    from schedule.client_api.rabity_amhd import RABITY_AMHD
     warnings.filterwarnings('ignore')
     main()

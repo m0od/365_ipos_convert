@@ -85,6 +85,8 @@ class MR_DAK_AMHD(object):
             for row in range(9, data.max_row + 1):
                 pur_date = data[row][2].value.strip()
                 pur_date = datetime.strptime(pur_date, '%d/%m/%Y %H:%M')
+                now = datetime.now() - timedelta(days=1)
+                if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
                 # print(pur_date)
                 code = 'DELI_'+str(data[row][3].value).strip()
@@ -123,4 +125,4 @@ if __name__:
     PATH = dirname(dirname(dirname(__file__)))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    MR_DAK_AMHD().get_data()
+    # MR_DAK_AMHD().get_data()

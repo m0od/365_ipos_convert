@@ -130,18 +130,18 @@ class JM(object):
                 except:
                     name = 'CASH'
                 try:
-                    value = int(raw[4].text.strip().replace('.', ''))
+                    value = float(raw[4].text.strip().replace('.', '').replace(',', '.'))
                 except:
                     value = 0
                 pms = [{'Name': name, 'Value': value}]
                 try:
-                    total = raw[6].text.strip().replace('.', '').strip()
+                    total = raw[6].text.strip().replace('.', '').replace(',', '.').strip()
                     if len(total) == 0: total = 0
                     returns[code].update({
-                        'Discount': int(discount),
+                        'Discount': float(discount),
                         'PaymentMethods': pms,
-                        'Total': int(total),
-                        'TotalPayment': int(total),
+                        'Total': float(total),
+                        'TotalPayment': float(total),
                         'VAT': 0,
                         'Status': 0
                     })
@@ -180,9 +180,11 @@ class JM(object):
             html = BeautifulSoup(r.text, 'html.parser')
             tbody = html.find('tbody').findAll('tr')
             for _ in tbody[:-1]:
+
                 pms = []
                 try:
                     code = _['data-id']
+                    # if code != '246199614': continue
                     if orders.get(code) is not None:
                         page = -1
                         break
@@ -190,6 +192,8 @@ class JM(object):
                         orders.update({code: {'OrderDetails': []}})
                 except:
                     pass
+                # print('_' * 20, code)
+                # if code != '246199614': continue
                 try:
                     ods = orders[code]['OrderDetails']
                     product = _.find('td', {'class': 'dgColProduct dgColProduct'})
@@ -219,10 +223,11 @@ class JM(object):
                 try:
                     _.find('td', {'class': 'dgColVat'}).unwrap()
                     x = _.find('td', {'class': 'dgColPayment'})
+                    # print(222, x)
                     dup = []
-                    print(280, x.findAll('label'))
+                    # print(280, x.findAll('label'))
                     for pm in x.findAll('label'):
-                        print(code, pm)
+                        # print(code, pm)
                         try:
                             pn = pm['title'].split(':')[0]
                             # print(code, pm, pn)
@@ -231,12 +236,14 @@ class JM(object):
                                 # print(pn)
                                 if pn not in dup:
                                     dup.append(pn)
-                                    pms.append({'Name': pn, 'Value': int(pm.text.strip().replace('.', ''))})
+                                    pms.append({'Name': pn,
+                                                'Value': float(pm.text.strip().replace('.', '').replace(',', '.'))})
                             else:
                                 pn = 'CASH'
                                 if pn not in dup:
                                     dup.append(pn)
-                                    pms.append({'Name': pn, 'Value': int(pm.text.strip().replace('.', ''))})
+                                    pms.append({'Name': pn,
+                                                'Value': float(pm.text.strip().replace('.', '').replace(',', '.'))})
                         except:
                             pass
                     if len(pms) == 0:
@@ -244,20 +251,20 @@ class JM(object):
                     x.unwrap()
                     # print(_.find('td', {'class': 'dgDescription'}).text.strip())
                     dis_total = _.findAll('td', {'class': 'text-right'})
-                    discount = dis_total[0].text.strip().split('(')[0].strip().replace('.', '')
+                    discount = dis_total[0].text.strip().split('(')[0].strip().replace('.', '').replace(',', '.')
                     if len(discount) == 0: discount = '0'
-                    total = dis_total[1].text.strip().split('(')[0].strip().replace('.', '')
+                    total = dis_total[1].text.strip().split('(')[0].strip().replace('.', '').replace(',', '.')
                     orders[code].update({
-                        'Discount': int(discount),
-                        'Total': int(total),
-                        'TotalPayment': int(total),
+                        'Discount': float(discount),
+                        'Total': float(total),
+                        'TotalPayment': float(total),
                         'PaymentMethods': pms,
                         'Status': 2,
                         'VAT': 0,
                         'PurchaseDate': _.find('td', {'class': 'dgColDate'}).find('span')['title']
                     })
                 except Exception as e:
-                    print(e)
+                    # print(261, e)
                     pass
             page += 1
             # break

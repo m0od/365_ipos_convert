@@ -67,22 +67,33 @@ class TYPO_AMHD(object):
                     pm.append({
                         'Name': 'OTHERS', 'Value': float(others)
                     })
-                send = {
-                    'Code': code,
-                    'Status': 2,
-                    'PurchaseDate': pur_date,
-                    'Total': total,
-                    'TotalPayment': total,
-                    'VAT': vat,
-                    'Discount': 0,
-                    'OrderDetails': [],
-                    'PaymentMethods': pm
-                }
-                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
+                if self.ORDERS.get(code) is None:
+                    self.ORDERS.update({
+                        code: {
+                            'Code': code,
+                            'Status': 2,
+                            'PurchaseDate': pur_date,
+                            'Total': total,
+                            'TotalPayment': total,
+                            'VAT': vat,
+                            'Discount': 0,
+                            'OrderDetails': [],
+                            'PaymentMethods': pm
+                        }
+                    })
+                else:
+                    self.ORDERS[code].update({
+                        'Total': self.ORDERS[code]['Total'] + total,
+                        'TotalPayment': self.ORDERS[code]['TotalPayment'] + total,
+                        'VAT': self.ORDERS[code]['VAT'] + vat,
+                        'Discount': 0,
+                    })
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
+        for k, v in self.ORDERS.items():
+            submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
         try:
-            shutil.move(self.DATA, '../home/backup_do_not_remove')
+            shutil.move(self.DATA, '/home/backup_do_not_remove')
         except:
             pass
 
@@ -91,7 +102,6 @@ if __name__:
 
     PATH = dirname(dirname(__file__))
     # PATH = dirname(dirname(dirname(__file__)))
-    # print(PATH)
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
     # TYPO_AMHD().get_data()

@@ -7,7 +7,6 @@ from os.path import dirname
 import csv
 
 
-
 class NIKE_AMHD(object):
     def __init__(self):
         self.ADAPTER_RETAILER = 'nike_amhd'
@@ -29,10 +28,9 @@ class NIKE_AMHD(object):
         # print(for name in glob.glob('/home/geeks/Desktop/gfg/data.txt'):)
         files = glob.glob(self.FULL_PATH + self.EXT)
         # print(files)
-        self.DATA = max(files, key=  os.path.getmtime)
+        self.DATA = max(files, key=os.path.getmtime)
 
         print(self.DATA)
-
 
     def get_data(self):
         self.scan_file()
@@ -67,24 +65,36 @@ class NIKE_AMHD(object):
                     pm.append({
                         'Name': 'OTHERS', 'Value': float(others)
                     })
-                send = {
-                    'Code': code,
-                    'Status': 2,
-                    'PurchaseDate': pur_date,
-                    'Total': total,
-                    'TotalPayment': total,
-                    'VAT': vat,
-                    'Discount': 0,
-                    'OrderDetails': [],
-                    'PaymentMethods': pm
-                }
-                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
+                if self.ORDERS.get(code) is None:
+                    self.ORDERS.update({
+                        code: {
+                            'Code': code,
+                            'Status': 2,
+                            'PurchaseDate': pur_date,
+                            'Total': total,
+                            'TotalPayment': total,
+                            'VAT': vat,
+                            'Discount': 0,
+                            'OrderDetails': [],
+                            'PaymentMethods': pm
+                        }
+                    })
+                else:
+                    self.ORDERS[code].update({
+                        'Total': self.ORDERS[code]['Total'] + total,
+                        'TotalPayment': self.ORDERS[code]['TotalPayment'] + total,
+                        'VAT': self.ORDERS[code]['VAT'] + vat,
+                        'Discount': 0,
+                    })
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
+        for k, v in self.ORDERS.items():
+            submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
         try:
             shutil.move(self.DATA, '../home/backup_do_not_remove')
         except:
             pass
+
 
 if __name__:
     import sys

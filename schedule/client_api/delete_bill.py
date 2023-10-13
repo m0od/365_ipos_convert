@@ -4,7 +4,7 @@ from datetime import datetime
 import requests
 
 
-def fix(self):
+def fix():
     u = 'https://am170.pos365.vn'
     b = requests.session()
     r = b.post(f'{u}/api/auth', json={'username': 'admin', 'password': 'aeonhd'})
@@ -51,3 +51,5 @@ def fix(self):
             print(e)
             pass
     print(r.text)
+
+fix()

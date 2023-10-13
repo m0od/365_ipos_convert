@@ -139,4 +139,4 @@ if __name__:
     from schedule.pos_api.adapter import submit_error, submit_order
     # print(datetime.now() - timedelta(days=4))
     # t = datetime.now() - timedelta(days=4)
-    # ATO().get_data(t, datetime.now() - timedelta(days=1))
+    # ATO().get_data(datetime.now()- timedelta(days=1), datetime.now() - timedelta(days=1))
