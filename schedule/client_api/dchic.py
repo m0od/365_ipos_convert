@@ -116,5 +116,5 @@ if __name__:
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
 
-    # Dchic().get_data(datetime.now()-timedelta(i))
+    # Dchic().get_data(datetime.now()-timedelta(1))
 

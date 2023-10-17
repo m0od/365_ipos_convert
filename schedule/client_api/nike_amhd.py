@@ -91,7 +91,7 @@ class NIKE_AMHD(object):
         for k, v in self.ORDERS.items():
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
         try:
-            shutil.move(self.DATA, '../home/backup_do_not_remove')
+            shutil.move(self.DATA, f'{self.FULL_PATH}bak')
         except:
             pass
 

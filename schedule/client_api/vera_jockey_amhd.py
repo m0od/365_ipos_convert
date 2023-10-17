@@ -1,5 +1,8 @@
 import glob
 import os
+import shutil
+
+import xlrd
 from datetime import datetime, timedelta
 from os.path import dirname
 
@@ -16,7 +19,7 @@ class VERA_JOCKEY_AMHD(object):
 
         self.FOLDER = 'verajockey_amhd'
         self.FULL_PATH = f'../home/{self.FOLDER}/'
-        self.EXT = '*xlsx'
+        self.EXT = '*xls*'
         self.DATA = None
         self.ORDERS = {}
         self.PMS = {}
@@ -29,18 +32,26 @@ class VERA_JOCKEY_AMHD(object):
         files = glob.glob(self.FULL_PATH + self.EXT)
         # print(files)
         self.DATA = max(files, key=  os.path.getmtime)
-
+        # if self.DATA.endswith('.xls'):
+        #     os.rename(self.DATA, self.DATA + 'x')
+        #     self.DATA += 'x'
         print(self.DATA)
 
 
     def get_data(self):
         self.scan_file()
-        dataframe = openpyxl.load_workbook(self.DATA, data_only=True)
-        # print('DSDH')
+        if not self.DATA.endswith('.xls'):
+            dataframe = openpyxl.load_workbook(self.DATA, data_only=True)
+        else:
+            dataframe = xlrd.open_workbook(self.DATA)
         sheet1 = dataframe['Danh sách đơn hàng']
         orders = {}
+        if not self.DATA.endswith('.xls'):
+            nRows = sheet1.max_row + 1
+        else:
+            nRows = sheet1.nrows
         # Iterate the loop to read the cell values
-        for row in range(2, sheet1.max_row + 1):
+        for row in range(2, nRows):
             try:
                 pm = []
                 code = sheet1[row][0].value
@@ -48,11 +59,10 @@ class VERA_JOCKEY_AMHD(object):
                 code = str(code).strip()
                 code = code.replace("'", '').strip()
                 if len(code) == 0: continue
-                # print(code)
                 pur_date = sheet1[row][2].value
                 pur_date = datetime.strptime(pur_date, '%d/%m/%Y %H:%M %p')
                 now = datetime.now() - timedelta(days=1)
-                if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
+                # if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
                 try:
                     discount = float(sheet1[row][3].value)
@@ -83,38 +93,27 @@ class VERA_JOCKEY_AMHD(object):
                         'VAT': orders[code]['VAT'] + vat,
                         'Discount': orders[code]['Discount'] + discount,
                     })
-                # send = {
-                #     'Code': code,
-                #     'Status': 2,
-                #     'PurchaseDate': pur_date,
-                #     'Total': total,
-                #     'TotalPayment': total,
-                #     'VAT': vat,
-                #     'Discount': 0,
-                #     'OrderDetails': [],
-                #     'PaymentMethods': pm
-                # }
-                # submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
             except Exception as e:
                 print(e)
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
-
-        # print('PTTT')
         sheet2 = dataframe['Phương thức thanh toán']
         pms = {}
-        for row in range(2, sheet2.max_row + 1):
+        if not self.DATA.endswith('.xls'):
+            nRows = sheet2.max_row + 1
+        else:
+            nRows = sheet2.nrows
+        for row in range(2, nRows):
             code = sheet2[row][0].value
-
             if code is None: continue
             code = str(code).strip()
             code = code.replace("'", '').strip()
             # print(code)
             if len(code) == 0: continue
             # print(code)
-            name = str(sheet2[row][1].value).strip().upper()
+            name = str(sheet2[row][2].value).strip().upper()
             if name == 'NONE' or name == 'TIỀN MẶT': name = 'CASH'
             # elif len(name) == 0:
-            value = sheet2[row][2].value
+            value = sheet2[row][1].value
             if pms.get(code) is None:
                 pms.update({code: [{'Name': name, 'Value': value}]})
             else:
@@ -122,11 +121,13 @@ class VERA_JOCKEY_AMHD(object):
         for k, v in pms.items():
             if orders.get(k) is not None:
                 orders[k].update({'PaymentMethods': v})
-        # for k, v in orders.items():
-        #     print(v)
         sheet3 = dataframe['Chi tiết đơn hàng']
         ods = {}
-        for row in range(2, sheet3.max_row + 1):
+        if not self.DATA.endswith('.xls'):
+            nRows = sheet3.max_row + 1
+        else:
+            nRows = sheet3.nrows
+        for row in range(2, nRows):
             code = sheet3[row][0].value
             # print(code)
             if code is None: continue
@@ -169,6 +170,10 @@ class VERA_JOCKEY_AMHD(object):
             if v.get('PaymentMethods') is None:
                 print(v)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
+        try:
+            shutil.move(self.DATA, f"{self.FULL_PATH}bak")
+        except:
+            pass
 if __name__:
     import sys
 

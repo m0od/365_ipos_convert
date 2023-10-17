@@ -51,7 +51,6 @@ def main():
     ftp_mr_dak_amhd = MR_DAK_AMHD()
     now = datetime.now(timezone('Etc/GMT-7'))
     if now.hour < 10:
-        # print('abc')
         with futures.ThreadPoolExecutor(max_workers=20) as mt:
             thread = [
                 mt.submit(tgc.get_data, now - timedelta(days=1)),

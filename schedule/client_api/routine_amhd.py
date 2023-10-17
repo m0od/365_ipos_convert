@@ -1,8 +1,8 @@
 import glob
 import os
+import shutil
 from datetime import datetime, timedelta
 from os.path import dirname
-
 import openpyxl
 
 
@@ -33,6 +33,7 @@ class Routine(object):
         dataframe = openpyxl.load_workbook(self.DATA, data_only=True)
         sheetOne = dataframe['Danh sách đơn hàng']
         for row in range(2, sheetOne.max_row + 1):
+            # try:
             code = sheetOne[row][0].value
             # print(code)
             if code is None: continue
@@ -42,12 +43,11 @@ class Routine(object):
                 self.ORDERS.update({str(code).strip(): {}})
             status = sheetOne[row][1].value
             pur_date = sheetOne[row][2].value
-            # print(code, pur_date)
             now = datetime.now() - timedelta(days=1)
-            if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
+            # if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
-
-            discount = abs(sheetOne[row][3].value)
+            discount = sheetOne[row][3].value
+            discount = discount is not None and abs(discount) or 0
             if status == 2:
                 total = sheetOne[row][4].value
                 vat = sheetOne[row][5].value
@@ -67,9 +67,9 @@ class Routine(object):
                 'VAT': vat,
                 'Discount': discount,
             }})
+            # print(self.ORDERS)
 
-
-
+        # print(self.ORDERS)
         sheetTwo = dataframe['Phương thức thanh toán']
         for row in range(2, sheetTwo.max_row + 1):
             code = sheetTwo[row][0].value
@@ -140,7 +140,7 @@ class Routine(object):
                 # print(self.ORDERS[k])
             else:
                 print('unk')
-
+        print(self.ORDERS)
         for k, v in self.ORDERS.items():
             print(v)
             if v.get('Code') is not None:
@@ -149,6 +149,10 @@ class Routine(object):
                 if v.get('OrderDetails') is None:
                     v['OrderDetails'] = [{'ProductId': 0}]
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
+        try:
+            shutil.move(self.DATA, f"{self.FULL_PATH}bak")
+        except:
+            pass
 
 
 if __name__:

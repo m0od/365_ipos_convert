@@ -1,5 +1,6 @@
 import glob
 import os
+import shutil
 import smtplib
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
@@ -7,7 +8,6 @@ from email.mime.text import MIMEText
 from os.path import dirname
 
 import openpyxl
-
 
 
 class PNJ_AMHD(object):
@@ -28,10 +28,9 @@ class PNJ_AMHD(object):
         # print(for name in glob.glob('/home/geeks/Desktop/gfg/data.txt'):)
         files = glob.glob(self.FULL_PATH + self.EXT)
         # print(files)
-        self.DATA = max(files, key=  os.path.getmtime)
+        self.DATA = max(files, key=os.path.getmtime)
 
         print(self.DATA)
-
 
     def get_data(self):
         self.scan_file()
@@ -52,15 +51,10 @@ class PNJ_AMHD(object):
             now = datetime.now() - timedelta(days=1)
             if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
-
             discount = str(sheetOne[row][3].value)
-
             total = str(sheetOne[row][4].value)
-
-
             vat = str(sheetOne[row][5].value)
             branch = sheetOne[row][6].value
-            # print(code, status, pur_date, discount, total, vat)
             if orders.get(code) is None:
                 orders[code] = {
                     'Code': code,
@@ -73,27 +67,14 @@ class PNJ_AMHD(object):
                     'Discount': abs(float(discount)),
 
                 }
-                # print(orders[code])
-            # else:
-            #     orders[code].update()
-            # for col in sheetOne.iter_cols(1, sheetOne.max_column):
-            #     if col[row].value is None: break
-            #     print(col[row].value)
-            # print('-'*5)
-        # print(orders)
-        # Read SheetTwo
         sheetTwo = dataframe['Phương thức thanh toán']
-        # print(sheetTwo.max_row)
-        # Iterate the loop to read the cell values
         pms = {}
         for row in range(2, sheetTwo.max_row + 1):
             code = sheetTwo[row][0].value
-            # print(code)
             if code is None: break
             code = str(code)
             name = str(sheetTwo[row][1].value)
             value = str(sheetTwo[row][2].value)
-            # print(code, name, value)
             if pms.get(code) is None:
                 pms[code] = {
                     'PaymentMethods': [
@@ -159,17 +140,8 @@ class PNJ_AMHD(object):
                 v['PaymentMethods'] = [{'Name': 'CASH', 'Value': v['Total']}]
             if v.get('OrderDetails') is None:
                 v['OrderDetails'] = []
-            # print(v)
-            # try:
-            #     print(int(v['Branch']))
-            # except Exception as e:
-            #     print(e)
             retailer = self.ADAPTER_RETAILER.format(str(int(v['Branch'])))
-            # print(retailer)
-            # try:
             v.pop('Branch')
-            # except:
-            #     pass
             if v['Status'] == 2:
                 print(v)
                 submit_order(retailer=retailer, token=self.ADAPTER_TOKEN, data=v)
@@ -188,19 +160,6 @@ class PNJ_AMHD(object):
                 send.pop('OrderDetails')
                 # print(send)
                 submit_order(retailer=retailer, token=self.ADAPTER_TOKEN, data=send)
-                # send = {
-                #     'Code': f'VAT_{v["Code"]}',
-                #     'Status': 2,
-                #     'PurchaseDate': v['PurchaseDate'],
-                #     'Total': 0,
-                #     'TotalPayment': 0,
-                #     'VAT': 0,
-                #     'Discount': 0,
-                #     'OrderDetails': [],
-                #     'PaymentMethods': [{'Name': 'CASH', 'Value': 0}],
-                #     'AdditionalServices': [{'Name': 'Hoàn VAT', 'Value': v['Total']}]
-                # }
-                # submit_order(retailer=retailer, token=self.ADAPTER_TOKEN, data=send)
         if len(orders.items()) == 0:
             now = datetime.now() - timedelta(days=1)
             port = 465  # For SSL
@@ -213,12 +172,7 @@ class PNJ_AMHD(object):
             message["Subject"] = f'Report 0 orders PNJ-AMHD {now.strftime("%Y-%m-%d")}'
             message["From"] = 'tungpt@pos365.vn'
             message["To"] = to_email
-            # message["Cc"] = cc_email
             toAddr = [to_email]
-            # if len(rows) > 0:
-                # part2 = MIMEText(html.strip().format(rows), 'html')
-                # message.attach(part2)
-                # ctx = ssl.create_default_context()
             while True:
                 try:
                     server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
@@ -228,6 +182,12 @@ class PNJ_AMHD(object):
                 except Exception as e:
                     print(e)
                     pass
+        try:
+            shutil.move(self.DATA, f"{self.FULL_PATH}bak")
+        except:
+            pass
+
+
 if __name__:
     import sys
 

@@ -176,9 +176,9 @@ class YVES_ROCHER_AMHD(object):
 if __name__:
     import sys
 
-    # PATH = dirname(dirname(__file__))
-    PATH = dirname(dirname(dirname(__file__)))
+    PATH = dirname(dirname(__file__))
+    # PATH = dirname(dirname(dirname(__file__)))
     # print(PATH)
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    YVES_ROCHER_AMHD().get_data()
+    # YVES_ROCHER_AMHD().get_data()

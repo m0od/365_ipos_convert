@@ -1,8 +1,8 @@
 import glob
 import os
+import shutil
 from os.path import dirname
 from datetime import datetime, timedelta
-import requests
 
 
 class McDonaldAMHD(object):
@@ -92,18 +92,10 @@ class McDonaldAMHD(object):
         for _ in self.ORDERS:
             print(_.get('Code'))
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=_)
-        # for _ in self.ORDERS:
-        #     for __ in _['PaymentMethods']:
-        #         if __['Value'] < 0:
-        #             submit_payment(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data={
-        #                 'OrderCode': _['Code'],
-        #                 'Amount': __['Value'],
-        #                 'TransDate': _['PurchaseDate'],
-        #                 'AccountId': __['Name'].upper()
-        #             })
-        # if e_wallet < 0:
-        # submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
-        # break
+        try:
+            shutil.move(self.DATA, f'{self.FULL_PATH}bak')
+        except:
+            pass
 
 
 if __name__:

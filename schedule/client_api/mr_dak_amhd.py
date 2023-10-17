@@ -1,11 +1,9 @@
 import glob
 import os
 import shutil
+from concurrent import futures
 from datetime import datetime, timedelta
 from os.path import dirname
-
-import csv
-
 import openpyxl
 
 
@@ -34,7 +32,7 @@ class MR_DAK_AMHD(object):
         else:
             files = glob.glob(self.FULL_PATH + self.DELI)
         # print(files)
-        self.DATA = max(files, key=  os.path.getmtime)
+        self.DATA = max(files, key=os.path.getmtime)
 
         print(self.DATA)
 
@@ -50,7 +48,7 @@ class MR_DAK_AMHD(object):
                 pur_date = datetime.strptime(pur_date, '%d/%m/%Y %H:%M')
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
                 # print(pur_date)
-                code = 'HD_'+str(data[row][3].value).strip()
+                code = 'HD_' + str(data[row][3].value).strip()
                 total = data[row][9].value
                 discount = abs(data[row][12].value)
                 vat = data[row][13].value
@@ -71,10 +69,16 @@ class MR_DAK_AMHD(object):
                     'PaymentMethods': pm
                 }
                 # print(send)
-                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN,data=send)
+                submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
+
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
             pass
+        try:
+            shutil.move(self.DATA, f'{self.FULL_PATH}bak')
+        except:
+            pass
+
     def get_data_deli(self):
         try:
             self.scan_file('DELI')
@@ -83,13 +87,14 @@ class MR_DAK_AMHD(object):
             orders = {}
             # Iterate the loop to read the cell values
             for row in range(9, data.max_row + 1):
+                # print(data[row][2].value)
                 pur_date = data[row][2].value.strip()
                 pur_date = datetime.strptime(pur_date, '%d/%m/%Y %H:%M')
                 now = datetime.now() - timedelta(days=1)
-                if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
+                # if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
-                # print(pur_date)
-                code = 'DELI_'+str(data[row][3].value).strip()
+                print(pur_date)
+                code = 'DELI_' + str(data[row][3].value).strip()
                 total = data[row][7].value
                 discount = abs(data[row][10].value)
                 vat = data[row][11].value
@@ -114,9 +119,19 @@ class MR_DAK_AMHD(object):
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
             pass
+        try:
+            shutil.move(self.DATA, f'{self.FULL_PATH}bak')
+        except:
+            pass
+
     def get_data(self):
-        self.get_data_hd()
-        self.get_data_deli()
+        with futures.ThreadPoolExecutor(max_workers=2) as mt:
+            thread = [
+                mt.submit(self.get_data_hd),
+                mt.submit(self.get_data_deli)
+            ]
+            futures.as_completed(thread)
+
 
 if __name__:
     import sys

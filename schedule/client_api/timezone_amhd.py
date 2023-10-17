@@ -1,20 +1,21 @@
 import glob
 import os
+import shutil
 from datetime import datetime
 from os.path import dirname
 
 
 class TimeZoneAMHD(object):
     def __init__(self):
-            self.ADAPTER_RETAILER = 'timezone_amhd'
-            self.ADAPTER_TOKEN = 'fb7226b8d3033064611519b2683d15fa9ce2ce80b4a44c6a40dcf28d55a42af3'
-            self.FOLDER = 'timezone_amhd'
-            self.FULL_PATH = f'../home/{self.FOLDER}/TEEG_Test/'
-            self.EXT = '*txt'
-            self.DATA = None
-            self.ORDERS = {}
-            self.PMS = {}
-            self.ODS = {}
+        self.ADAPTER_RETAILER = 'timezone_amhd'
+        self.ADAPTER_TOKEN = 'fb7226b8d3033064611519b2683d15fa9ce2ce80b4a44c6a40dcf28d55a42af3'
+        self.FOLDER = 'timezone_amhd'
+        self.FULL_PATH = f'../home/{self.FOLDER}/TEEG_Test/'
+        self.EXT = '*txt'
+        self.DATA = None
+        self.ORDERS = {}
+        self.PMS = {}
+        self.ODS = {}
 
     def scan_file(self):
         # print(os.getcwd())
@@ -22,7 +23,7 @@ class TimeZoneAMHD(object):
         # print(for name in glob.glob('/home/geeks/Desktop/gfg/data.txt'):)
         files = glob.glob(self.FULL_PATH + self.EXT)
         # print(files)
-        self.DATA = max(files, key=  os.path.getmtime)
+        self.DATA = max(files, key=os.path.getmtime)
 
         print(self.DATA)
 
@@ -73,6 +74,11 @@ class TimeZoneAMHD(object):
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
+        try:
+            shutil.move(self.DATA, f'{self.FULL_PATH}bak')
+        except:
+            pass
+
 
 if __name__:
     import sys

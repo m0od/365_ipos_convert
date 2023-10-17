@@ -7,7 +7,6 @@ from os.path import dirname
 import csv
 
 
-
 class TYPO_AMHD(object):
     def __init__(self):
         self.ADAPTER_RETAILER = 'typo_amhd'
@@ -29,10 +28,9 @@ class TYPO_AMHD(object):
         # print(for name in glob.glob('/home/geeks/Desktop/gfg/data.txt'):)
         files = glob.glob(self.FULL_PATH + self.EXT)
         # print(files)
-        self.DATA = max(files, key=  os.path.getmtime)
+        self.DATA = max(files, key=os.path.getmtime)
 
         print(self.DATA)
-
 
     def get_data(self):
         self.scan_file()
@@ -93,9 +91,10 @@ class TYPO_AMHD(object):
         for k, v in self.ORDERS.items():
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
         try:
-            shutil.move(self.DATA, '/home/backup_do_not_remove')
+            shutil.move(self.DATA, f'{self.FULL_PATH}bak')
         except:
             pass
+
 
 if __name__:
     import sys

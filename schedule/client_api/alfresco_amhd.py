@@ -1,5 +1,6 @@
 import glob
 import os
+import shutil
 from datetime import datetime, timedelta
 from os.path import dirname
 
@@ -39,7 +40,6 @@ class ALFRESCO_AMHD(object):
 
         sheet1 = dataframe['Danh sach don hang']
         orders = {}
-        print(sheet1.max_row)
         # Iterate the loop to read the cell values
         for row in range(10, sheet1.max_row + 1):
             # print(row)
@@ -52,7 +52,7 @@ class ALFRESCO_AMHD(object):
                 pur_date = sheet1[row][7].value
                 pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M%S')
                 now = datetime.now() - timedelta(days=1)
-                if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
+                # if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
                 # print(code, pur_date)
 
@@ -64,7 +64,7 @@ class ALFRESCO_AMHD(object):
                     total = float(sheet1[row][9].value)
                 except:
                     total = 0
-                print(code, pur_date, discount, total)
+                # print(code, pur_date, discount, total)
                 vat = sheet1[row][5].value
                 if orders.get(code) is None:
                     orders.update({code:{
@@ -109,53 +109,18 @@ class ALFRESCO_AMHD(object):
         for k, v in pms.items():
             if orders.get(k) is not None:
                 orders[k].update({'PaymentMethods': v})
-        # sheet3 = dataframe['Chi tiết đơn hàng']
-        # ods = {}
-        # for row in range(2, sheet3.max_row + 1):
-        #     code = sheet3[row][0].value
-        #     # print(code)
-        #     if code is None: continue
-        #     code = str(code).strip()
-        #     if len(code) == 0: continue
-        #     code = code.replace("'", '')
-        #     if code == '0': continue
-        #     p_code = sheet3[row][1].value
-        #     p_code = p_code.replace("'", '')
-        #     # print(row, code, p_code)
-        #     p_name = sheet3[row][2].value
-        #     try:
-        #         qty = float(sheet3[row][3].value)
-        #     except:
-        #         qty = 0
-        #     try:
-        #         price = sheet3[row][5].value
-        #     except:
-        #         price = 0
-        #     if ods.get(code) is None:
-        #         ods[code] = [{
-        #             'Code': p_code,
-        #             'Name': p_name,
-        #             'Price': price,
-        #             'Quantity': qty
-        #         }]
-        #     else:
-        #         ods[code].append({
-        #             'Code': p_code,
-        #             'Name': p_name,
-        #             'Price': price,
-        #             'Quantity': qty
-        #         })
-        # for k, v in ods.items():
-        #     if orders.get(k) is not None:
-        #         orders[k].update({'OrderDetails': v})
         for k, v in orders.items():
             if v.get('OrderDetails') is None:
                 v.update({'OrderDetails': []})
             if v.get('PaymentMethods') is None:
-                print(v)
-            print(v)
+                v.update({'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]})
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
+        try:
+            shutil.move(self.DATA, f"{self.FULL_PATH}bak")
+        except:
+            pass
 if __name__:
+    print(__name__)
     import sys
 
     PATH = dirname(dirname(__file__))
