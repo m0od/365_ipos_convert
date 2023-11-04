@@ -28,11 +28,11 @@ class Anta(object):
                          "WHERE dbo.SlBlD.ID_Hang IS NOT NULL AND dbo.SlBlM.SNgay='{}' " \
                          "AND ISNULL(dbo.SlBlD.ID_Kho, dbo.SlBlM.ID_Kho) = 166 " \
                          "ORDER BY dbo.SlBlM.ID"
-        self.METHOD = {
-            'VISATTT_A': 'THẺ',
-            'TM.TNHA_AN': 'CASH',
-            'TM_TNHA(VE.CTY)': 'CASH'
-        }
+        # self.METHOD = {
+        #     'VISATTT_A': 'THẺ',
+        #     'TM.TNHA_AN': 'CASH',
+        #     'TM_TNHA(VE.CTY)': 'CASH'
+        # }
 
     def login(self):
         try:
@@ -55,8 +55,10 @@ class Anta(object):
             while row:
                 order_code = str(row['order_code']).strip()
                 pm = row['payment_method'].strip()
-                if self.METHOD.get(pm) is not None:
-                    pm = self.METHOD.get(pm)
+                # print(pm)
+                # if self.METHOD.get(pm) is not None:
+                #     pm = self.METHOD.get(pm)
+                # print(1,pm)
                 if self.orders.get(order_code) is None:
                     total = int(row['total']) - int(row['discount'])
                     self.orders.update({
@@ -124,4 +126,5 @@ if __name__:
     from schedule.client_api.font_vi import Converter
 
     # now = datetime.now()
-    # Anta().get_data(now - timedelta(days=1))
+    # for _ in range(1,23):
+    #     Anta().get_data(now - timedelta(days=_))

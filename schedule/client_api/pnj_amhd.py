@@ -12,6 +12,11 @@ import openpyxl
 
 class PNJ_AMHD(object):
     def __init__(self):
+        import sys
+
+        PATH = dirname(dirname(__file__))
+        sys.path.append(PATH)
+
         self.ADAPTER_RETAILER = 'pnj{}_aeonhd'
         self.ADAPTER_TOKEN = '22e07b3b942190b5b91eaf88b8c7937741fcbbf9932def888c1aad9aa72fcba5'
         self.FOLDER = 'pnj_amhd'
@@ -33,6 +38,7 @@ class PNJ_AMHD(object):
         print(self.DATA)
 
     def get_data(self):
+        from pos_api.adapter import submit_error, submit_order
         self.scan_file()
         dataframe = openpyxl.load_workbook(self.DATA, data_only=True)
 
@@ -45,16 +51,18 @@ class PNJ_AMHD(object):
             code = sheetOne[row][0].value
             if code is None: break
             code = str(code)
+            branch = str(int(sheetOne[row][6].value))
+            # code = f'{branch}_{code}'
             status = str(sheetOne[row][1].value).strip()
             pur_date = str(sheetOne[row][2].value).strip()
             pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M')
             now = datetime.now() - timedelta(days=1)
-            if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
+            # if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
             discount = str(sheetOne[row][3].value)
             total = str(sheetOne[row][4].value)
             vat = str(sheetOne[row][5].value)
-            branch = sheetOne[row][6].value
+
             if orders.get(code) is None:
                 orders[code] = {
                     'Code': code,
@@ -141,6 +149,9 @@ class PNJ_AMHD(object):
             if v.get('OrderDetails') is None:
                 v['OrderDetails'] = []
             retailer = self.ADAPTER_RETAILER.format(str(int(v['Branch'])))
+            # v.update({
+            #     'Code': f'{int(v["Branch"])}_{v["Code"]}'
+            # })
             v.pop('Branch')
             if v['Status'] == 2:
                 print(v)
@@ -182,18 +193,15 @@ class PNJ_AMHD(object):
                 except Exception as e:
                     print(e)
                     pass
-        try:
-            shutil.move(self.DATA, f"{self.FULL_PATH}bak")
-        except:
-            pass
+        # try:
+        #     shutil.move(self.DATA, f"{self.FULL_PATH}bak")
+        # except:
+        #     pass
 
 
-if __name__:
-    import sys
+# if __name__:
 
-    PATH = dirname(dirname(__file__))
     # PATH = dirname(dirname(dirname(__file__)))
     # print(PATH)
-    sys.path.append(PATH)
-    from schedule.pos_api.adapter import submit_error, submit_order
-    # PNJ_AMHD().get_data()
+
+# PNJ_AMHD().get_data()

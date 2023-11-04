@@ -120,7 +120,7 @@ class ALFRESCO_AMHD(object):
         except:
             pass
 if __name__:
-    print(__name__)
+    # print(__name__)
     import sys
 
     PATH = dirname(dirname(__file__))

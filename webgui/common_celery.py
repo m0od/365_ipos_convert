@@ -211,6 +211,7 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                 return ret
             elif res['status'] == 3:
                 id = api.order_get(content['Code'])
+
                 if id['status'] is True:
                     if id.get('id') is not None:
                         content.update({'Id': id['id']})
@@ -218,6 +219,23 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                         ret = {'status': False, 'result': id['err']}
                         log(self.request.id, ret)
                         return ret
+                    if id.get('dup'):
+                        bill = {
+                            'Order':{
+                                'Id': id['id'], 'Status': 2,
+                                'PurchaseDate': content['PurchaseDate'],
+                                'Code': f"DUP_{content['Code']}",
+                                'Total': 0, 'Discount': 0,
+                                'VAT': 0, 'OrderDetails': [{}],
+                                'AccountId': None
+                            }
+                        }
+                        res = api.order_save(bill)
+                        # f = open('log.txt', 'a')
+                        # f.write(str(res) + '\n')
+                        # f.close()
+                        if res['status'] == 2:
+                            api.order_void(content['Id'])
                 else:
                     ret = {'status': False, 'result': id['err']}
                     log(self.request.id, ret)

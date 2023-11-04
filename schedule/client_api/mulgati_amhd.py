@@ -256,7 +256,7 @@ if __name__:
     import sys
 
     PATH = dirname(dirname(__file__))
-    sys.path.append(PATH)
+    # sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
 
-    # MULGATI_AMHD().get_data(datetime.now() - timedelta(days=1))
+    # MULGATI_AMHD().get_data(datetime.now() - timedelta(days=16))

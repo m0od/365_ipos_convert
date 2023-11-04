@@ -1,5 +1,7 @@
 import os
 
+from pymongo import MongoClient
+
 # from flask_socketio import SocketIO
 
 from common_web import common
@@ -28,15 +30,16 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     GOOGLE_CLIENT_ID = '263581281598-tkh7tha61k78kb55c670sjfu6651m3a1.apps.googleusercontent.com'
-
+    # MONGO_URI = 'mongodb://localhost:27017/adapter'
 
 # wss = SocketIO()
 def create_app(config=Config):
     app = Flask(__name__)
-    # CORS(app)
+    # client = MongoClient('localhost')
     app.config.from_object(config)
     db.init_app(app)
     app.db = db
+    # app.db = client.adapter
     init_utils(app)
     app.register_blueprint(common)
     app.register_blueprint(technical)

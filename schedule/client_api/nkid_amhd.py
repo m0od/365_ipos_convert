@@ -5,9 +5,6 @@ from concurrent import futures
 from datetime import datetime, timedelta
 from os.path import dirname
 
-import openpyxl
-
-
 
 class NKID_AMHD(object):
     def __init__(self):
@@ -50,7 +47,7 @@ class NKID_AMHD(object):
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
             # print(pur_date)
             total = float(_[2].strip())
-            vat = round(float(_[3].strip()),0)
+            vat = round(float(_[3].strip()), 0)
             cash = float(_[5].strip())
             payoo = float(_[6].strip())
             vnpay = float(_[7].strip())
@@ -97,6 +94,7 @@ class NKID_AMHD(object):
             shutil.move(self.DATA, f"{self.FULL_PATH}bak")
         except:
             pass
+
     def get_ts(self):
         self.scan_file('*ts*txt')
         f = open(self.DATA, 'r')
@@ -113,7 +111,7 @@ class NKID_AMHD(object):
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
             # print(pur_date)
             total = float(_[2].strip())
-            vat = round(float(_[3].strip()),0)
+            vat = round(float(_[3].strip()), 0)
             cash = float(_[5].strip())
             payoo = float(_[6].strip())
             vnpay = float(_[7].strip())
@@ -160,6 +158,7 @@ class NKID_AMHD(object):
             shutil.move(self.DATA, f"{self.FULL_PATH}bak")
         except:
             pass
+
     def get_data(self):
         with futures.ThreadPoolExecutor(max_workers=2) as mt:
             thread = [
@@ -167,6 +166,8 @@ class NKID_AMHD(object):
                 mt.submit(self.get_ts)
             ]
             futures.as_completed(thread)
+
+
 if __name__:
     import sys
 

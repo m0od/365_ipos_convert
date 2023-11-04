@@ -18,7 +18,7 @@ class JM(object):
         self.MAIN = 'https://nhanh.vn'
         self.VERSION = '2.0'
         self.USERNAME = 'cht_hn10'
-        self.PASSWORD = 'jm246810'
+        self.PASSWORD = 'jm2468'
         self.browser = requests.session()
         self.STORE_ID = None
         self.CSRF = None

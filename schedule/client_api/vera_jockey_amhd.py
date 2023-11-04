@@ -9,7 +9,6 @@ from os.path import dirname
 import openpyxl
 
 
-
 class VERA_JOCKEY_AMHD(object):
     def __init__(self):
         self.ADAPTER_RETAILER = 'verajockey_amhd'
@@ -31,12 +30,11 @@ class VERA_JOCKEY_AMHD(object):
         # print(for name in glob.glob('/home/geeks/Desktop/gfg/data.txt'):)
         files = glob.glob(self.FULL_PATH + self.EXT)
         # print(files)
-        self.DATA = max(files, key=  os.path.getmtime)
+        self.DATA = max(files, key=os.path.getmtime)
         # if self.DATA.endswith('.xls'):
         #     os.rename(self.DATA, self.DATA + 'x')
         #     self.DATA += 'x'
         print(self.DATA)
-
 
     def get_data(self):
         self.scan_file()
@@ -74,7 +72,7 @@ class VERA_JOCKEY_AMHD(object):
                     total = 0
                 vat = sheet1[row][5].value
                 if orders.get(code) is None:
-                    orders.update({code:{
+                    orders.update({code: {
                         'Code': code,
                         'Status': 2,
                         'PurchaseDate': pur_date,
@@ -174,6 +172,8 @@ class VERA_JOCKEY_AMHD(object):
             shutil.move(self.DATA, f"{self.FULL_PATH}bak")
         except:
             pass
+
+
 if __name__:
     import sys
 

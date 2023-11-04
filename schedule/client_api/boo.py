@@ -22,10 +22,12 @@ class Boo(object):
 
     def fetch_orders(self, d_to=None):
         offset = 0
+        print(25)
         while True:
+            if offset > 10000: break
             try:
                 p = {
-                    # 'time_start': dFrom.strftime('%d/%m/%Y'),
+                    'time_start': d_to.strftime('%d/%m/%Y'),
                     'time_end': (datetime.now() - timedelta(days=1)).date().strftime('%d/%m/%Y'),
                     'access_token': self.TOKEN,
                     'store': self.STORE,
@@ -38,14 +40,23 @@ class Boo(object):
                 orders = res['result']['order']
                 if len(orders) == 0: break
                 for order in orders:
+                #     type = order['type']
+                #     code = order['order_num']
+                #     if type == 'Cancel': continue
+                    pd = datetime.strptime(order['order_time'], '%Y-%m-%d %H:%M:%S')
+                #     if pd.date() > d_to.date():
+                #         continue
+                    print(pd, d_to)
+                for order in orders:
+                    # print(order)
                     type = order['type']
                     code = order['order_num']
                     if type == 'Cancel': continue
                     pd = datetime.strptime(order['order_time'], '%Y-%m-%d %H:%M:%S')
-                    if pd.date() > d_to.date():
+                    if pd.date() != d_to.date():
                         continue
-                    if pd.date() < d_to.date():
-                        return
+                    # if pd.date() < d_to.date():
+                    #     return
 
                     total = int(order['total_amount'])
                     self.orders.update({

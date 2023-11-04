@@ -48,9 +48,11 @@ class Aristino(object):
                     for r in js['Result'][1:]:
                         pur_date = r['ngay_ct'].replace('00:00:00', r['time0'].split('.')[0])
                         pur_date = datetime.strptime(pur_date.upper(), '%Y-%m-%dT%H:%M:%S')
-                        discount = r['ck_them'] + r['voucher']
+                        discount = r['ck_them']
                         total = r['tt_truoc_ck'] - discount - r['doi_tra']
                         pm = []
+                        if r['voucher'] != 0:
+                            pm.append({'Name': 'VOUCHER', 'Value': r['voucher']})
                         if r['tien_mat'] != 0:
                             pm.append({'Name': 'CASH', 'Value': r['tien_mat']})
                         if r['tt_the'] != 0:
@@ -86,7 +88,7 @@ if __name__:
     PATH = dirname(dirname(__file__))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    # Aristino().get_data(datetime.now() - timedelta(days=2))
+    # Aristino().get_data(datetime.now() - timedelta(days=1))
 # if __name__ == '__main__':
 #     import sys
 #

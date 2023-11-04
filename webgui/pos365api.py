@@ -136,14 +136,18 @@ class API(object):
             params = {
                 'format': 'json',
                 'Top': '50',
-                'Filter': f"substringof('{code}',Code)"
+                'Filter': f"Code eq '{code}'"
             }
             res = self.browser.get(self.base_url + '/api/orders', params=params)
             if res.status_code != 200:
                 return {'status': False, 'err': f'[{res.status_code}] [GET]/api/orders'}
+            if len(res.json()['results']) > 1:
+                order = res.json()['results'][-1]
+                return {'status': True, 'id': order['Id'], 'dup': True}
             for i in res.json()['results']:
                 if i['Code'] == code:
                     return {'status': True, 'id': i['Id']}
+
             return {'status': False, 'err': 'Order Not Found'}
         except Exception as e:
             return {'status': False, 'err': str(e)}

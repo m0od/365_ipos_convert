@@ -28,14 +28,14 @@ class AoKang(object):
                          "WHERE dbo.SlBlD.ID_Hang  is Not NULL AND dbo.SlBlM.Ngay = '{}' " \
                          "AND ISNULL(dbo.SlBlD.ID_Kho, dbo.SlBlM.ID_Kho) = 11 " \
                          "ORDER BY dbo.SlBlM.ID"
-        self.METHOD = {
-            'HS.VISATTT_AO': 'THẺ',
-            'HS.TM_AO': 'CHUYỂN KHOẢN',
-            'TM_EXULL': 'CASH',
-            'HS.TM.TNHA_AO': 'CASH',
-            'HS.COD_ONLINE_AO': 'CHUYỂN KHOẢN',
-            'VHS.COD_ONLINE_A': 'CHUYỂN KHOẢN'
-        }
+        # self.METHOD = {
+        #     'HS.VISATTT_AO': 'THẺ',
+        #     'HS.TM_AO': 'CHUYỂN KHOẢN',
+        #     'TM_EXULL': 'CASH',
+        #     'HS.TM.TNHA_AO': 'CASH',
+        #     'HS.COD_ONLINE_AO': 'CHUYỂN KHOẢN',
+        #     'VHS.COD_ONLINE_A': 'CHUYỂN KHOẢN'
+        # }
 
     def login(self):
         try:
@@ -59,8 +59,10 @@ class AoKang(object):
 
                 order_code = str(row['order_code']).strip()
                 pm = row['payment_method'].strip()
-                if self.METHOD.get(pm) is not None:
-                    pm = self.METHOD.get(pm)
+                # print(pm,)
+                # if self.METHOD.get(pm) is not None:
+                #     pm = self.METHOD.get(pm)
+                # print(row)
                 if self.orders.get(order_code) is None:
                     total = int(row['total']) - int(row['discount'])
                     self.orders.update({
@@ -70,7 +72,7 @@ class AoKang(object):
                             'PurchaseDate': row['pur_date'].strftime('%Y-%m-%d %H:%M:%S'),
                             'Total': total,
                             'TotalPayment': total,
-                            'VAT': 0,
+                            'VAT': int(row['vat']),
                             'Discount': int(row['discount']),
                             'OrderDetails': [{
                                 'Code': row['product_code'].strip(),
@@ -129,4 +131,8 @@ if __name__:
     from schedule.client_api.font_vi import Converter
     #
     # now = datetime.now()
-    # AoKang().get_data(datetime.now() - timedelta(days=5))
+    # AoKang().get_data(datetime.now() - timedelta(days=1))
+    # now = datetime.now()
+    # for _ in range(1, 23):
+    #     print(_)
+    #     AoKang().get_data(now - timedelta(days=_))

@@ -10,19 +10,19 @@ def random_str():
     return ''.join(random.choice(string.ascii_letters) for i in range(8)).encode('utf-8')
 
 
-class Adore(object):
+class WundertuteAMHD(object):
 
     def __init__(self):
-        self.ADAPTER_RETAILER = 'adore_aeonhd'
-        self.ADAPTER_TOKEN = '881f0d44a847ea776619db0d147a8d48fef95e5e4f9112a4b31db3409e4ceed2'
+        self.ADAPTER_RETAILER = 'wundertute_aeonhd'
+        self.ADAPTER_TOKEN = 'e9c14839317d5c857614316697f01d0d9bc3e040dbf6e94137958ea453fd4c5b'
         # self.ADAPTER_RETAILER = 'retry'
         # self.ADAPTER_TOKEN = 'cf0f760c3c11b65139beaecd6e0dd12f80bc34a177704ffc497d2bf816d1ac2d'
         self.API_MANS = ['api-man.kiotviet.vn', 'api-man1.kiotviet.vn', 'api-man2.kiotviet.vn']
         self.API_MAN = None
-        self.DOMAIN = 'adoredress'
+        self.DOMAIN = 'b4y'
         self.BRANCH_ID = None
-        self.USER = 'aeon.hd'
-        self.PASSWORD = '123'
+        self.USER = 'amhdapi'
+        self.PASSWORD = 'Aeonmall123'
         self.FINGER = f'{hashlib.md5(random_str()).hexdigest()}_Firefox_Desktop_Windows'
         self.browser = requests.session()
         self.RETURN = []
@@ -184,7 +184,7 @@ class Adore(object):
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=send)
                 index += 1
             skip += 100
-        self.get_return_data(d_from, d_to)
+        # self.get_return_data(d_from, d_to)
 
     def get_return_data(self, d_from, d_to):
         # if not self.login(): return
@@ -265,4 +265,4 @@ if __name__:
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
     # now = datetime.now()
-    # Adore().get_data(now - timedelta(days=10), now)
+    # WundertuteAMHD().get_data(now - timedelta(days=35), now)

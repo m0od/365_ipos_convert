@@ -25,6 +25,7 @@ def submit_job(headers=None, data=None):
     while True:
         try:
             res = requests.post(f'{URl}/orders', headers=headers, json=data, timeout=10)
+            print(res.text)
             if res.json()['result_id'] is not None:
                 break
         except Exception as e:
@@ -38,6 +39,7 @@ while True:
         # print(jobs.text)
         for job in jobs.json():
             if job['type'] == 1:
+                print(job['content']['Code'])
                 headers = {
                     'content-type': 'application/json',
                     'retailer': job['retailer'],

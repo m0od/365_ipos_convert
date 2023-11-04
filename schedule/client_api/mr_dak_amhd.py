@@ -18,7 +18,7 @@ class MR_DAK_AMHD(object):
         self.FULL_PATH = f'../home/{self.FOLDER}/'
         self.HD = 'dakhd*xlsx'
         self.DELI = 'dakdeli*xlsx'
-        self.DATA = None
+        # self.DATA = None
         self.method = {
             'TIỀN MẶT': 'CASH'
         }
@@ -32,14 +32,14 @@ class MR_DAK_AMHD(object):
         else:
             files = glob.glob(self.FULL_PATH + self.DELI)
         # print(files)
-        self.DATA = max(files, key=os.path.getmtime)
+        return max(files, key=os.path.getmtime)
 
-        print(self.DATA)
+        # print(self.DATA)
 
     def get_data_hd(self):
         try:
-            self.scan_file('HD')
-            dataframe = openpyxl.load_workbook(self.DATA, data_only=True)
+            DATA = self.scan_file('HD')
+            dataframe = openpyxl.load_workbook(DATA, data_only=True)
             data = dataframe['Giao dịch']
             orders = {}
             # Iterate the loop to read the cell values
@@ -74,15 +74,19 @@ class MR_DAK_AMHD(object):
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
             pass
+        idx = DATA.rindex('/')
+        name = DATA[idx + 1:]
+        if os.path.exists(f'{self.FULL_PATH}bak/{name}'):
+            os.remove(f'{self.FULL_PATH}bak/{name}')
         try:
-            shutil.move(self.DATA, f'{self.FULL_PATH}bak')
+            shutil.move(DATA, f'{self.FULL_PATH}bak')
         except:
             pass
 
     def get_data_deli(self):
         try:
-            self.scan_file('DELI')
-            dataframe = openpyxl.load_workbook(self.DATA, data_only=True)
+            DATA = self.scan_file('DELI')
+            dataframe = openpyxl.load_workbook(DATA, data_only=True)
             data = dataframe['Giao dịch']
             orders = {}
             # Iterate the loop to read the cell values
@@ -93,7 +97,7 @@ class MR_DAK_AMHD(object):
                 now = datetime.now() - timedelta(days=1)
                 # if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
-                print(pur_date)
+                # print(pur_date)
                 code = 'DELI_' + str(data[row][3].value).strip()
                 total = data[row][7].value
                 discount = abs(data[row][10].value)
@@ -119,8 +123,12 @@ class MR_DAK_AMHD(object):
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
             pass
+        idx = DATA.rindex('/')
+        name = DATA[idx + 1:]
+        if os.path.exists(f'{self.FULL_PATH}bak/{name}'):
+            os.remove(f'{self.FULL_PATH}bak/{name}')
         try:
-            shutil.move(self.DATA, f'{self.FULL_PATH}bak')
+            shutil.move(DATA, f'{self.FULL_PATH}bak')
         except:
             pass
 
@@ -140,4 +148,4 @@ if __name__:
     PATH = dirname(dirname(dirname(__file__)))
     sys.path.append(PATH)
     from schedule.pos_api.adapter import submit_error, submit_order
-    # MR_DAK_AMHD().get_data()
+    MR_DAK_AMHD().get_data()

@@ -11,6 +11,7 @@ from flask import request, Blueprint, abort, render_template, Response, send_fil
 # from flask_sqlalchemy import SQLAlchemy
 from model import TenAntConfig, Log, TenAntProduct, TenAntPayment, db
 from pos365api import API
+# from mongo import db_mongo
 
 
 class MissingInformationException(Exception):
@@ -127,7 +128,22 @@ def local_get_payment():
         return {}
     return abort(404)
 
-
+# @common.route('/xnxx', methods=['GET'])
+# def xnxx():
+#     print(len(list(db_mongo.config.find({}))))
+#     for _ in TenAntConfig.query.all():
+#         id = _.id
+#         _id = db_mongo.config.find_one({'branch':_.branch})
+#         # print(_id)
+#         for pm in TenAntPayment.query.filter_by(configId=id).all():
+#             print(pm.id, pm.name, pm.accountId)
+#             cfg = {
+#                 'configId': _id['_id'],
+#                 'name': pm.name,
+#                 'accountId': pm.accountId
+#             }
+#             db_mongo.payment.insert_one(cfg)
+#     return ''
 @common.route('/fetch_log', methods=['GET'])
 def local_fetch_log():
     token = request.args.get('token')
@@ -136,6 +152,7 @@ def local_fetch_log():
     now = datetime.now()
     now = now.replace(second=0, microsecond=0)
     begin = now - timedelta(minutes=10)
+    # begin = now.replace(hour=17,minute=9, second=39)
     logs = Log.query.filter(Log.rid != None,
                             Log.log_date >= begin,
                             or_(Log.status == None, Log.status == False))

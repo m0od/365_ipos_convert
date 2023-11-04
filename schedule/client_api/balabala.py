@@ -28,10 +28,10 @@ class Balabala(object):
                          "WHERE dbo.SlBlD.ID_Hang IS NOT NULL AND dbo.SlBlM.SNgay='{}' " \
                          "AND ISNULL(dbo.SlBlD.ID_Kho, dbo.SlBlM.ID_Kho) = 61 " \
                          "ORDER BY dbo.SlBlM.ID"
-        self.METHOD = {
-            '2-TOS.THE.BA': 'THẺ',
-            '1-TOS.TM.BA': 'CASH'
-        }
+        # self.METHOD = {
+        #     '2-TOS.THE.BA': 'THẺ',
+        #     '1-TOS.TM.BA': 'CASH'
+        # }
 
     def login(self):
         try:
@@ -50,14 +50,14 @@ class Balabala(object):
         self.orders = {}
         if not self.login(): return False
         try:
-            print(self.SQL_QUERY.format(date_from.strftime('%y%m%d')))
+            # print(self.SQL_QUERY.format(date_from.strftime('%y%m%d')))
             self.CURSOR.execute(self.SQL_QUERY.format(date_from.strftime('%y%m%d')))
             row = self.CURSOR.fetchone()
             while row:
                 order_code = str(row['order_code']).strip()
                 pm = row['payment_method'].strip()
-                if self.METHOD.get(pm) is not None:
-                    pm = self.METHOD.get(pm)
+                # if self.METHOD.get(pm) is not None:
+                #     pm = self.METHOD.get(pm)
                 if self.orders.get(order_code) is None:
                     total = int(row['total']) - int(row['discount'])
                     self.orders.update({
@@ -113,7 +113,7 @@ class Balabala(object):
             pass
         self.CONN.close()
         for _, js in self.orders.items():
-            print(js)
+            # print(js)
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)
 
         # return True
@@ -137,3 +137,7 @@ if __name__:
     from schedule.client_api.font_vi import Converter
     # now = datetime.now()
     # Balabala().get_data(now - timedelta(days=1))
+    # now = datetime.now()
+    # for _ in range(1, 23):
+    #     print(_)
+    #     Balabala().get_data(now - timedelta(days=_))
