@@ -29,7 +29,7 @@ class Log(db.Model):
     code = db.Column(db.Text, default=None)
     content = db.Column(db.JSON, default=None)
     rid = db.Column(db.VARCHAR, default=None)
-    status = db.Column(db.Boolean, default=None)
+    status = db.Column(db.Integer, default=None)
     result = db.Column(db.Text, default=None)
     log_date = db.Column(db.DateTime, default=current_time())
     type = db.Column(db.Integer, default=1)

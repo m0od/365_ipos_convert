@@ -1,5 +1,8 @@
 import requests
 import json
+
+from pymongo import MongoClient
+
 from model import db, TenAntConfig
 
 
@@ -18,6 +21,7 @@ class API(object):
         self.user = user
         self.password = password
         self.base_url = f'https://{self.domain}.pos365.vn'
+        self.db = MongoClient('localhost').adapter
 
     def check_login(self):
         try:
@@ -57,30 +61,15 @@ class API(object):
             return {'status': 1, 'message': str(e)}
 
     def order_save(self, order):
+        data = json.dumps(order)
+        # while True:
         try:
-            # try:
-            #     del order['Order']['PaymentMethods']
-            # except:
-            #     pass
-            # try:
-            #     del order['Order']['AdditionalServices']
-            # except:
-            #     pass
-            # if order['Order'].get('TotalAdditionalServicesVAT') is not None:
-            #     order['Order']['VAT'] -= order['Order']['TotalAdditionalServicesVAT']
-            #     try:
-            #         del order['Order']['TotalAdditionalServicesVAT']
-            #     except:
-            #         pass
-            # if order['Order']['VAT'] == 0:
-            #     order['Order']['VAT'] = int(round(order['Total']/11, 0))
-            data = json.dumps(order)
             res = self.browser.post(self.base_url + '/api/orders', data=data)
-            if res.status_code == 401:
+            if res.status_code in [500, 403]:
+                return {'status': 1, 'message': f'{res.status_code} [POST] /api/orders'}
+            elif res.status_code == 401:
                 session = self.auth()
                 return {'status': 0, 'ck': session}
-            elif res.status_code == 500:
-                return {'status': 1, 'message': f'[{res.status_code}] [POST]/api/orders'}
             elif res.status_code == 400:
                 if order['Order']['Code'] in res.json().get('ResponseStatus').get('Message'):
                     return {'status': 3}
@@ -131,8 +120,46 @@ class API(object):
         else:
             return {'status': 1, 'message': 'Unknown'}
 
+    def accounting_transaction_get(self, code):
+        try:
+            params = {
+                'format': 'json',
+                'Top': '50',
+                'Filter': f"Code eq '{code}'"
+            }
+            res = self.browser.get(self.base_url + '/api/accountingtransaction', params=params)
+            if res.status_code != 200:
+                return {'status': False, 'err': f'[{res.status_code}] [GET]/api/accountingtransaction'}
+            if len(res.json()['results']) > 1:
+                transaction = res.json()['results'][-1]
+                return {'status': True, 'id': transaction['Id'], 'dup': True}
+            for i in res.json()['results']:
+                if i['Code'] == code:
+                    return {'status': True, 'id': i['Id']}
+
+            return {'status': False, 'err': 'Transaction Not Found'}
+        except Exception as e:
+            return {'status': False, 'err': str(e)}
+
+    def mongo_oid(self, code):
+        try:
+            order = self.db.order
+            filter = {
+                'domain': self.domain,
+                'code': code
+            }
+            q = order.find_one(filter)
+            if not q:
+                return None
+            else:
+                return q['id']
+        except:
+            return None
     def order_get(self, code):
         try:
+            # id = self.mongo_oid(code)
+            # if id:
+            #     return {'status': True, 'id': id}
             params = {
                 'format': 'json',
                 'Top': '50',
@@ -220,24 +247,28 @@ class API(object):
 
     def accounting_transaction_save(self, transation):
         transation.update({
-            'Id': 0,
+            # 'Id': 0,
             'AccountingTransactionType': 1,
         })
         data = {
             'AccountingTransaction': transation
         }
-        res = self.browser.post(self.base_url + '/api/accountingtransaction', json=data)
-        if res.status_code == 401:
-            session = self.auth()
-            return {'status': 0, 'ck': session}
-        elif res.status_code == 500:
-            return {'status': 1, 'message': f'[{res.status_code}] [POST]/api/returns'}
-        elif res.status_code == 400:
-            return {'status': 1, 'message': res.text}
-        elif res.status_code == 200:
-            return {'status': 2, 'message': res.json()}
-        else:
-            return {'status': 1, 'message': 'Unknown'}
+        # while True:
+        try:
+            res = self.browser.post(self.base_url + '/api/accountingtransaction', json=data)
+            if res.status_code in [500, 403]:
+                return {'status': 1, 'message': f'{res.status_code} [POST] /api/orders'}
+            elif res.status_code == 401:
+                session = self.auth()
+                return {'status': 0, 'ck': session}
+            elif res.status_code == 400:
+                return {'status': 1, 'message': res.text}
+            elif res.status_code == 200:
+                return {'status': 2, 'message': res.json()}
+            else:
+                return {'status': 1, 'message': res.text.strip()}
+        except Exception as e:
+            return {'status': 1, 'message': str(e)}
 
     def get_product_by_code(self, code):
         try:
@@ -374,6 +405,7 @@ class API(object):
             except Exception as e:
                 print(e)
                 pass
+
     def branch_list(self):
         try:
             res = self.browser.get(self.base_url + '/Config/VendorSession')
@@ -383,6 +415,7 @@ class API(object):
         except Exception as e:
             pass
         return []
+
     def switch_branch(self, branch):
         p = {
             'branchId': branch

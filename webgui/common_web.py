@@ -4,8 +4,11 @@ import json
 import uuid
 
 import requests
+from pymongo import MongoClient
 from sqlalchemy import or_
-from common_celery import convert, add_payment
+from sqlalchemy.sql.functions import current_time
+
+from common_celery import convert, add_payment, delData, addUser
 from datetime import datetime, timedelta
 from flask import request, Blueprint, abort, render_template, Response, send_file, jsonify, redirect, url_for, session
 # from flask_sqlalchemy import SQLAlchemy
@@ -23,6 +26,31 @@ class MissingInformationException(Exception):
 # db = SQLAlchemy()
 common = Blueprint('common', __name__)
 
+
+@common.route('/add_user', methods=['POST'])
+def add_user():
+    print(request.form)
+    if request.form.get('token') != 'kt365aA@123':
+        return abort(403)
+    user = request.form.get('user')
+    if not user: return abort(403)
+    user = str(user).strip()
+    if not len(user): return abort(403)
+    print(user)
+    pw = request.form.get('password')
+    if not pw: return abort(403)
+    pw = str(pw).strip()
+    if not len(pw): return abort(403)
+    print(pw)
+    user_type = request.form.get('type')
+    if not user_type: return abort(403)
+    user_type = str(user_type).strip()
+    if not len(user_type): return abort(403)
+    if user_type != 'FTP' and user_type != 'FTPS':
+        return abort(403)
+    print(user_type)
+    addUser.delay(user, pw, user_type)
+    return {}
 
 # @local_only
 @common.route('/cfg', methods=['PATCH'])
@@ -43,13 +71,32 @@ def local_update_cfg():
 def local_update_log():
     rid = request.json.get('rid')
     result = request.json.get('result')
+    # mongo = MongoClient('localhost').adapter.log
+    # l = mongo.find_one({'rid': rid})
+    # if l is not None:
+    #     update = {'result'}
+    #     log.result = result
+    #     if result.startswith("{'status': False"):
+    #         log.status = False
+    #     else:
+    #         log.status = True
+    #     try:
+    #         db.session.commit()
+    #     except:
+    #         db.session.rollback()
     log = Log.query.filter_by(rid=rid).first()
     if log is not None:
-        log.result = result
-        if result.startswith("{'status': False"):
-            log.status = False
-        else:
-            log.status = True
+        log.log_date = current_time()
+        log.status = None
+        try:
+            if result.startswith("{'status': False"):
+                log.status = 0
+                log.result = result
+            elif result.startswith("{'status': True"):
+                log.status = 1
+                log.result = result
+        except:
+            log.status = None
         try:
             db.session.commit()
         except:
@@ -145,37 +192,41 @@ def local_get_payment():
 #             db_mongo.payment.insert_one(cfg)
 #     return ''
 @common.route('/fetch_log', methods=['GET'])
-def local_fetch_log():
+def fetch_log():
     token = request.args.get('token')
     if token != 'kt365aA@123':
         return abort(404)
     now = datetime.now()
     now = now.replace(second=0, microsecond=0)
-    begin = now - timedelta(minutes=10)
+    begin = now - timedelta(minutes=20)
     # begin = now.replace(hour=17,minute=9, second=39)
     logs = Log.query.filter(Log.rid != None,
                             Log.log_date >= begin,
-                            or_(Log.status == None, Log.status == False))
+                            or_(Log.status == None, Log.status == 0))
     logs = logs.join(TenAntConfig, TenAntConfig.id == Log.configId)
     logs = logs.add_columns(TenAntConfig.token)
     logs = logs.all()
     ret = []
     for l in logs:
-        # try:
-        # content = l.Log.content
-        # except:
-        #     content = l.Log.content
-        # print(content)
-        try:
-            ret.append({
-                'retailer': l.Log.branch,
-                'token': l.token,
-                'store': l.Log.store,
-                'content': l.Log.content,
-                'type': l.Log.type
-            })
-        except Exception as e:
-            print(e)
+        # task = convert.AsyncResult(id)
+        # stt = str(task.state)
+        # if stt == 'PENDING':
+        #     l.Log.log_date = datetime.now()
+        #     try:
+        #         db.session.commit()
+        #     except:
+        #         db.session.rollback()
+        # else:
+            try:
+                ret.append({
+                    'retailer': l.Log.branch,
+                    'token': l.token,
+                    'store': l.Log.store,
+                    'content': l.Log.content,
+                    'type': l.Log.type
+                })
+            except Exception as e:
+                print(e)
             # return jsonify([(str(e))])
             # print(content)
     return jsonify(ret)
@@ -215,47 +266,72 @@ def setup():
         token = request.form.get('token')
         if token != 'kt365aA@123':
             return abort(403)
-        branch = request.form.get('branch').lower()
-        domain = request.form.get('domain')
-        user = request.form.get('user')
-        password = request.form.get('password')
-        api = API(domain=domain, user=user, password=password)
-        session = api.auth()
-        if session is not None:
-            cfg = TenAntConfig.query.filter_by(branch=branch).first()
-            if cfg is None:
-                cfg = TenAntConfig()
-                try:
-                    db.session.add(cfg)
-                except:
-                    db.session.rollback()
-            cfg.cookie = session
-            cfg.branch = branch
-            cfg.domain = domain
-            cfg.user = user
-            cfg.password = password
-            if cfg is not None:
-                cfg.token = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
-            try:
-                db.session.commit()
-            except:
-                db.session.rollback()
-            for k, v in api.account_list()['accounts'].items():
-                pm = TenAntPayment.query.filter(TenAntPayment.configId == cfg.id, TenAntPayment.name == k).first()
-                if pm is None:
-                    pm = TenAntPayment()
-                    pm.name = k
-                    pm.accountId = v
-                    pm.configId = cfg.id
+        branch = request.form.get('branch')
+        if branch and len(branch.lower().strip()):
+            branch = branch.lower().strip()
+            domain = request.form.get('domain')
+            user = request.form.get('user')
+            password = request.form.get('password')
+            api = API(domain=domain, user=user, password=password)
+            session = api.auth()
+            if session is not None:
+                cfg = TenAntConfig.query.filter_by(branch=branch).first()
+                if cfg is None:
+                    cfg = TenAntConfig()
                     try:
-                        db.session.add(pm)
-                        db.session.commit()
+                        db.session.add(cfg)
                     except:
                         db.session.rollback()
-            return {'status': True, 'retailer': cfg.branch, 'authorization': cfg.token}
+                cfg.cookie = session
+                cfg.branch = branch
+                cfg.domain = domain
+                cfg.user = user
+                cfg.password = password
+                if cfg is not None:
+                    cfg.token = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+                for k, v in api.account_list()['accounts'].items():
+                    pm = TenAntPayment.query.filter(TenAntPayment.configId == cfg.id, TenAntPayment.name == k).first()
+                    if pm is None:
+                        pm = TenAntPayment()
+                        pm.name = k
+                        pm.accountId = v
+                        pm.configId = cfg.id
+                        try:
+                            db.session.add(pm)
+                            db.session.commit()
+                        except:
+                            db.session.rollback()
+                return {'status': True, 'retailer': cfg.branch, 'authorization': cfg.token}
+            else:
+                return {'status': False, 'message': 'Login Pos 365 Failed'}
         else:
-            return {'status': False, 'message': 'Login Pos 365 Failed'}
+            domain = request.form.get('domain')
+            user = request.form.get('user')
+            password = request.form.get('password')
+            since = request.form.get('since')
+            since = datetime.strptime(since, '%Y-%m-%d')
+            before = request.form.get('before')
+            before = datetime.strptime(before, '%Y-%m-%d')
+            # since = since - timedelta(days=1)
+            # since = since.strftime('%Y-%m-%dT17:00:00Z')
+            # before = before.strftime('%Y-%m-%dT16:59:00Z')
+            # _filter = []
+            # _filter += ['(', 'Status', 'eq', '2', 'or']
+            # _filter += ['Status', 'eq', '0', ')']
+            # _filter += ['and']
+            # _filter += ['PurchaseDate', 'ge']
+            # _filter += [f"'datetime''{since}'''"]
+            # _filter += ['and']
+            # _filter += ['PurchaseDate', 'lt']
+            # _filter += [f"'datetime''{before}'''"]
+            # print(*_filter)
+            delData.delay(domain, user, password, since, before)
 
+            return {'status': True}
 
 @common.route('/add_methods', methods=['POST'])
 def add_methods():
@@ -365,6 +441,7 @@ def orders():
         log.content = content
         log.type = 1
         log.hash = hash
+        log.status = -1
         try:
             db.session.add(log)
             db.session.commit()

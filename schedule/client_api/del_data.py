@@ -13,7 +13,7 @@ while True:
     js = r.json()['results']
     if len(js) == 0: break
     for _ in js:
-        print(_['Id'])
+        # print(_['Id'])
         b.delete(url + f'/api/partners/{_["Id"]}')
         # b.delete(url + f'/api/orderstock/{_["Id"]}')
     skip += 50

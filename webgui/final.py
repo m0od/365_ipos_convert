@@ -34,6 +34,7 @@ class Config(object):
 
 # wss = SocketIO()
 def create_app(config=Config):
+    # print(123123123)
     app = Flask(__name__)
     # client = MongoClient('localhost')
     app.config.from_object(config)

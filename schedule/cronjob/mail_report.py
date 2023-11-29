@@ -49,20 +49,41 @@ for domain in urls:
                 try:
                     vendor = b.get(f'https://{domain}.pos365.vn/Config/VendorSession').text
                     retailer = json.loads(vendor.split('retailer:')[1].split('},')[0] + '}')
-                    p = {
-                        'format': 'json',
-                        'Top': '1',
-                        'Filter': "PurchaseDate eq 'yesterday'"
-                    }
-                    r = b.get(f'https://{domain}.pos365.vn/api/orders', params=p)
-                    # print(r.text)
-                    if r.status_code == 200:
-                        if len(r.json()['results']) == 0:
-                            rows += f'''<tr>
-                            <td style="border: 1px solid black;padding: 5px; text-align: left;">{domain}</td>
-                            <td style="border: 1px solid black;padding: 5px; text-align: left;">{retailer['Name'].upper()}</td>
-                            </tr>'''
+                    if domain == 'am169':
+                        for code in [
+                            'VE', 'DEPOSIT', 'MICESLANOUS', 'OKARA'
+                        ]:
+                            while True:
+                                p = {
+                                    'format': 'json',
+                                    'Top': '1',
+                                    'Filter': f"PurchaseDate eq 'yesterday' and substringof('{code}',Code)"
+                                }
+                                r = b.get(f'https://{domain}.pos365.vn/api/orders', params=p)
+                                # print(r.text)
+                                if r.status_code == 200:
+                                    if len(r.json()['results']) == 0:
+                                        rows += f'''<tr>
+                                        <td style="border: 1px solid black;padding: 5px; text-align: left;">{domain}</td>
+                                        <td style="border: 1px solid black;padding: 5px; text-align: left;">{retailer['Name'].upper()}: {code}</td>
+                                        </tr>'''
+                                    break
                         break
+                    else:
+                        p = {
+                            'format': 'json',
+                            'Top': '1',
+                            'Filter': "PurchaseDate eq 'yesterday'"
+                        }
+                        r = b.get(f'https://{domain}.pos365.vn/api/orders', params=p)
+                        # print(r.text)
+                        if r.status_code == 200:
+                            if len(r.json()['results']) == 0:
+                                rows += f'''<tr>
+                                                        <td style="border: 1px solid black;padding: 5px; text-align: left;">{domain}</td>
+                                                        <td style="border: 1px solid black;padding: 5px; text-align: left;">{retailer['Name'].upper()}</td>
+                                                        </tr>'''
+                            break
                 except Exception as e:
                     print(e)
                     submit_error(retailer=domain, reason=f'[REPORT] {str(e)}')

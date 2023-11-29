@@ -1,0 +1,13 @@
+[Unit]
+Description=AMHD Custom API
+After=multi-user.target
+
+[Service]
+User=root
+Type=simple
+WorkingDirectory=/home/blackwings/webtool
+Environment="PATH=/home/blackwings/webtool/bin"
+ExecStart=/home/blackwings/webtool/bin/python schedule/AMHD/api/main.py %i
+
+[Install]
+WantedBy=multi-user.target

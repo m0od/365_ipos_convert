@@ -181,6 +181,7 @@ class FixVAT(object):
                 for __ in pms:
                     if __['Value'] < 0:
                         submit_payment(retailer=token['retailer'], token=token['token'], data={
+                            "Code": f"{data['Code']}-{__['Name']}",
                             "OrderCode": data['Code'],
                             "Amount": __['Value'],
                             "TransDate": pur_date.strftime('%Y-%m-%d %H:%M:%S'),

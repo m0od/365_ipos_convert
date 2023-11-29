@@ -1,0 +1,13 @@
+[Unit]
+Description=AMHD XLSX File
+After=multi-user.target
+
+[Service]
+User=root
+Type=simple
+WorkingDirectory=/home/blackwings/webtool
+Environment="PATH=/home/blackwings/webtool/bin"
+ExecStart=/home/blackwings/webtool/bin/python schedule/AMHD/xlsx/main.py %i
+
+[Install]
+WantedBy=multi-user.target

@@ -42,9 +42,9 @@ class Lyn(object):
                 js = res.json()
                 if len(js['results']) == 0: break
                 for _ in js['results']:
-                    print(_)
+                    # print(_)
                     if _['TotalPayment'] < 0:
-                        print(_)
+                        # print(_)
                         id = _.get('AccountId')
                         pur_date = datetime.strptime(_['PurchaseDate'].split('.')[0], '%Y-%m-%dT%H:%M:%S')
                         pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')

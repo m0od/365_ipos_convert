@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    function sync_branch () {
+    function sync_branch() {
         $.ajax({
             xhrFields: {
                 withCredentials: true
@@ -25,6 +25,7 @@ $(document).ready(function () {
             }
         });
     }
+
     $(document).on('click', '#login365', function (event) {
         $('#status').empty();
         $('#optBranch').empty();
@@ -207,7 +208,21 @@ $(document).ready(function () {
 
         }
     });
+    $(document).on('click', '#add_user', function (event) {
 
+        $.ajax({
+            type: "POST",
+            data: {
+                token: $('#ftp_token').val(),
+                user: $('#ftp_user').val(),
+                password: $('#ftp_password').val(),
+                type: $("input[name='chkFTP']:checked").val()
+            },
+            url: '/add_user',
+            success: function (r) {
+            }
+        });
+    });
     // let ws = new WebSocket(`wss://adapter.pos365.vn:6000/ws`);
     // ws.onmessage = function (event) {
     //     console.log(event);
@@ -229,30 +244,30 @@ $(document).ready(function () {
     //     console.log('disconnected');
     // };
 
-function fuck_wss(task_id) {
-    var ws = new WebSocket(`wss://adapter.pos365.vn/tool/ws?tid=${task_id}`);
-    ws.onmessage = function (event) {
-        console.log(event);
-        let js = JSON.parse(event.data);
+    function fuck_wss(task_id) {
+        var ws = new WebSocket(`wss://adapter.pos365.vn/tool/ws?tid=${task_id}`);
+        ws.onmessage = function (event) {
+            console.log(event);
+            let js = JSON.parse(event.data);
 
-        if (js.status) {
-            $('#status').html(`<a target="_blank" href="${js.progress}">${js.progress}</a>`);
-            // ws.onclose = function () {};
-            ws.close();
-            // ws.onmessage = function () {};
-        } else {
-            $('#status').html(`${js.progress}`);
-        }
-    };
-    ws.onclose = function () {
-        console.log('disconnected');
-    };
+            if (js.status) {
+                $('#status').html(`<a target="_blank" href="${js.progress}">${js.progress}</a>`);
+                // ws.onclose = function () {};
+                ws.close();
+                // ws.onmessage = function () {};
+            } else {
+                $('#status').html(`${js.progress}`);
+            }
+        };
+        ws.onclose = function () {
+            console.log('disconnected');
+        };
 
-    // function sendMessage(event) {
-    //     var input = document.getElementById("messageText")
-    //     ws.send(input.value)
-    //     input.value = ''
-    //     event.preventDefault()
-    // }
-}
+        // function sendMessage(event) {
+        //     var input = document.getElementById("messageText")
+        //     ws.send(input.value)
+        //     input.value = ''
+        //     event.preventDefault()
+        // }
+    }
 });

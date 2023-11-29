@@ -1,6 +1,9 @@
 import json
+import subprocess
+import time
+import uuid
 from concurrent import futures
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 from celery import Celery
@@ -17,6 +20,7 @@ background = Celery('Backend converter', backend=RESULT_BACKEND, broker=CELERY_B
 
 @background.task(bind=True)
 def convert(self, domain, cfgId, ck, content, user, password, vat):
+    log(self.request.id, None)
     content['Id'] = 0
     content['Code'] = content['Code'].replace('_DEL', '')
     content['Total'] = content['Total']
@@ -100,7 +104,7 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                     add += i['Value']
                 content.update({
                     'TotalAdditionalServices': add,
-                    'TotalAdditionalServicesVAT': int(round(abs(add)/((1+vat)/vat), 0))
+                    'TotalAdditionalServicesVAT': int(round(abs(add) / ((1 + vat) / vat), 0))
                 })
             if content.get('OrderDetails') is not None or type(content.get('OrderDetails')) == list:
                 ods = content.get('OrderDetails')
@@ -198,7 +202,7 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                     pass
             if bill['Order']['VAT'] == 0:
                 try:
-                    bill['Order']['VAT'] = int(round(bill['Order']['Total']/((1+vat)/vat), 0))
+                    bill['Order']['VAT'] = int(round(bill['Order']['Total'] / ((1 + vat) / vat), 0))
                 except:
                     pass
             res = api.order_save(bill)
@@ -221,7 +225,7 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                         return ret
                     if id.get('dup'):
                         bill = {
-                            'Order':{
+                            'Order': {
                                 'Id': id['id'], 'Status': 2,
                                 'PurchaseDate': content['PurchaseDate'],
                                 'Code': f"DUP_{content['Code']}",
@@ -240,7 +244,7 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
                     ret = {'status': False, 'result': id['err']}
                     log(self.request.id, ret)
                     return ret
-            else: #if int(content.get('Status')) == 2:
+            else:  # if int(content.get('Status')) == 2:
                 ret = {'status': True, 'result': res['message']}
                 log(self.request.id, ret)
                 return ret
@@ -304,9 +308,11 @@ def convert(self, domain, cfgId, ck, content, user, password, vat):
     log(self.request.id, ret)
     return ret
 
+
 @background.task(bind=True)
 def add_payment(self, domain, cfgId, ck, content, user, password):
     content['OrderCode'] = content['OrderCode'].replace('_DEL', '')
+    content['Id'] = 0
     count = 0
     while count < 5:
         api = API(domain, ck, user, password)
@@ -338,7 +344,8 @@ def add_payment(self, domain, cfgId, ck, content, user, password):
                     res = api.account_save(pm)
                     if res.get('status') is True:
                         data.update({'AccountId': res.get('AccountId')})
-                        requests.post(f'{LOCAL_URL}/payment', params={'cfgId': cfgId, 'name': pm, 'accId': res.get('Id')})
+                        requests.post(f'{LOCAL_URL}/payment',
+                                      params={'cfgId': cfgId, 'name': pm, 'accId': res.get('Id')})
                     else:
                         ret = {'status': False, 'result': res.get('err')}
                         log(self.request.id, ret)
@@ -351,10 +358,33 @@ def add_payment(self, domain, cfgId, ck, content, user, password):
                 ret = {'status': False, 'result': id['err']}
                 log(self.request.id, ret)
                 return ret
-        else: #if int(content.get('Status')) == 2:
+        else:  # if int(content.get('Status')) == 2:
             ret = {'status': False, 'result': id['err']}
             log(self.request.id, ret)
             return ret
+        id = api.accounting_transaction_get(content['Code'])
+        if id['status'] is True:
+            if id.get('id') is not None:
+                data.update({'Id': id['id']})
+            else:
+                ret = {'status': False, 'result': id['err']}
+                log(self.request.id, ret)
+                return ret
+            if id.get('dup'):
+                trans = {
+                    'Id': id['id'], 'Status': 2,
+                    'TransDate': content['TransDate'],
+                    'Code': f"DUP_{content['Code']}",
+                    'AccountId': None,
+                    'Amount': 0
+                }
+                api.accounting_transaction_save(trans)
+                count += 1
+                continue
+        # else:  # if int(content.get('Status')) == 2:
+        #     ret = {'status': False, 'result': id['err']}
+        #     log(self.request.id, ret)
+        #     return ret
         res = api.accounting_transaction_save(data)
         if res['status'] == 0:
             session = api.auth()
@@ -380,10 +410,109 @@ def add_payment(self, domain, cfgId, ck, content, user, password):
     return ret
 
 
+@background.task(bind=True)
+def delData(self, domain, user, password, since, before):
+    try:
+        url = f'https://{domain}.pos365.vn'
+        since = since - timedelta(days=1)
+        since = since.strftime('%Y-%m-%dT17:00:00Z')
+        before = before.strftime('%Y-%m-%dT16:59:00Z')
+        b = None
+        while True:
+            if not b:
+                while True:
+                    try:
+                        b = requests.session()
+                        b.headers.update({'content-type': 'application/json'})
+                        r = b.post(url + '/api/auth', json={'username': user, 'password': password}).json()
+                        if r.get('SessionId'): break
+                    except:
+                        b = None
+            skip = 0
+            try:
+                filter = []
+                filter += ['(Status', 'eq', '2', 'or', 'Total', 'gt','0)']
+                # filter += ['Status', 'eq', '0', ')']
+                filter += ['and']
+                filter += ['PurchaseDate', 'ge']
+                filter += [f"'datetime''{since}'''"]
+                filter += ['and']
+                filter += ['PurchaseDate', 'lt']
+                filter += [f"'datetime''{before}'''"]
+                print(' '.join(filter))
+                r = b.get(f'{url}/api/orders', params={
+                    'Top': '50',
+                    'Skip': str(skip),
+                    'Filter': ' '.join(filter)
+                })
+                if len(r.json()['results']) == 0: break
+                for _ in r.json()['results']:
+                    print(_['Code'])
+                    id = _["Id"]
+                    code = _["Code"]
+                    pur_date = datetime.strptime(_['PurchaseDate'].split('.')[0], '%Y-%m-%dT%H:%M:%S')
+                    pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+                    js = {'Order': {
+                        'Id': id,
+                        'Status': 2,
+                        'Code': str(uuid.uuid4()),
+                        'PurchaseDate': pur_date,
+                        'Discount': 0,
+                        'VAT': 0,
+                        'Total': 0,
+                        'TotalPayment': 0,
+                        'AccountId': None,
+                        'OrderDetails': [{'ProductId': 0}]
+                    }}
+                    r = b.post(f'{url}/api/orders', json=js).json()
+                    if r.get('Errors') is not None: continue
+                    print(b.delete(f'{url}/api/orders/{id}/void', json=js).json())
+                skip += 50
+            except Exception as e:
+                print(e)
+                b = None
+    except:
+        pass
+    print('DONE')
+
+@background.task(bind=True)
+def addUser(self, user, password, user_type):
+    try:
+        p = subprocess.Popen(f'/usr/sbin/userdel -r {user}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(f'userdel {p.communicate()}')
+        f = open('/etc/proftpd.conf', 'r')
+        content = f.read()
+        content = content.replace(f'''<IfUser {user}>\n\tTLSRequired off\n</IfUser>''','')
+        f.close()
+        f = open('/etc/proftpd.conf', 'w')
+        f.write(content.strip())
+        f.close()
+        # p = subprocess.Popen('systemctl restart proftpd', shell=True)
+        p = subprocess.Popen(f'/usr/sbin/useradd -m {user}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(f'useradd {p.communicate()}')
+        # time.sleep(1)
+        p = subprocess.Popen(f'echo {user}:{password} | /usr/sbin/chpasswd', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(f'chpasswd {p.communicate()}')
+        if user_type == 'FTP':
+            f = open('/etc/proftpd.conf', 'a')
+            f.write(f'''\r\n<IfUser {user}>\r\n\tTLSRequired off\r\n</IfUser>\r\n''')
+            f.close()
+        # time.sleep(1)
+        while True:
+            p = subprocess.Popen('/usr/bin/systemctl restart proftpd', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = p.communicate()
+            print(f'proftpd {err}')
+            if not len(err.decode('utf-8')): break
+    except Exception as e:
+        print(e)
+
 def log(id, result):
     try:
-        print({'rid': id, 'result': str(result)})
-        requests.post(f'http://127.0.0.1:6060/log', json={'rid': id, 'result': str(result)})
+        while True:
+            r = requests.post(f'http://127.0.0.1:6060/log', json={'rid': id, 'result': str(result)})
+            if r.status_code == 200:
+                break
         # requests.post(f'http://adapter.pos365.vn:6000/log', json={'rid': id, 'result': str(result)})
+        # print(time.perf_counter())
     except:
         pass

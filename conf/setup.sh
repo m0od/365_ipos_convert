@@ -68,8 +68,106 @@ systemctl status ssh_local -l
 # SQL
 # GRANT USAGE ON *.* TO 'root'@localhost IDENTIFIED BY '7y!FY^netG!jn>f+';
 # GRANT USAGE ON *.* TO 'ykbsaqlb_wp725'@localhost IDENTIFIED BY '4g5j.o0p@S';
+cp /home/blackwings/webtool/conf/client/amhd_acfc@.service /etc/systemd/system/amhd_acfc@.service
+cp /home/blackwings/webtool/conf/client/amhd_api@.service /etc/systemd/system/amhd_api@.service
+cp /home/blackwings/webtool/conf/client/amhd_augges@.service /etc/systemd/system/amhd_augges@.service
+cp /home/blackwings/webtool/conf/client/amhd_golden_gate@.service /etc/systemd/system/amhd_golden_gate@.service
+cp /home/blackwings/webtool/conf/client/amhd_kiotviet@.service /etc/systemd/system/amhd_kiotviet@.service
+cp /home/blackwings/webtool/conf/client/amhd_misa@.service /etc/systemd/system/amhd_misa@.service
+cp /home/blackwings/webtool/conf/client/amhd_mmenu@.service /etc/systemd/system/amhd_mmenu@.service
+cp /home/blackwings/webtool/conf/client/amhd_nhanh@.service /etc/systemd/system/amhd_nhanh@.service
+cp /home/blackwings/webtool/conf/client/amhd_sapo@.service /etc/systemd/system/amhd_sapo@.service
+cp /home/blackwings/webtool/conf/client/amhd_cloud@.service /etc/systemd/system/amhd_cloud@.service
+cp /home/blackwings/webtool/conf/client/amhd_gmail@.service /etc/systemd/system/amhd_gmail@.service
+cp /home/blackwings/webtool/conf/client/amhd_txt@.service /etc/systemd/system/amhd_txt@.service
+cp /home/blackwings/webtool/conf/client/amhd_csv@.service /etc/systemd/system/amhd_csv@.service
+cp /home/blackwings/webtool/conf/client/amhd_xls@.service /etc/systemd/system/amhd_xls@.service
+cp /home/blackwings/webtool/conf/client/amhd_xlsx@.service /etc/systemd/system/amhd_xlsx@.service
 
-*/10 * * * * /home/blackwings/webtool/bin/python /home/blackwings/webtool/schedule/cronjob/resend.py >/dev/null 2>&1
-0 10 * * * /home/blackwings/webtool/bin/python /home/blackwings/webtool/schedule/cronjob/mail_report.py >/dev/null 2>&1
-1 0 * * * /home/blackwings/webtool/bin/python /home/blackwings/webtool/schedule/cronjob/total.py >/dev/null 2>&1
-45 9 * * * /home/blackwings/webtool/bin/python /home/blackwings/webtool/schedule/cronjob/total.py >/dev/null 2>&1
+
+0 6 * * * /usr/bin/certbot renew --nginx >/dev/null 2>&1
+*/20 * * * * /home/blackwings/webtool/bin/python /home/blackwings/webtool/schedule/cronjob/resend.py >/dev/null 2>&1
+30 12 * * * /home/blackwings/webtool/bin/python /home/blackwings/webtool/schedule/cronjob/mail_report.py >/dev/null 2>&1
+0 0 * * * /home/blackwings/webtool/bin/python /home/blackwings/webtool/schedule/cronjob/shooz.py >/dev/null 2>&1
+
+15 5 * * * /usr/bin/systemctl start amhd_gmail@003 # Skecher
+0 11 * * * /usr/bin/systemctl start amhd_gmail@177 # Breadtalk
+
+0 0 * * * /usr/bin/systemctl start amhd_api@059 # Bloom
+0 0 * * * /usr/bin/systemctl start amhd_api@060 # TGC
+0 0 * * * /usr/bin/systemctl start amhd_api@110 # Boo
+0 0 * * * /usr/bin/systemctl start amhd_api@127 # Elise
+0 0 * * * /usr/bin/systemctl start amhd_api@140 # Aristino
+0 0 * * * /usr/bin/systemctl start amhd_api@141 # Dchic
+0 12 * * * /usr/bin/systemctl start amhd_api@102 # Lock&Lock
+
+0 5 * * * /usr/bin/systemctl start amhd_kiotviet@025 # Rabity
+0 5 * * * /usr/bin/systemctl start amhd_kiotviet@041 # Kakao
+0 5 * * * /usr/bin/systemctl start amhd_kiotviet@055 # Adore
+0 5 * * * /usr/bin/systemctl start amhd_kiotviet@070 # Wundertute
+0 5 * * * /usr/bin/systemctl start amhd_kiotviet@151 # Gabby
+
+0 0 * * * /usr/bin/systemctl start amhd_augges@065 # Aokang
+0 0 * * * /usr/bin/systemctl start amhd_augges@069 # Balabala
+0 0 * * * /usr/bin/systemctl start amhd_augges@100 # Anta
+0 0 * * * /usr/bin/systemctl start amhd_augges@101 # AntaKids
+
+
+0 0 * * * /usr/bin/systemctl start amhd_misa@108 # SneakerBuzz
+0 0 * * * /usr/bin/systemctl start amhd_misa@109 # Vans
+
+0 0 * * * /usr/bin/systemctl start amhd_sapo@181 # Inochi
+
+0 2 * * * /usr/bin/systemctl start amhd_mmenu@148 # Jajang
+
+0 9 * * * /usr/bin/systemctl start amhd_nhanh@037 # ATZ
+0 9 * * * /usr/bin/systemctl start amhd_nhanh@043 # JM
+0 9 * * * /usr/bin/systemctl start amhd_nhanh@165 # Mulgati
+
+0 12 * * * /usr/bin/systemctl start amhd_golden_gate@150 # Gogi
+0 12 * * * /usr/bin/systemctl start amhd_golden_gate@162 # Kichi Kichi
+0 12 * * * /usr/bin/systemctl start amhd_golden_gate@179 # Manwah
+0 12 * * * /usr/bin/systemctl start amhd_golden_gate@180 # Sumo BBQ
+0 12 * * * /usr/bin/systemctl start amhd_golden_gate@182 # Kpub Yutang
+0 12 * * * /usr/bin/systemctl start amhd_golden_gate@184 # Isushi
+0 12 * * * /usr/bin/systemctl start amhd_golden_gate@188 # Ktop
+
+55 9 * * * /usr/bin/systemctl start amhd_acfc@152
+55 9 * * * /usr/bin/systemctl start amhd_acfc@153
+55 9 * * * /usr/bin/systemctl start amhd_acfc@154
+55 9 * * * /usr/bin/systemctl start amhd_acfc@155
+55 9 * * * /usr/bin/systemctl start amhd_acfc@156
+55 9 * * * /usr/bin/systemctl start amhd_acfc@157
+55 9 * * * /usr/bin/systemctl start amhd_acfc@158
+55 9 * * * /usr/bin/systemctl start amhd_acfc@159
+55 9 * * * /usr/bin/systemctl start amhd_acfc@160
+55 9 * * * /usr/bin/systemctl start amhd_acfc@161
+
+0 3 * * * /usr/bin/systemctl start amhd_csv@045 # IvyModa
+0 3 * * * /usr/bin/systemctl start amhd_csv@190 # KOI
+0 12 * * * /usr/bin/systemctl start amhd_csv@192 # Kohnan
+
+0 12 * * * /usr/bin/systemctl start amhd_txt@120 # Timezone
+15 4 * * * /usr/bin/systemctl start amhd_txt@163 # NKID
+0 12 * * * /usr/bin/systemctl start amhd_txt@167 # McDonald
+0 4 * * * /usr/bin/systemctl start amhd_txt@175 # TheBodyShop
+
+0 12 * * * /usr/bin/systemctl start amhd_xls@169
+0 0 * * * /usr/bin/systemctl start amhd_xls@171
+0 0 * * * /usr/bin/systemctl start amhd_xls@183
+0 0 * * * /usr/bin/systemctl start amhd_xls@191
+
+0 12 * * * /usr/bin/systemctl start amhd_cloud@169
+0 12 * * * /usr/bin/systemctl start amhd_cloud@174
+0 12 * * * /usr/bin/systemctl start amhd_cloud@178
+
+0 0 * * * /usr/bin/systemctl start amhd_xlsx@067
+5 0 * * * /usr/bin/systemctl start amhd_xlsx@119
+0 0 * * * /usr/bin/systemctl start amhd_xlsx@136
+0 12 * * * /usr/bin/systemctl start amhd_xlsx@142
+0 12 * * * /usr/bin/systemctl start amhd_xlsx@147
+0 0 * * * /usr/bin/systemctl start amhd_xlsx@164
+0 0 * * * /usr/bin/systemctl start amhd_xlsx@168
+0 12 * * * /usr/bin/systemctl start amhd_xlsx@172
+0 12 * * * /usr/bin/systemctl start amhd_xlsx@189
+

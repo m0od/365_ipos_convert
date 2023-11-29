@@ -1,0 +1,135 @@
+import sys
+from datetime import datetime, timedelta
+
+import pymssql
+from os.path import dirname
+
+
+class AM065(object):
+    def __init__(self):
+        PATH = dirname(dirname(dirname(__file__)))
+        sys.path.append(PATH)
+        self.ADAPTER_RETAILER = 'aokang_amhd'
+        self.ADAPTER_TOKEN = '407f86411bd52a7ed956f07579109ce42638d7c6acee0336bfd839745e1bde37'
+        self.SERVER = '210.245.87.153'
+        self.PORT = 1719
+        self.USER = '365'
+        self.PASS = 'Api@pos2022'
+        self.DATABASE = 'MD_Augges'
+        self.orders = {}
+        self.CONN = None
+        self.CURSOR = None
+        self.DATE = datetime.now() - timedelta(days=1)
+        self.DATE = self.DATE.strftime('%y%m%d')
+        query = ['SELECT', 'TOP', '10000', 'dbo.SlBlM.ID', 'AS', 'order_code', ',']
+        query += ['dbo.SlBlM.InsertDate', 'AS', 'pur_date', ',']
+        query += ['dbo.SlBlM.Tien_GtGt', 'AS', 'vat', ',']
+        query += ['dbo.SlBlM.Tien_Hang', 'AS', 'total', ',']
+        query += ['dbo.DmH.Ma_Hang', 'AS', 'product_code', ',']
+        query += ['dbo.DmH.Ten_Hang', 'AS', 'name', ',']
+        query += ['dbo.SlBlD.Don_Gia', 'AS', 'price', ',']
+        query += ['dbo.SlBlD.So_Luong', 'AS', 'qty', ',']
+        query += ['dbo.SlBlD.Tien_CK', 'AS', 'discount', ',']
+        query += ['dbo.dmnx.Ma_Nx', 'AS', 'payment_method']
+        query += ['FROM', 'dbo.SlBlD']
+        query += ['LEFT', 'JOIN', 'dbo.SlBlM']
+        query += ['ON', 'dbo.SlBlD.ID', '=', 'dbo.SlBlM.ID']
+        query += ['LEFT', 'JOIN', 'dbo.DmH']
+        query += ['ON', 'dbo.SlBlD.ID_Hang', '=', 'dbo.DmH.ID']
+        query += ['LEFT', 'JOIN', 'dbo.DmDvt']
+        query += ['ON', 'dbo.DmH.ID_DvCs', '=', 'dbo.DmDvt.ID']
+        query += ['LEFT', 'JOIN', 'dbo.DmNx']
+        query += ['ON', 'dbo.SlBlM.ID_Nx', '=', 'dbo.DmNx.ID']
+        query += ['WHERE', 'dbo.SlBlD.ID_Hang', 'IS', 'NOT', 'NULL']
+        query += ['AND', 'dbo.SlBlM.SNgay', '=', f"'{self.DATE}'"]
+        query += ['AND', 'ISNULL', '(', 'dbo.SlBlD.ID_Kho', ',', 'dbo.SlBlM.ID_Kho', ')']
+        query += ['=', '11']
+        query += ['ORDER', 'BY', 'dbo.SlBlM.ID']
+        self.SQL_QUERY = ' '.join(query)
+
+    def login(self):
+        from pos_api.adapter import submit_error
+        try:
+            self.CONN = pymssql.connect(server=self.SERVER, port=self.PORT,
+                                        user=self.USER, password=self.PASS,
+                                        database=self.DATABASE)
+            self.CURSOR = self.CONN.cursor(as_dict=True)
+            return True
+        except Exception as e:
+            submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[MSSQL Error] {str(e)}')
+            return False
+
+    def get_data(self):
+        from pos_api.adapter import submit_error, submit_order
+        from font_vi import Converter
+        cv = Converter()
+        self.orders = {}
+        if not self.login(): return False
+        try:
+            self.CURSOR.execute(self.SQL_QUERY)
+            row = self.CURSOR.fetchone()
+            while row:
+
+                order_code = str(row['order_code']).strip()
+                pm = row['payment_method'].strip()
+                # print(pm,)
+                # if self.METHOD.get(pm) is not None:
+                #     pm = self.METHOD.get(pm)
+                # print(row)
+                if self.orders.get(order_code) is None:
+                    total = int(row['total']) - int(row['discount'])
+                    self.orders.update({
+                        order_code: {
+                            'Code': order_code,
+                            'Status': 2,
+                            'PurchaseDate': row['pur_date'].strftime('%Y-%m-%d %H:%M:%S'),
+                            'Total': total,
+                            'TotalPayment': total,
+                            'VAT': int(row['vat']),
+                            'Discount': int(row['discount']),
+                            'OrderDetails': [{
+                                'Code': row['product_code'].strip(),
+                                'Name': cv.convert(ori=row['name'].strip()),
+                                'Price': int(row['price']),
+                                'Quantity': int(row['qty'])
+                            }],
+                            'PaymentMethods': [
+                                {
+                                    'Name': pm,
+                                    'Value': total
+                                }
+                            ]
+                        }
+                    })
+                else:
+                    total = self.orders[order_code]['Total'] - int(row['discount'])
+                    # print('update', type(json.loads(self.orders[order_code].get('od'))))
+                    od = self.orders[order_code].get('OrderDetails')
+                    # print(od)
+                    od.append({
+                        'Code': row['product_code'].strip(),
+                        'Name': cv.convert(ori=row['name'].strip()),
+                        'Price': int(row['price']),
+                        'Quantity': int(row['qty'])
+                    })
+                    self.orders[order_code].update({
+                        'Discount': self.orders[order_code]['Discount'] + int(row['discount']),
+                        'OrderDetails': od,
+                        'Total': total,
+                        'TotalPayment': total,
+                        'PaymentMethods': [
+                            {
+                                'Name': pm,
+                                'Value': total
+                            }
+                        ]
+                    })
+
+                row = self.CURSOR.fetchone()
+        except Exception as e:
+            submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[Fetch Data] {str(e)}')
+            pass
+        self.CONN.close()
+        for _, js in self.orders.items():
+            # print(js)
+            submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=js)

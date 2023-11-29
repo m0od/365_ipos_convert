@@ -24,11 +24,17 @@ def submit_error(retailer=None, reason=None):
 def submit_job(headers=None, data=None):
     while True:
         try:
-            res = requests.post(f'{URl}/orders', headers=headers, json=data, timeout=10)
-            print(res.text)
+            # print(data)
+            if not data.get('OrderCode'):
+                res = requests.post(f'{URl}/orders', headers=headers, json=data, timeout=10)
+                # print(res.text)
+            else:
+                res = requests.post(f'{URl}/add_methods', headers=headers, json=data, timeout=10)
+            # print(res.text)
             if res.json()['result_id'] is not None:
                 break
         except Exception as e:
+            print(e)
             pass
             # submit_error(retailer=headers['retailer'], reason=f'{str(e)} {data}')
 
@@ -39,7 +45,18 @@ while True:
         # print(jobs.text)
         for job in jobs.json():
             if job['type'] == 1:
-                print(job['content']['Code'])
+                # print(job['content']['Code'])
+                headers = {
+                    'content-type': 'application/json',
+                    'retailer': job['retailer'],
+                    'authorization': job['token'],
+                    'debug': 'kt365aA@123'
+                }
+                if job.get('store') is not None:
+                    headers.update({'store': str(job['store'])})
+                submit_job(headers=headers, data=job['content'])
+            elif job['type'] == 2:
+                # print(job['content'])
                 headers = {
                     'content-type': 'application/json',
                     'retailer': job['retailer'],
