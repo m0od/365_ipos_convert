@@ -1,19 +1,19 @@
-class HIGHLANDS_AMHD(object):
-    def __init__(self):
-        self.ADAPTER_RETAILER = '80_amhd'
-        self.ADAPTER_TOKEN = '9efbf2b6aa6337f497c9a060b0fc2e658f27d06af0b514de3d50ba552af7f00a'
-        # self.ADAPTER_RETAILER = '695'
-        # self.ADAPTER_TOKEN = 'cf0f760c3c11b65139beaecd6e0dd12f80bc34a177704ffc497d2bf816d1ac2d'
-
-        self.FOLDER = '80_amhd'
-        self.FULL_PATH = f'../home/{self.FOLDER}/'
-        self.EXT = '*xlsx'
-        self.DATA = None
-        self.ORDERS = {}
-        self.PMS = {}
-        self.ODS = {}
-
-    def scan_file(self):
-        files = glob.glob(self.FULL_PATH + self.EXT)
-        self.DATA = max(files, key=os.path.getmtime)
-        print(self.DATA)
+import os
+f = open('test.txt', 'r')
+_ = f.read().strip().split('\n')
+f.close()
+branch = {}
+for __ in _:
+    ___ = __.split()
+    branch.update({___[0]: ___[1]})
+for x,y,z in os.walk('../AMHD'):
+    for _ in z:
+        if _.startswith('am'):
+            f = os.path.join(x, _)
+            f = open(f, 'r')
+            s = f.read()
+            f.close()
+            retailer = s.split('self.ADAPTER_RETAILER')[1].split("'")[1].split("'")[0]
+            token = s.split('self.ADAPTER_TOKEN')[1].split("'")[1].split("'")[0]
+            if not branch.get(retailer) == token:
+                print(retailer, branch.get(retailer) == token)

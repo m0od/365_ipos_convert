@@ -3,11 +3,12 @@ Description=uWSGI webtool
 After=network.target
 
 [Service]
-User=blackwings
-Group=nginx
-WorkingDirectory=/home/blackwings/webtool/webgui
-Environment="PATH=/home/blackwings/webtool/bin"
-ExecStart=/home/blackwings/webtool/bin/uwsgi --ini webgui.ini
+User=adapter
+Group=www
+
+WorkingDirectory=/home/adapter/webtool/webgui
+Environment="PATH=/home/adapter/webtool/bin"
+ExecStart=/home/adapter/webtool/bin/uwsgi --ini webgui.ini
 
 [Install]
 WantedBy=multi-user.target

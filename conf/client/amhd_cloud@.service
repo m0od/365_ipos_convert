@@ -3,6 +3,8 @@ Description=AMHD Google Cloud
 After=multi-user.target
 
 [Service]
+Restart=on-failure
+RestartSec=5s
 User=root
 Type=simple
 WorkingDirectory=/home/blackwings/webtool

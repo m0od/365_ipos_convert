@@ -1,10 +1,12 @@
+import os
 import sys
-from am169_dreamkids_amhd import AM169
-from am171_mazano_amhd import AM171
-from am183_tamson_amhd import AM183
-from am191_249_amhd import AM191
+from os.path import dirname
+
 if __name__ == '__main__':
     args = sys.argv[1:]
-    obj = f'AM{args[0]}()'
-    obj = eval(obj)
-    obj.get_data()
+    for _ in os.listdir(dirname(__file__)):
+        if f'am{args[0]}' in _:
+            eval(f"exec('from {_[:-3]} import AM{args[0]}')")
+            obj = eval(f'AM{args[0]}()')
+            obj.get_data()
+            break

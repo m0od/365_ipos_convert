@@ -24,13 +24,16 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or key
     JSON_SORT_KEYS = False
     SQLALCHEMY_BINDS = {
-        'ipos365': 'mysql://root:7y!FY^netG!jn>f+@localhost/ipos365?charset=utf8mb3',
+        'ipos365': 'mysql://root:7y!FY^netG!jn>f+@localhost/ipos365?charset=utf8mb4',
     }
+
     SQLALCHEMY_ECHO = False
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     GOOGLE_CLIENT_ID = '263581281598-tkh7tha61k78kb55c670sjfu6651m3a1.apps.googleusercontent.com'
     # MONGO_URI = 'mongodb://localhost:27017/adapter'
+
 
 # wss = SocketIO()
 def create_app(config=Config):
@@ -57,8 +60,8 @@ def init_utils(app):
             try:
                 functions = app.view_functions[request.endpoint]
 
-                if functions.__name__.startswith('local_') and request.remote_addr not in ['127.0.0.1',
-                                                                                           '103.35.65.114']:
+                if functions.__name__.startswith('local_') \
+                        and request.remote_addr not in ['127.0.0.1', '103.176.145.241']:
                     abort(404)
                 # if functions.__name__.startswith('api_') and request.remote_addr not in ['117.4.244.167', '118.70.124.165']:
                 #     abort(404)

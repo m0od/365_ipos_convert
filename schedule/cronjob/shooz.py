@@ -12,7 +12,7 @@ def scan_file():
     files = glob.glob(FULL_PATH + EXT)
     DATA = max(files, key=os.path.getmtime)
     t = os.path.getmtime(DATA)
-    t = datetime.fromtimestamp(t).strftime('%y%m%d %H:%M:%S')
+    t = datetime.fromtimestamp(t).strftime('%Y%m%d %H:%M:%S')
     os.rename(DATA, f'{FULL_PATH}{t}.xlsx')
 
 

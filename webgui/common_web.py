@@ -101,6 +101,7 @@ def local_update_log():
             db.session.commit()
         except:
             db.session.rollback()
+            return abort(403)
     return {}
 
 
@@ -175,22 +176,6 @@ def local_get_payment():
         return {}
     return abort(404)
 
-# @common.route('/xnxx', methods=['GET'])
-# def xnxx():
-#     print(len(list(db_mongo.config.find({}))))
-#     for _ in TenAntConfig.query.all():
-#         id = _.id
-#         _id = db_mongo.config.find_one({'branch':_.branch})
-#         # print(_id)
-#         for pm in TenAntPayment.query.filter_by(configId=id).all():
-#             print(pm.id, pm.name, pm.accountId)
-#             cfg = {
-#                 'configId': _id['_id'],
-#                 'name': pm.name,
-#                 'accountId': pm.accountId
-#             }
-#             db_mongo.payment.insert_one(cfg)
-#     return ''
 @common.route('/fetch_log', methods=['GET'])
 def fetch_log():
     token = request.args.get('token')
@@ -198,7 +183,7 @@ def fetch_log():
         return abort(404)
     now = datetime.now()
     now = now.replace(second=0, microsecond=0)
-    begin = now - timedelta(minutes=20)
+    begin = now - timedelta(minutes=10)
     # begin = now.replace(hour=17,minute=9, second=39)
     logs = Log.query.filter(Log.rid != None,
                             Log.log_date >= begin,
@@ -208,15 +193,6 @@ def fetch_log():
     logs = logs.all()
     ret = []
     for l in logs:
-        # task = convert.AsyncResult(id)
-        # stt = str(task.state)
-        # if stt == 'PENDING':
-        #     l.Log.log_date = datetime.now()
-        #     try:
-        #         db.session.commit()
-        #     except:
-        #         db.session.rollback()
-        # else:
             try:
                 ret.append({
                     'retailer': l.Log.branch,
@@ -232,27 +208,6 @@ def fetch_log():
     return jsonify(ret)
 
 
-# @common.route('/gg_login', methods=['GET', 'POST'])
-# def gg_login():
-#     form = request.form
-#     # GG_CLIENT_ID = '726905584100-o3n5emfgouu6poruvp0r2qb2rkjdfn5b.apps.googleusercontent.com'
-#     idinfo = id_token.verify_oauth2_token(form['credential'],
-#                                           ggRequests.Request(),
-#                                           current_app.config['GOOGLE_CLIENT_ID'])
-#
-#     # Or, if multiple clients access the backend server:
-#     # idinfo = id_token.verify_oauth2_token(token, requests.Request())
-#     # if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
-#     #     raise ValueError('Could not verify audience.')
-#
-#     # If auth request is from a G Suite domain:
-#     # if idinfo['hd'] != GSUITE_DOMAIN_NAME:
-#     #     raise ValueError('Wrong hosted domain.')
-#     print(idinfo)
-#     # ID token is valid. Get the user's Google Account ID from the decoded token.
-#     userid = idinfo['sub']
-#
-#     return ''
 
 @common.route('/setup', methods=['GET', 'POST'])
 def setup():
@@ -263,75 +218,81 @@ def setup():
         else:
             return abort(404)
     else:
-        token = request.form.get('token')
-        if token != 'kt365aA@123':
-            return abort(403)
-        branch = request.form.get('branch')
-        if branch and len(branch.lower().strip()):
-            branch = branch.lower().strip()
-            domain = request.form.get('domain')
-            user = request.form.get('user')
-            password = request.form.get('password')
-            api = API(domain=domain, user=user, password=password)
-            session = api.auth()
-            if session is not None:
-                cfg = TenAntConfig.query.filter_by(branch=branch).first()
-                if cfg is None:
-                    cfg = TenAntConfig()
-                    try:
-                        db.session.add(cfg)
-                    except:
-                        db.session.rollback()
-                cfg.cookie = session
-                cfg.branch = branch
-                cfg.domain = domain
-                cfg.user = user
-                cfg.password = password
-                if cfg is not None:
-                    cfg.token = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
-                try:
-                    db.session.commit()
-                except:
-                    db.session.rollback()
-                for k, v in api.account_list()['accounts'].items():
-                    pm = TenAntPayment.query.filter(TenAntPayment.configId == cfg.id, TenAntPayment.name == k).first()
-                    if pm is None:
-                        pm = TenAntPayment()
-                        pm.name = k
-                        pm.accountId = v
-                        pm.configId = cfg.id
+        # return jsonify({
+        #     'abc': 12456
+        # })
+        try:
+            token = request.form.get('token')
+            if token != 'kt365aA@123':
+                return abort(403)
+            branch = request.form.get('branch')
+            if branch and len(branch.lower().strip()):
+                branch = branch.lower().strip()
+                domain = request.form.get('domain')
+                user = request.form.get('user')
+                password = request.form.get('password')
+                api = API(domain=domain, user=user, password=password)
+                session = api.auth()
+                if session is not None:
+                    cfg = TenAntConfig.query.filter_by(branch=branch).first()
+                    if cfg is None:
+                        cfg = TenAntConfig()
                         try:
-                            db.session.add(pm)
-                            db.session.commit()
+                            db.session.add(cfg)
                         except:
                             db.session.rollback()
-                return {'status': True, 'retailer': cfg.branch, 'authorization': cfg.token}
+                    cfg.cookie = session
+                    cfg.branch = branch
+                    cfg.domain = domain
+                    cfg.user = user
+                    cfg.password = password
+                    if cfg is not None:
+                        cfg.token = hashlib.sha256(str(uuid.uuid4()).encode('utf-8')).hexdigest()
+                    try:
+                        db.session.commit()
+                    except:
+                        db.session.rollback()
+                    for k, v in api.account_list()['accounts'].items():
+                        pm = TenAntPayment.query.filter(TenAntPayment.configId == cfg.id, TenAntPayment.name == k).first()
+                        if pm is None:
+                            pm = TenAntPayment()
+                            pm.name = k
+                            pm.accountId = v
+                            pm.configId = cfg.id
+                            try:
+                                db.session.add(pm)
+                                db.session.commit()
+                            except:
+                                db.session.rollback()
+                    return {'status': True, 'retailer': cfg.branch, 'authorization': cfg.token}
+                else:
+                    return {'status': False, 'message': 'Login Pos 365 Failed'}
             else:
-                return {'status': False, 'message': 'Login Pos 365 Failed'}
-        else:
-            domain = request.form.get('domain')
-            user = request.form.get('user')
-            password = request.form.get('password')
-            since = request.form.get('since')
-            since = datetime.strptime(since, '%Y-%m-%d')
-            before = request.form.get('before')
-            before = datetime.strptime(before, '%Y-%m-%d')
-            # since = since - timedelta(days=1)
-            # since = since.strftime('%Y-%m-%dT17:00:00Z')
-            # before = before.strftime('%Y-%m-%dT16:59:00Z')
-            # _filter = []
-            # _filter += ['(', 'Status', 'eq', '2', 'or']
-            # _filter += ['Status', 'eq', '0', ')']
-            # _filter += ['and']
-            # _filter += ['PurchaseDate', 'ge']
-            # _filter += [f"'datetime''{since}'''"]
-            # _filter += ['and']
-            # _filter += ['PurchaseDate', 'lt']
-            # _filter += [f"'datetime''{before}'''"]
-            # print(*_filter)
-            delData.delay(domain, user, password, since, before)
+                domain = request.form.get('domain')
+                user = request.form.get('user')
+                password = request.form.get('password')
+                since = request.form.get('since')
+                since = datetime.strptime(since, '%Y-%m-%d')
+                before = request.form.get('before')
+                before = datetime.strptime(before, '%Y-%m-%d')
+                # since = since - timedelta(days=1)
+                # since = since.strftime('%Y-%m-%dT17:00:00Z')
+                # before = before.strftime('%Y-%m-%dT16:59:00Z')
+                # _filter = []
+                # _filter += ['(', 'Status', 'eq', '2', 'or']
+                # _filter += ['Status', 'eq', '0', ')']
+                # _filter += ['and']
+                # _filter += ['PurchaseDate', 'ge']
+                # _filter += [f"'datetime''{since}'''"]
+                # _filter += ['and']
+                # _filter += ['PurchaseDate', 'lt']
+                # _filter += [f"'datetime''{before}'''"]
+                # print(*_filter)
+                delData.delay(domain, user, password, since, before)
 
-            return {'status': True}
+                return {'status': True}
+        except Exception as e:
+            return {'status': str(e)}
 
 @common.route('/add_methods', methods=['POST'])
 def add_methods():
@@ -385,7 +346,11 @@ def add_methods():
 
 @common.route('/orders', methods=['POST'])
 def orders():
+
     try:
+        # f = open('ipos.txt', 'a')
+        # f.write(str(request.headers))
+        # f.close()
         branch = request.headers.get('Retailer').lower()
         if branch is None: return abort(403)
         token = request.headers.get('Authorization').lower()
@@ -404,11 +369,11 @@ def orders():
         now = datetime.now().replace(second=0, microsecond=0)
         begin = datetime.now() - timedelta(minutes=10)
         log = db.session.query(Log).filter(Log.hash == hash,
-                                           Log.rid is not None,
+                                           # Log.rid is not None,
                                            Log.log_date >= begin).first()
         if log is not None:
-            if log.status is None:
-                return Response(json.dumps({'message': 'duplicate'}), status=400, mimetype='application/json')
+            if log.status == -1:
+                return Response(json.dumps({'message': 'duplicate'}), status=200, mimetype='application/json')
         if content.get('Code') is None or len(str(content.get('Code').strip())) == 0:
             raise MissingInformationException('Thiếu thông tin mã đơn hàng (Code)')
         if content.get('PurchaseDate') is not None and len(str(content.get('PurchaseDate').strip())) == 0:
@@ -486,24 +451,3 @@ def task_result(id):
         }
         response = Response(json.dumps(response), status=400, mimetype='application/json')
     return response
-
-# @common.route("/resett", methods=['GET','POST'])
-# def resett():
-#     print(123123123123)
-#     index = 19664
-#     logs = db.session.query(Log).filter(Log.id>2000000).all()
-#     # # print(logs)
-#     # # print(123123123123)
-#     # # print(logs.id)
-#     # # # print(len(logs))
-#     for _ in logs:
-#         print(_.id)
-#         _.id = index
-#         if index %200 == 0:
-#             try:
-#                 db.session.commit()
-#
-#             except:
-#                 db.session.rollback()
-#         index += 1
-#     return {}

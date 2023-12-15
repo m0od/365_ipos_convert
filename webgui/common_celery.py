@@ -480,36 +480,38 @@ def addUser(self, user, password, user_type):
     try:
         p = subprocess.Popen(f'/usr/sbin/userdel -r {user}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print(f'userdel {p.communicate()}')
-        f = open('/etc/proftpd.conf', 'r')
-        content = f.read()
-        content = content.replace(f'''<IfUser {user}>\n\tTLSRequired off\n</IfUser>''','')
-        f.close()
-        f = open('/etc/proftpd.conf', 'w')
-        f.write(content.strip())
-        f.close()
+        # fp = '/etc/proftpd.conf'
+        # # fp = '/etc/proftpd/proftpd.conf'
+        # f = open(fp, 'r')
+        # content = f.read()
+        # content = content.replace(f'''<IfUser {user}>\n\tTLSRequired off\n</IfUser>''','')
+        # f.close()
+        # f = open(fp, 'w')
+        # f.write(content.strip())
+        # f.close()
         # p = subprocess.Popen('systemctl restart proftpd', shell=True)
         p = subprocess.Popen(f'/usr/sbin/useradd -m {user}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print(f'useradd {p.communicate()}')
         # time.sleep(1)
         p = subprocess.Popen(f'echo {user}:{password} | /usr/sbin/chpasswd', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print(f'chpasswd {p.communicate()}')
-        if user_type == 'FTP':
-            f = open('/etc/proftpd.conf', 'a')
-            f.write(f'''\r\n<IfUser {user}>\r\n\tTLSRequired off\r\n</IfUser>\r\n''')
-            f.close()
-        # time.sleep(1)
-        while True:
-            p = subprocess.Popen('/usr/bin/systemctl restart proftpd', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out, err = p.communicate()
-            print(f'proftpd {err}')
-            if not len(err.decode('utf-8')): break
+        # if user_type == 'FTP':
+        #     f = open(fp, 'a')
+        #     f.write(f'''\r\n<IfUser {user}>\r\n\tTLSRequired off\r\n</IfUser>\r\n''')
+        #     f.close()
+        # # time.sleep(1)
+        # while True:
+        #     p = subprocess.Popen('/usr/bin/systemctl restart proftpd', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #     out, err = p.communicate()
+        #     print(f'proftpd {err}')
+        #     if not len(err.decode('utf-8')): break
     except Exception as e:
         print(e)
 
 def log(id, result):
     try:
         while True:
-            r = requests.post(f'http://127.0.0.1:6060/log', json={'rid': id, 'result': str(result)})
+            r = requests.post(f'https://adapter.pos365.vn/log', json={'rid': id, 'result': str(result)})
             if r.status_code == 200:
                 break
         # requests.post(f'http://adapter.pos365.vn:6000/log', json={'rid': id, 'result': str(result)})

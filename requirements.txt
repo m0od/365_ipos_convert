@@ -34,3 +34,9 @@ Flask-PyMongo
 google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
+python-crontab
+unidecode
+oauth2client
+pytz
+requests
+gspread_formatting

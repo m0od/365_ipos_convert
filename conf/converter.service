@@ -4,10 +4,10 @@ After=network.target
 
 [Service]
 User=root
-WorkingDirectory=/home/blackwings/webtool/webgui
-Environment="PATH=/home/blackwings/webtool/bin"
-ExecStart=/home/blackwings/webtool/bin/celery -A common_celery.background worker -E --concurrency=32 2>&1 > /home/blackwings/webtool/webgui/converter.log
-StandardOutput=file:/home/blackwings/webtool/webgui/converter.log
-StandardError=file:/home/blackwings/webtool/webgui/converter.log
+WorkingDirectory=/home/adapter/webtool/webgui
+Environment="PATH=/home/adapter/webtool/bin"
+ExecStart=/home/adapter/webtool/bin/celery -A common_celery.background worker -E --concurrency=12
+StandardOutput=file:/home/adapter/webtool/webgui/converter.log
+StandardError=file:/home/adapter/webtool/converter.log
 [Install]
 WantedBy=default.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=AMHD GMAIL
+After=multi-user.target
+
+[Service]
+User=root
+Type=simple
+WorkingDirectory=/www/wwwroot/adapter
+Environment="PATH=/www/wwwroot/adapter/8a7a38cfa57d4ac98cced700b804556a_venv/bin"
+ExecStart=/www/wwwroot/adapter/8a7a38cfa57d4ac98cced700b804556a_venv/bin/python3 schedule/cronjob/resend.py
+
+[Install]
+WantedBy=multi-user.target

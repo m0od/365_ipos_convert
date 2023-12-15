@@ -7,15 +7,15 @@ import requests
 
 from schedule.pos_api.adapter import submit_order
 
-u = 'https://am183.pos365.vn'
+u = 'https://am036.pos365.vn'
 b = requests.session()
 def fix():
     # print(game)
     # u = 'https://am149.pos365.vn'
     # b = requests.session()
     r = b.post(f'{u}/api/auth', json={'username': 'admin',
-                                      'password': 'aeonhd'})
-
+                                      'password': '123456'})
+    # print(r.text)
     skip = 0
     b.headers.update({'content-type': 'application/json'})
     index = 0
@@ -43,20 +43,20 @@ def fix():
             # filter = str(*filter)
             # print(' '.join(filter))
             # r = b.get(f'{u}/api/orders', params={
-            r = b.get(f'{u}/api/products', params={
+            r = b.get(f'{u}/api/pricebooks/items', params={
                 # 'inventorycount'
                 'Top': '50',
-                'Skip': str(skip),
-                'Filter': ' '.join(filter)
+                # 'Skip': str(skip),
+                # 'Filter': ' '.join(filter)
                 # 'Filter': "(Status eq 2 or Status eq 0) and PurchaseDate eq 'yesterday'"
                 # 'Filter': f"(Status eq 2 and PurchaseDate ge 'datetime''{f}''' and PurchaseDate lt 'datetime''{t}''')"
                 # 'Filter': "(PurchaseDate ge 'datetime''2023-10-01T17:00:00Z''' and PurchaseDate lt 'datetime''2023-10-02T16:59:00Z''')"
             })
-            # print(len(r.json()['results']))
+            # print(r.text)
             if len(r.json()['results']) == 0: break
 
             for _ in r.json()['results']:
-                # print(_)
+                print(_)
                 id = _["Id"]
                 # if 'VOID' not in _["Code"]:
                 #     code = f'VOID{_["Code"]}'
@@ -99,10 +99,13 @@ def fix():
                 # if r.get('Errors') is not None: continue
                 # sys.exit(0)
                 # b.delete(f'{u}/api/orders/{id}/void').json()
-                print(b.delete(f'{u}/api/products/{id}').json())
-                # sys.exit(0)
+                # print(b.delete(f'{u}/api/inventorycount/{id}/void').json())
+                print(103,b.delete(f'{u}/api/pricebooks/deleteitem', params={
+                    'PriceBookDetailId': id
+                }).json())
+                sys.exit(0)
                 # submit_order(retailer, token, js)
-            # skip += 50
+            skip += 50
         except Exception as e:
             print(e)
             pass

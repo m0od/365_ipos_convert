@@ -1,0 +1,13 @@
+[Unit]
+Description=AMHD GMAIL
+After=multi-user.target
+
+[Service]
+User=root
+Type=simple
+WorkingDirectory=/home/blackwings/webtool
+Environment="PATH=/home/blackwings/webtool/bin"
+ExecStart=/home/blackwings/webtool/bin/python schedule/cronjob/mail_report.py
+
+[Install]
+WantedBy=multi-user.target
