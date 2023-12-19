@@ -13,7 +13,7 @@ class AM120(object):
         self.ADAPTER_RETAILER = 'timezone_amhd'
         self.ADAPTER_TOKEN = 'fb7226b8d3033064611519b2683d15fa9ce2ce80b4a44c6a40dcf28d55a42af3'
         self.FOLDER = 'timezone_amhd'
-        self.FULL_PATH = f'/home/{self.FOLDER}/TEEG_Test'
+        self.FULL_PATH = f'/home/{self.FOLDER}/TEEG'
         self.DATE = datetime.now() - timedelta(days=1)
         self.EXT = f'*.txt'
 
@@ -28,7 +28,7 @@ class AM120(object):
     def get_data(self):
         from pos_api.adapter import submit_error, submit_order
         DATA = self.scan_file()
-        print(DATA)
+        # print(DATA)
         if not DATA:
             submit_error(retailer=self.ADAPTER_RETAILER, reason='FILE_NOT_FOUND')
             return
@@ -41,7 +41,7 @@ class AM120(object):
             return
         lines = s.strip().split('\n')
         for line in lines:
-            print(line)
+            # print(line)
             try:
                 _ = line.strip().split('|')
                 code = _[0].strip()

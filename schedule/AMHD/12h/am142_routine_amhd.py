@@ -16,7 +16,7 @@ class AM142(object):
         self.FOLDER = 'routine_amhd'
         self.FULL_PATH = f'/home/{self.FOLDER}'
         self.DATE = datetime.now() - timedelta(days=1)
-        self.EXT = f'{self.DATE.strftime("%d")}*xlsx'
+        self.EXT = f'*xlsx'
         self.ORDERS = {}
         self.PMS = {}
         self.ODS = {}
@@ -42,8 +42,8 @@ class AM142(object):
             code = code.strip()
             if len(code) == 0: continue
             pur_date = raw[row][2].value
-            if pur_date.strftime('%Y%m%d') != self.DATE.strftime('%Y%m%d'):
-                continue
+            # if pur_date.strftime('%Y%m%d') != self.DATE.strftime('%Y%m%d'):
+            #     continue
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
             if self.ORDERS.get(code) is None:
                 self.ORDERS.update({str(code).strip(): {}})
@@ -133,8 +133,8 @@ class AM142(object):
                     v['OrderDetails'] = [{'ProductId': 0}]
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
         self.backup(DATA)
-        if not len(list(self.ORDERS.keys())):
-            self.send_zero()
+        # if not len(list(self.ORDERS.keys())):
+        #     self.send_zero()
 
     def backup(self, DATA):
         idx = DATA.rindex('/')

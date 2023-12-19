@@ -1,10 +1,7 @@
 import io
-import json
 from datetime import datetime, timedelta
 from os.path import join
 
-import googleapiclient
-from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 
 from google.auth.transport.requests import Request
@@ -83,21 +80,13 @@ class Google(object):
             # mimetype='application/vnd.ms-excel',
             resumable=True
         )
-        while True:
-            try:
-                _ = self.DRIVE.files().create(
-                    body=file_metadata,
-                    media_body=media,
-                    fields='id'
-                ).execute()
-                return _['id']
-            except HttpError as e:
-                err = json.loads(e.content).get('error')
-                if err.get('code') == 500:
-                    return err
-            except Exception as e:
-                pass
-
+        # while True:
+        _ = self.DRIVE.files().create(
+            body=file_metadata,
+            media_body=media,
+            fields='id'
+        ).execute()
+        return _['id']
 
     def delete(self, ID):
         try:

@@ -82,12 +82,9 @@ class AM199(object):
                 'OrderDetails': [{'ProductId': 0}],
                 'PaymentMethods': [{'Name': self.METHOD.get(pm), 'Value': total}]
             })
-        split = int(round(len(orders) / 12, 0))
-        h = 9
         time = []
         for idx, order in enumerate(orders):
-            if not idx % split:
-                h += 1
+            h = 10 + int(11 * idx/len(orders))
             pur_date = order['PurchaseDate'].strftime('%Y-%m-%d')
             m = random.randint(0, 59)
             s = random.randint(0, 59)

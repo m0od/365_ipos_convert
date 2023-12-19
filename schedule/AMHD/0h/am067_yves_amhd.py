@@ -16,7 +16,7 @@ class AM067(object):
         self.FOLDER = 'yvesrocher_amhd'
         self.FULL_PATH = f'/home/{self.FOLDER}'
         self.DATE = datetime.now() - timedelta(days=1)
-        self.EXT = f'*{self.DATE.strftime("%d.%m.%Y")}*xlsx'
+        self.EXT = f'*xlsx'
         self.ORDERS = {}
         self.PMS = {}
         self.ODS = {}

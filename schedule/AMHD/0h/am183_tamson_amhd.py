@@ -16,7 +16,7 @@ class AM183(object):
         self.FULL_PATH = f'/home/{self.FOLDER}'
         self.DATE = datetime.now() - timedelta(days=1)
         # self.DATE = self.DATE.strftime('%d.%m.%Y')
-        self.EXT = f'*{self.DATE.strftime("%d")}*.xls'
+        self.EXT = f'*.xls'
 
     def scan_file(self):
         try:

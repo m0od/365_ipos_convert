@@ -2,11 +2,8 @@
 
 #env Centos7.9.2009
 yum -y update
-echo "[mariadb]
-name = MariaDB
-baseurl = http://mirror.mariadb.org/yum/10.11.6/centos/8/x86_64
-gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-gpgcheck=1" > /etc/yum.repos.d/MariaDB.repo
+curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
+
 yum clean all
 yum -y group install "Development Tools"
 yum -y install epel-release
@@ -26,9 +23,14 @@ wget https://www.python.org/ftp/python/3.11.3/Python-3.11.3.tgz
 tar -xvf Python-3.11.3.tgz
 rm -rf Python-3.11.3.tgz
 cd Python-3.11.3
+
+wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz
+tar -xvf Python-3.10.13.tgz
+rm -rf Python-3.10.13.tgz
+cd Python-3.10.13
 ./configure --enable-optimizations --with-openssl=/usr
 make altinstall
-cd .. && rm -rf Python-3.11.3
+cd .. && rm -rf Python-3.10.13
 mkdir test
 python3.11 -m venv test
 cd test

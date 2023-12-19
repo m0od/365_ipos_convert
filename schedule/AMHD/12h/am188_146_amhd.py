@@ -6,40 +6,36 @@ from datetime import datetime, timedelta
 from os.path import dirname
 
 
-
-
-class AM180(object):
+class AM188(object):
     def __init__(self):
         PATH = dirname(dirname(dirname(__file__)))
         sys.path.append(PATH)
-        self.ADAPTER_RETAILER = 'sumo_bbq_amhd'
-        self.ADAPTER_TOKEN = '355564ba3e247ec2a87ed0d53ad796e1cd7740963b0b3b9a873c208eb2cc2f94'
-        self.FOLDER = '73_amhd'
+        self.ADAPTER_RETAILER = 'ktop_amhd'
+        self.ADAPTER_TOKEN = 'cad6ea6d57c2ec3d97ca94cd252520e0b09da9d8e6978ae86f05d7c3b7dd0682'
+        self.FOLDER = '146_amhd'
         self.FULL_PATH = f'/home/{self.FOLDER}'
         self.DATE = datetime.now() - timedelta(days=1)
         self.DATE = self.DATE.strftime('%Y%m%d')
 
     def get_data(self):
         from drive import Google
-        from pos_api.adapter import submit_order, submit_error
+        from pos_api.adapter import submit_order
         g = Google()
         g.google_auth()
         files = glob.glob(f'{self.FULL_PATH}/*.xls')
         for _ in files:
             SHEET_ID = g.create_sheet(_)
-            if type(SHEET_ID) == dict:
-                submit_error(self.ADAPTER_RETAILER, str(SHEET_ID))
-                continue
             ws = g.SHEETS.spreadsheets().values().get(
                 spreadsheetId=SHEET_ID, range='1:1000'
             ).execute()
             for row, rec in enumerate(ws['values'][3:]):
                 code = rec[2]
                 pur_date = f'{rec[5]} {rec[7]}'
-                pur_date = datetime.strptime(pur_date, '%d/%m/%Y %H')
-                # if pur_date.strftime('%Y%m%d') != self.DATE:
-                #     continue
-                pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+                try:
+                    pur_date = datetime.strptime(pur_date, '%m/%d/%Y %H')
+                    pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+                except:
+                    continue
                 total = float(rec[15])
                 discount = float(rec[12]) * -1
                 vat = float(rec[14])

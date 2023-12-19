@@ -94,12 +94,9 @@ class AM193(object):
                 'OrderDetails': ods,
                 'PaymentMethods': [{'Name': 'CASH', 'Value': price}]
             })
-        split = int(round(count / 12, 0))
-        h = 9
         time = []
         for idx, order in enumerate(orders):
-            if not idx % split:
-                h += 1
+            h = 10 + int(11 * idx/len(orders))
             pur_date = order['PurchaseDate'].strftime('%Y-%m-%d')
             m = random.randint(0, 59)
             s = random.randint(0, 59)
