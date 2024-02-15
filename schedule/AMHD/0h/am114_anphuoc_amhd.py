@@ -1,7 +1,7 @@
 import glob
 import io
 import os
-import openpyxl
+import xlrd
 import shutil
 import sys
 from datetime import datetime, timedelta
@@ -44,38 +44,46 @@ class AM114(object):
         except:
             pass
 
-    def send_zero(self):
-        from pos_api.adapter import submit_order
-        order = {
-            'Code': f'NOBILL_{self.DATE.strftime("%d%m%Y")}',
-            'Status': 2,
-            'PurchaseDate': self.DATE.strftime('%Y-%m-%d 07:00:00'),
-            'Total': 0,
-            'TotalPayment': 0,
-            'VAT': 0,
-            'Discount': 0,
-            'OrderDetails': [{'ProductId': 0}],
-            'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]
-        }
-        submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)
+    # def send_zero(self):
+    #     from pos_api.adapter import submit_order
+    #     order = {
+    #         'Code': f'NOBILL_{self.DATE.strftime("%d%m%Y")}',
+    #         'Status': 2,
+    #         'PurchaseDate': self.DATE.strftime('%Y-%m-%d 07:00:00'),
+    #         'Total': 0,
+    #         'TotalPayment': 0,
+    #         'VAT': 0,
+    #         'Discount': 0,
+    #         'OrderDetails': [{'ProductId': 0}],
+    #         'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]
+    #     }
+    #     submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)
 
     def get_data(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
+
+
         from pos_api.adapter import submit_error, submit_order, submit_payment
         DATA = self.scan_file()
         if not DATA:
             submit_error(self.ADAPTER_RETAILER, 'FILE_NOT_FOUND')
             return
-        dataframe = openpyxl.load_workbook(DATA, data_only=True)
-        for sheet in dataframe.sheetnames:
-            ws = dataframe[sheet]
-            nRows = ws.max_row + 1
+        ws = xlrd.open_workbook(DATA)
+        for raw in list(ws.sheets()):
+            nRows = raw.nrows
             orders = {}
-            for row in range(1, nRows):
-                code = ws[row][0].value
+            for i in range(1, nRows):
+                code = raw.row(i)[0].value
                 if not code: continue
                 if not len(str(code).strip()): continue
                 code = str(code).strip()
-                pur_date = str(ws[row][1].value).replace("'", '')[:12]
+                # print(raw.row(i)[1].value)
+                pur_date = str(raw.row(i)[1].value).replace("'", '')[:12]
+                # print(pur_date)
                 if len(pur_date) < 12:
                     pur_date = pur_date.zfill(12)
                 try:
@@ -84,14 +92,15 @@ class AM114(object):
                     continue
                 if pur_date.strftime('%d%m%Y') != self.DATE.strftime('%d%m%Y'):
                     continue
-                # if pur_date.strftime('%d%m%Y') != '20082023':
+                # if pur_date.strftime('%d%m%Y') != '09012024':
                 #     continue
-                discount = self.get_value(ws[row], 2)
-                total = self.get_value(ws[row], 3)
-                vat = self.get_value(ws[row], 4)
-                cash = self.get_value(ws[row], 5)
-                payoo = self.get_value(ws[row], 6)
-                other = self.get_value(ws[row], 7)
+                discount = get_value(raw.row(i)[2].value)
+                total = get_value(raw.row(i)[3].value)
+                # print(total)
+                vat = get_value(raw.row(i)[4].value)
+                cash = get_value(raw.row(i)[5].value)
+                payoo = get_value(raw.row(i)[6].value)
+                other = get_value(raw.row(i)[7].value)
                 # print(code, pur_date, total, discount, vat, cash, payoo, other)
                 if not orders.get(code):
                     orders.update({

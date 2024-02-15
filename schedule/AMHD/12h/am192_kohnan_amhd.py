@@ -48,8 +48,11 @@ class AM192(object):
             pass
 
     def get_data(self):
+        def get_value(value):
+            try: return float(value)
+            except: return 0
         from pos_api.adapter import submit_order, submit_payment, submit_error
-        VAT = self.scan_file(f'T{self.DATE}.csv')
+        VAT = self.scan_file(f'T*.csv')
         if not VAT:
             submit_error(self.ADAPTER_RETAILER, 'SUMMARY_NOT_FOUND')
             return
@@ -60,7 +63,7 @@ class AM192(object):
             self.backup(VAT)
         except:
             return
-        DATA = self.scan_file(f'{self.DATE}.csv')
+        DATA = self.scan_file(f'*.csv')
         if not DATA:
             submit_error(self.ADAPTER_RETAILER, 'DETAIL_NOT_FOUND')
             return
@@ -90,23 +93,20 @@ class AM192(object):
                     self.VAT = 0
                 else:
                     vat = 0
-                discount = float(raw[row][8])
-                cash = float(raw[row][13])
-                credit = float(raw[row][14])
-                receivable = float(raw[row][15])
+                discount = get_value(raw[row][8])
+                cash = get_value(raw[row][13])
+                credit = get_value(raw[row][14])
+                receivable = get_value(raw[row][15])
                 pms = []
-                if cash > 0:
-                    pms.append({
-                        'Name': 'CASH', 'Value': cash
-                    })
-                if credit > 0:
-                    pms.append({
-                        'Name': 'CREDIT', 'Value': credit
-                    })
-                if receivable > 0:
-                    pms.append({
-                        'Name': 'RECEIVABLE', 'Value': receivable
-                    })
+                # if cash > 0:
+                pms.append({'Name': 'CASH', 'Value': cash})
+                # if credit > 0:
+                pms.append({'Name': 'CREDIT', 'Value': credit})
+                # if receivable > 0:
+                pms.append({'Name': 'RECEIVABLE', 'Value': receivable})
+                for _ in pms.copy():
+                    if _['Value'] == 0:
+                        pms.remove(_)
                 orders = {
                     'Code': code,
                     'Status': 2,
@@ -120,15 +120,16 @@ class AM192(object):
                 }
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=orders)
 
-                if not len(pms):
-                    data = {
-                        "Code": f"{code}-CASH",
-                        "OrderCode": code,
-                        "Amount": total,
-                        "TransDate": pur_date,
-                        "AccountId": 'CASH'
-                    }
-                    submit_payment(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=data)
+                for pm in pms:
+                    if pm['Value'] < 0:
+                        data = {
+                            "Code": f"{code}-{pm['Name']}",
+                            "OrderCode": code,
+                            "Amount": total,
+                            "TransDate": pur_date,
+                            "AccountId": pm['Name']
+                        }
+                        submit_payment(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=data)
 
             except Exception as e:
                 submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))

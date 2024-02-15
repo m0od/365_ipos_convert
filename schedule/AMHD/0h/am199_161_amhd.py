@@ -30,82 +30,89 @@ class AM199(object):
 
     def scan_file(self):
         try:
-            files = glob.glob(f'{self.FULL_PATH}/{self.EXT}')
-            return max(files, key=os.path.getmtime)
+            return glob.glob(f'{self.FULL_PATH}/{self.EXT}')
+            # return max(files, key=os.path.getmtime)
         except:
             return None
 
     def get_data(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
         from pos_api.adapter import submit_order, submit_payment, submit_error
-        DATA = self.scan_file()
-        if not DATA:
+        files = self.scan_file()
+        if not len(files):
             submit_error(self.ADAPTER_RETAILER, 'FILE_NOT_FOUND')
             return
-        dataframe = xlrd.open_workbook(DATA)
-        raw = dataframe[0]
-        nRows = raw.nrows
-        headers = []
-        for _ in raw[0]:
-            headers.append(unidecode(str(_.value).upper()))
-        # print(headers)
-        orders = []
-        for row in range(1, nRows):
-            rec = dict(zip(headers, raw[row]))
-            state = unidecode(rec.get('STATE').value.upper()).strip()
-            if state == 'CANCELED':
-                continue
-            try:
-                pur_date = rec.get('PAYMENT DATE').value
-                pur_date = datetime.strptime(pur_date, '%d/%m/%Y')
-                # pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
-            except:
-                continue
-            # print(pur_date)
-            pm = rec.get('PAYMENT METHOD').value.replace('(VND)', '').strip()
-            pm = unidecode(pm.split('-')[0].strip().upper())
-            # print(pm)
-            if 'NGAN HANG' in pm:
-                pm = 'NGAN HANG'
-            # print(self.METHOD.get(pm))pr
-            # print(rec)
-            total = float(str(rec.get('AMOUNT').value).replace(',',''))
-            # print(rec.get('AMOUNT').value)
-            code = f'HD-{pur_date.strftime("%d%m%y")}-{len(orders) + 1:05d}'
-            orders.append({
-                'Code': code,
-                'Status': 2,
-                'PurchaseDate': pur_date,
-                'Total': total,
-                'TotalPayment': total,
-                'VAT': 0,
-                'Discount': 0,
-                'OrderDetails': [{'ProductId': 0}],
-                'PaymentMethods': [{'Name': self.METHOD.get(pm), 'Value': total}]
-            })
-        time = []
-        for idx, order in enumerate(orders):
-            h = 10 + int(11 * idx/len(orders))
-            pur_date = order['PurchaseDate'].strftime('%Y-%m-%d')
-            m = random.randint(0, 59)
-            s = random.randint(0, 59)
-            pur_date = f'{pur_date} {h:02d}:{m:02d}:{s:02d}'
-            time.append(pur_date)
-        time.sort()
-        for idx, t in enumerate(time):
-            orders[idx].update({'PurchaseDate': t})
-            # print(orders[idx])
-            submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, orders[idx])
-            if orders[idx]['Total'] < 0:
-                pm = {
-                    'Code': f'{orders[idx]["Code"]}-{orders[idx]["PaymentMethods"][0]["Name"]}',
-                    'OrderCode': orders[idx]["Code"],
-                    'Amount': orders[idx]['Total'],
-                    'TransDate': t,
-                    'AccountId': orders[idx]["PaymentMethods"][0]["Name"]
-                }
-                submit_payment(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, pm)
+        for DATA in files:
+            # print(DATA)
+            ws = xlrd.open_workbook(DATA)
+            raw = list(ws.sheets())[0]
+            # print(raw)
+            nRows = raw.nrows
+            headers = []
+            for _ in raw.row(0):
+                headers.append(unidecode(str(_.value).upper()))
+            # print(headers)
+            orders = []
+            for i in range(1, nRows):
+                rec = dict(zip(headers, raw.row(i)))
+                state = unidecode(rec.get('STATE').value.upper()).strip()
+                if state == 'CANCELED':
+                    continue
+                try:
+                    pur_date = rec.get('PAYMENT DATE').value
+                    pur_date = datetime.strptime(pur_date, '%d/%m/%Y')
+                    # pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+                except:
+                    continue
+                # print(pur_date)
+                pm = rec.get('PAYMENT METHOD').value.replace('(VND)', '').strip()
+                pm = unidecode(pm.split('-')[0].strip().upper())
+                # print(pm)
+                if 'NGAN HANG' in pm:
+                    pm = 'NGAN HANG'
+                # print(self.METHOD.get(pm))pr
+                # print(rec)
+                total = get_value(str(rec.get('AMOUNT').value).replace(',',''))
+                code = f'HD-{pur_date.strftime("%d%m%y")}-{len(orders) + 1:05d}'
+                orders.append({
+                    'Code': code,
+                    'Status': 2,
+                    'PurchaseDate': pur_date,
+                    'Total': total,
+                    'TotalPayment': total,
+                    'VAT': 0,
+                    'Discount': 0,
+                    'OrderDetails': [{'ProductId': 0}],
+                    'PaymentMethods': [{'Name': self.METHOD.get(pm), 'Value': total}]
+                })
+            time = []
+            for idx, order in enumerate(orders):
+                h = 10 + int(11 * idx/len(orders))
+                pur_date = order['PurchaseDate'].strftime('%Y-%m-%d')
+                m = random.randint(0, 59)
+                s = random.randint(0, 59)
+                pur_date = f'{pur_date} {h:02d}:{m:02d}:{s:02d}'
+                time.append(pur_date)
+            time.sort()
+            for idx, t in enumerate(time):
+                orders[idx].update({'PurchaseDate': t})
+                # print(orders[idx])
+                submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, orders[idx])
+                if orders[idx]['Total'] < 0:
+                    pm = {
+                        'Code': f'{orders[idx]["Code"]}-{orders[idx]["PaymentMethods"][0]["Name"]}',
+                        'OrderCode': orders[idx]["Code"],
+                        'Amount': orders[idx]['Total'],
+                        'TransDate': t,
+                        'AccountId': orders[idx]["PaymentMethods"][0]["Name"]
+                    }
+                    submit_payment(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, pm)
 
-        self.backup(DATA)
+            self.backup(DATA)
 
     def backup(self, DATA):
         idx = DATA.rindex('/')

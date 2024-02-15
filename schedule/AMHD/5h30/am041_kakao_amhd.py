@@ -20,6 +20,7 @@ class AM041(object):
         self.ADAPTER_RETAILER = 'kakao_amhd'
         self.ADAPTER_TOKEN = '8add972c8f30406354872d3272f755fff035661f9ddd590e6e71c267b756a546'
         self.KIOT = KIOTVIET()
+        self.KIOT.SALE_SRC.append('1000001233')
         self.KIOT.CLASS = self.__class__.__name__
         self.KIOT.ACCOUNT = 'aeonmall'
         self.KIOT.PASSWORD = '12345'

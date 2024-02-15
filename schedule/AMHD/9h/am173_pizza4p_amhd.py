@@ -15,7 +15,7 @@ class AM173(object):
         self.FOLDER = 'pizza4p_amhd'
         self.FULL_PATH = f'/home/{self.FOLDER}'
         self.DATE = datetime.now() - timedelta(days=1)
-        self.EXT = f'*{self.DATE.strftime("%Y%m%d")}*txt'
+        self.EXT = f'*txt'
         self.DATA = None
         self.method = {
             'TIỀN MẶT': 'CASH'

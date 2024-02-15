@@ -102,7 +102,8 @@ def local_update_log():
         except:
             db.session.rollback()
             return abort(403)
-    return {}
+        return {'status': True}
+    return {'status': False}
 
 
 @common.route('/mail', methods=['GET'])
@@ -211,12 +212,14 @@ def fetch_log():
 
 @common.route('/setup', methods=['GET', 'POST'])
 def setup():
+    # return 'andwedawdawd'
     if request.method == 'GET':
         token = request.args.get('token')
         if token == 'kt365aA@123':
             return render_template('setup.html')
         else:
             return abort(404)
+        # return render_template('setup.html')
     else:
         # return jsonify({
         #     'abc': 12456
@@ -382,6 +385,13 @@ def orders():
             raise MissingInformationException('Thiếu thông tin ngày bán (ReturnDate)')
         if content.get('PaymentMethods') is None or type(content.get('PaymentMethods')) != list:
             return MissingInformationException('Thiếu thông tin PTTT (PaymentMethods)')
+        if store and int(store) in [15548]:
+            if content.get('Voucher') != 0:
+                content['PaymentMethods'].append({
+                    'Name': 'VOUCHER', 'Value': content.get('Voucher')
+                })
+                content.pop('Voucher')
+                content.pop('VoucherCode')
         now = datetime.now()
         for pm in content.get('PaymentMethods'):
             if type(pm) != dict:

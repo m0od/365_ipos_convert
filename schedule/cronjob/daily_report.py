@@ -51,7 +51,47 @@ for domain in urls:
                     retailer = json.loads(vendor.split('retailer:')[1].split('},')[0] + '}')
                     if domain == 'am169':
                         for code in [
-                            'VE', 'DEPOSIT', 'MICESLANOUS'
+                            'VE', 'DEPOSIT', 'MICESLANOUS', 'COIN'
+                        ]:
+                            while True:
+                                p = {
+                                    'format': 'json',
+                                    'Top': '1',
+                                    'Filter': f"PurchaseDate eq 'yesterday' and substringof('{code}',Code)"
+                                }
+                                r = b.get(f'https://{domain}.pos365.vn/api/orders', params=p)
+                                # print(r.text)
+                                if r.status_code == 200:
+                                    if len(r.json()['results']) == 0:
+                                        rows += f'''<tr>
+                                        <td style="border: 1px solid black;padding: 5px; text-align: left;">{domain}</td>
+                                        <td style="border: 1px solid black;padding: 5px; text-align: left;">{retailer['Name'].upper()}: {code}</td>
+                                        </tr>'''
+                                    break
+                        break
+                    elif domain == 'am057':
+                        for code in [
+                            'NORMAL', 'CPN'
+                        ]:
+                            while True:
+                                p = {
+                                    'format': 'json',
+                                    'Top': '1',
+                                    'Filter': f"PurchaseDate eq 'yesterday' and substringof('{code}',Code)"
+                                }
+                                r = b.get(f'https://{domain}.pos365.vn/api/orders', params=p)
+                                # print(r.text)
+                                if r.status_code == 200:
+                                    if len(r.json()['results']) == 0:
+                                        rows += f'''<tr>
+                                        <td style="border: 1px solid black;padding: 5px; text-align: left;">{domain}</td>
+                                        <td style="border: 1px solid black;padding: 5px; text-align: left;">{retailer['Name'].upper()}: {code}</td>
+                                        </tr>'''
+                                    break
+                        break
+                    elif domain == 'am182':
+                        for code in [
+                            'Y', 'K'
                         ]:
                             while True:
                                 p = {

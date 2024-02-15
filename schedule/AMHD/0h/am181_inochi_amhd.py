@@ -5,8 +5,6 @@ from os.path import dirname
 import requests
 
 
-
-
 class AM181(object):
     def __init__(self):
         PATH = dirname(dirname(dirname(__file__)))
@@ -22,6 +20,7 @@ class AM181(object):
         self.PASSWORD = 'Trung!123aeon'
         self.DATE = datetime.now() - timedelta(days=1)
         # self.DATE = date
+
     def login(self):
         from pos_api.adapter import submit_order, submit_error
         try:
@@ -156,26 +155,93 @@ class AM181(object):
             submit_error(self.ADAPTER_RETAILER, reason=f'get_details {str(e)}')
 
     def get_returns(self):
+        from pos_api.adapter import submit_order, submit_error, submit_payment
         r = self.browser.get(f'{self.API}/admin/analytics/sale_orders/return_by_order')
         token = r.text.split('token&quot;:&quot;')[1].split('&quot;')[0]
-        time = self.DATE.strftime('%y-%m-%d')
-        query = ['SHOW', 'returns', 'BY', 'order_code,', 'sale_kind']
+        time = self.DATE.strftime('%Y-%m-%d')
+        query = ['SHOW', 'returns,', 'returned_item_quantity']
+        query += ['BY', 'hour,', 'order_code,', 'sale_kind,', 'product_name,', 'variant_sku,', 'product_price']
         query += ['FROM', 'sales', 'WHERE', 'sale_kind', '==', '"Trả hàng"']
-        query += ['SINCE', time, 'UNTIL', time, 'ORDER', 'BY', 'returns', 'DESC']
+        query += ['AND', 'order_status', '==', '"Hoàn thành"']
+        query += ['SINCE', time, 'UNTIL', time, 'ORDER', 'BY', 'hour', 'ASC']
         query += ['LIMIT', '10000']
         params = {
             'token': token,
             'q': ' '.join(query),
             'beta': 'true',
-            'o': 'time:"completed_at"',
+            'o': '',
             'timezone': 'Asia/Ho_Chi_Minh'
         }
-        'https://inochishop.mysapogo.com/admin/analytics/sale_orders/return_by_order'
+        # print(params)
+        self.browser.headers.update({
+            'x-sapo-tenantid': str(self.TENANT)
+        })
+        # print(str(self.TENANT))
+        r = self.browser.get('https://analytics.sapo.vn/query', params=params)
+        # print(r.text)
+        headers = []
+        for _ in r.json()['result']['columns']:
+            headers.append(_['field'])
+        orders = {}
+        for _ in r.json()['result']['data']:
+            data = dict(zip(headers, _))
+            # print(data)
+            code = f'R_{data["order_code"]}'
+            pur_date = data['hour'].split('+')[0]
+            pur_date = datetime.strptime(pur_date, '%Y-%m-%dT%H:%M:%S')
+            pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+            total = data['returns']
+            if total == 0: continue
+            # discount = data['discounts']
+            # if len(data['variant_sku'].strip()):
+            ods = [{
+                'Code': data['variant_sku'].strip(),
+                'Name': data['product_name'].strip(),
+                'Price': data['product_price'],
+                'Quantity': data['returned_item_quantity'] * -1
+            }]
+            # else:
+            #     ods = [{'ProductId': 0}]
+            if orders.get(code) is None:
+                orders.update({
+                    code:{
+                        'Code': code,
+                        'Status': 2,
+                        'PurchaseDate': pur_date,
+                        'Total': total,
+                        'TotalPayment': total,
+                        'VAT': 0,
+                        'Discount': 0,
+                        'OrderDetails': ods,
+                        'PaymentMethods': [{'Name': 'CASH', 'Value': total}]
+                    }
+                })
+            else:
+                orders[code]['Total'] += total
+                orders[code]['TotalPayment'] += total
+                # orders[code]['Discount'] += discount
+                orders[code]['PaymentMethods'] = [{
+                    'Name': 'CASH',
+                    'Value': orders[code]['Total']
+                }]
+                orders[code]['OrderDetails'].extend(ods)
+        for _, order in orders.items():
+            # print(order)
+            submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)
+            pm = {
+                'Code': f'{order["Code"]}-CASH',
+                'OrderCode': order["Code"],
+                'Amount': order["Total"],
+                'TransDate': order["PurchaseDate"],
+                'AccountId': 'CASH'
+            }
+            submit_payment(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, pm)
 
     def get_data(self):
         self.login()
         self.get_details()
         self.get_orders()
+        self.get_returns()
         return
 
 # x = 29

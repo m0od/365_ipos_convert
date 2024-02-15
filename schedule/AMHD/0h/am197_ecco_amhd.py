@@ -3,7 +3,7 @@ import os
 import random
 import shutil
 import sys
-import openpyxl
+import xlrd
 from datetime import datetime, timedelta
 from os.path import dirname
 
@@ -21,8 +21,8 @@ class AM197(object):
 
     def scan_file(self):
         try:
-            files = glob.glob(f'{self.FULL_PATH}/{self.EXT}')
-            return max(files, key=os.path.getmtime)
+            return glob.glob(f'{self.FULL_PATH}/{self.EXT}')
+            # return max(files, key=os.path.getmtime)
         except:
             return None
 
@@ -41,46 +41,61 @@ class AM197(object):
             pass
 
     def get_data(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
         from pos_api.adapter import submit_error, submit_order
-        DATA = self.scan_file()
-        if not DATA:
+        files = self.scan_file()
+        if not len(files):
             submit_error(self.ADAPTER_RETAILER, 'FILE_NOT_FOUND')
             return
-        dataframe = openpyxl.load_workbook(DATA, data_only=True)
-        sheet = dataframe[dataframe.sheetnames[0]]
-        nRows = sheet.max_row + 1
-        orders = []
-        headers = []
-        for _ in sheet[1]:
-            headers.append(str(_.value).strip().upper())
-        for row in range(2, nRows):
-            rec = dict(zip(headers, sheet[row]))
-            pur_date = f'{str(rec["DATE"].value)[:-8].strip()} {rec["TIME"].value}'
-            try:
+        for DATA in files:
+            ws = xlrd.open_workbook(DATA)
+            raw = list(ws.sheets())[0]
+            orders = []
+            headers = []
+            for _ in raw.row(0):
+                headers.append(str(_.value).strip().upper())
+            # print(headers)
+            for i in range(1, raw.nrows):
+                # print(raw.row(i))
+                rec = dict(zip(headers, raw.row(i)))
+                try:
+                    pur_date = xlrd.xldate_as_datetime(rec["DATE"].value, ws.datemode)
+                    t = xlrd.xldate_as_datetime(rec["TIME"].value, ws.datemode)
+                    pur_date = pur_date.replace(hour=t.hour, minute=t.minute, second=t.second)
+                except:
+                    continue
+                # print(str(rec["DATE"].value))
+                # print(str(rec["TIME"].value))
+                # pur_date = f'{str(rec["DATE"].value)[:-8].strip()} {rec["TIME"].value}'
+                # try:
+                #     print(pur_date)
+                #     pur_date = datetime.strptime(pur_date, '%Y-%m-%d %H:%M:%S')
+                # except:
+                #     continue
                 # print(pur_date)
-                pur_date = datetime.strptime(pur_date, '%Y-%m-%d %H:%M:%S')
-            except:
-                continue
-            # print(pur_date)
-            code = str(rec["BILL_NO"].value).strip()
-            total = round(float(rec["TOTAL"].value), 0)
-            pm = str(rec["TENDER"].value).strip()
-            # print(sheet[row][2].value)
-            # total = sheet[row][2].value
-            # print(sheet[row][3].value)
-            # code = f'HD-{pur_date.strftime("%d%m%y")}-{len(orders) + 1:05d}'
-            orders.append({
-                'Code': code,
-                'Status': 2,
-                'PurchaseDate': pur_date.strftime('%Y-%m-%d %H:%M:%S'),
-                'Total': total,
-                'TotalPayment': total,
-                'VAT': 0,
-                'Discount': 0,
-                'OrderDetails': [{'ProductId': 0}],
-                'PaymentMethods': [{'Name': pm, 'Value': total}]
-            })
-            # print(orders[-1])
-        for order in orders:
-            submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)
-        self.backup(DATA)
+                code = str(int(rec["BILL_NO"].value)).strip()
+                total = get_value(rec["TOTAL"].value)
+                pm = str(rec["TENDER"].value).strip()
+                # print(sheet[row][2].value)
+                # total = sheet[row][2].value
+                # print(sheet[row][3].value)
+                # code = f'HD-{pur_date.strftime("%d%m%y")}-{len(orders) + 1:05d}'
+                orders.append({
+                    'Code': code,
+                    'Status': 2,
+                    'PurchaseDate': pur_date.strftime('%Y-%m-%d %H:%M:%S'),
+                    'Total': total,
+                    'TotalPayment': total,
+                    'VAT': 0,
+                    'Discount': 0,
+                    'OrderDetails': [{'ProductId': 0}],
+                    'PaymentMethods': [{'Name': pm, 'Value': total}]
+                })
+                # print(orders[-1])
+            for order in orders:
+                submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)
+            self.backup(DATA)

@@ -18,6 +18,7 @@ class KIOTVIET(object):
             'api-man1.kiotviet.vn',
             'api-man2.kiotviet.vn'
         ]
+        self.SALE_SRC = ['null']
         self.API_MAN = None
         self.TOKEN = None
         self.BRANCH_ID = None
@@ -69,7 +70,12 @@ class KIOTVIET(object):
         since = since.strftime('%Y-%m-%dT00:00:00')
         until = until.strftime('%Y-%m-%dT00:00:00')
         while True:
-            filter = ['(', 'SaleChannelId', 'eq', 'null']
+            filter = ['((']
+            _src = []
+            for src in self.SALE_SRC:
+                _src.append(' '.join(['SaleChannelId', 'eq', src]))
+            filter += [' or '.join(_src)]
+            filter += [')']
             filter += ['and', 'PurchaseDate', 'ge', f"datetime'{since}'"]
             filter += ['and', 'PurchaseDate', 'lt', f"datetime'{until}'"]
             filter += ['and', '(', 'Status', 'eq', '3']
@@ -81,6 +87,7 @@ class KIOTVIET(object):
                 '$filter': ' '.join(filter),
                 '$skip': str(skip)
             }
+            # print(params)
             self.browser.headers.update({
                 'authorization': f'Bearer {self.TOKEN}',
                 'branchId': self.BRANCH_ID

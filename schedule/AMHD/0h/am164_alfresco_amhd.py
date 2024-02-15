@@ -5,7 +5,7 @@ import sys
 from datetime import datetime, timedelta
 from os.path import dirname
 
-import openpyxl
+import xlrd
 
 
 class AM164(object):
@@ -30,34 +30,33 @@ class AM164(object):
             return None
 
     def get_data(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
         from pos_api.adapter import submit_error, submit_order
         DATA = self.scan_file()
         if not DATA:
             submit_error(self.ADAPTER_RETAILER, 'FILE NOT FOUND')
             return
-        dataframe = openpyxl.load_workbook(DATA, data_only=True)
-        raw = dataframe['Danh sach don hang']
+        ws = xlrd.open_workbook(DATA)
+        raw = ws.sheet_by_name('Danh sach don hang')
         orders = {}
-        for row in range(10, raw.max_row + 1):
+        for i in range(9, raw.nrows):
             try:
                 pm = []
-                code = raw[row][5].value
+                code = raw.row(i)[5].value
                 if code is None: break
                 code = str(code).strip()
                 if len(code) == 0: break
-                pur_date = raw[row][7].value
+                pur_date = raw.row(i)[7].value
                 pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M%S')
-                now = datetime.now() - timedelta(days=1)
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
-                try:
-                    discount = abs(float(raw[row][8].value))
-                except:
-                    discount = 0
-                try:
-                    total = float(raw[row][9].value)
-                except:
-                    total = 0
-                vat = raw[row][5].value
+                print(pur_date)
+                discount = abs(get_value(raw.row(i)[8].value))
+                total = get_value(raw.row(i)[9].value)
+                vat = get_value(raw.row(i)[5].value)
                 if orders.get(code) is None:
                     orders.update({code: {
                         'Code': code,
@@ -80,17 +79,17 @@ class AM164(object):
                     })
             except:
                 pass
-        raw = dataframe['Phuong thuc thanh toan']
+        raw = ws.sheet_by_name('Phuong thuc thanh toan')
         pms = {}
-        for row in range(10, raw.max_row + 1):
-            code = raw[row][5].value
+        for i in range(9, raw.nrows):
+            code = raw.row(i)[5].value
             # print(code)
             if code is None: break
             code = str(code).strip()
             if len(code) == 0: break
-            name = str(raw[row][6].value).strip().upper()
+            name = str(raw.row(i)[6].value).strip().upper()
             if name == 'NONE' or name == 'TIỀN MẶT': name = 'CASH'
-            value = raw[row][7].value
+            value = get_value(raw.row(i)[7].value)
             if pms.get(code) is None:
                 pms.update({code: [{'Name': name, 'Value': value}]})
             else:
@@ -100,13 +99,13 @@ class AM164(object):
                 orders[k].update({'PaymentMethods': v})
         for k, v in orders.items():
             if v.get('OrderDetails') is None:
-                v.update({'OrderDetails': []})
+                v.update({'OrderDetails': [{'ProductId': 0}]})
             if v.get('PaymentMethods') is None:
                 v.update({'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]})
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
         self.backup(DATA)
-        if len(orders.items()) == 0:
-            self.send_zero()
+        # if len(orders.items()) == 0:
+        #     self.send_zero()
 
     def backup(self, DATA):
         idx = DATA.rindex('/')

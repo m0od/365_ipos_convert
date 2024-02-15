@@ -12,7 +12,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from os.path import dirname
 from pathlib import Path
-import openpyxl
+import xlrd
 
 
 class AM003(object):
@@ -33,24 +33,31 @@ class AM003(object):
         self.xlsx_path = None
 
     def extract_data(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
         from pos_api.adapter import submit_error, submit_order
-        dataframe = openpyxl.load_workbook(self.xlsx_path, data_only=True)
-        data = dataframe.worksheets[0]
+        ws = xlrd.open_workbook(self.xlsx_path)
+        raw = list(ws.sheets())[0]
         orders = {}
-        for row in range(2, data.max_row + 1):
-            code = data[row][1].value
+        for i in range(1, raw.nrows):
+            code = raw.row(i)[1].value
             if not code: continue
             code = str(code).strip()
             if not len(code): continue
-            pur_date = data[row][2].value
-            discount = abs(float(data[row][9].value))
-            vat = abs(float(data[row][8].value))
-            total = abs(float(data[row][7].value)) + vat
+            pur_date = raw.row(i)[2].value
+            pur_date = (pur_date - 25569) * 86400
+            pur_date = datetime.utcfromtimestamp(pur_date)
+            discount = abs(get_value(raw.row(i)[9].value))
+            vat = abs(get_value(raw.row(i)[8].value))
+            total = abs(get_value(raw.row(i)[7].value)) + vat
             ods = {
-                'Name': data[row][4].value,
-                'Code': data[row][3].value,
-                'Price': float(data[row][5].value),
-                'Quantity': abs(float(data[row][6].value)),
+                'Name': raw.row(i)[4].value,
+                'Code': raw.row(i)[3].value,
+                'Price': get_value(raw.row(i)[5].value),
+                'Quantity': abs(get_value(raw.row(i)[6].value)),
             }
             if not orders.get(code):
                 orders.update({

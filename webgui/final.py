@@ -1,6 +1,6 @@
 import os
 
-from pymongo import MongoClient
+# from pymongo import MongoClient
 
 # from flask_socketio import SocketIO
 
@@ -24,7 +24,7 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or key
     JSON_SORT_KEYS = False
     SQLALCHEMY_BINDS = {
-        'ipos365': 'mysql://root:7y!FY^netG!jn>f+@localhost/ipos365?charset=utf8mb4',
+        'ipos365': 'mysql://root:7y!FY^netG!jn>f+@localhost/adap_db?charset=utf8mb4',
     }
 
     SQLALCHEMY_ECHO = False
@@ -46,7 +46,7 @@ def create_app(config=Config):
     # app.db = client.adapter
     init_utils(app)
     app.register_blueprint(common)
-    app.register_blueprint(technical)
+    # app.register_blueprint(technical)
     # app.register_blueprint(noti)
     # app.init_app(app)
     # init_utils(app)

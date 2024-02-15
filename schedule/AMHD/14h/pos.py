@@ -46,7 +46,7 @@ class POS365(object):
 
     def get_minus_payment(self):
         skip = 0
-        since = datetime.now() - timedelta(days=19)
+        since = datetime.now() - timedelta(days=2)
         until = datetime.now() - timedelta(days=1)
         since = since.strftime('%Y-%m-%dT17:00:00Z')
         until = until.strftime('%Y-%m-%dT16:59:00Z')

@@ -25,6 +25,8 @@ class AM102(object):
         params = {
             'TuNgay': self.DATE.strftime('%Y-%m-%d'),
             'DenNgay': self.DATE.strftime('%Y-%m-%d')
+            # 'TuNgay': '2023-12-01',
+            # 'DenNgay': '2023-12-31'
         }
         headers = {
             'TaiKhoan': self.USER,

@@ -13,7 +13,7 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from os.path import dirname
 from pathlib import Path
-import openpyxl
+import xlrd
 
 
 class AM115(object):
@@ -33,57 +33,70 @@ class AM115(object):
         self.NOW = datetime.now() - timedelta(days=1)
         self.xlsx_path = None
 
-    def get_float(self, d):
-        try:
-            return float(d.value)
-        except:
-            return 0
+    # def get_float(self, d):
+    #     try:
+    #         return float(d.value)
+    #     except:
+    #         return 0
 
     def extract_data(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
+        def get_date(value):
+            try:
+                value = (value - 25569) * 86400.0
+                value = datetime.utcfromtimestamp(value)
+                return value.strftime('%Y-%m-%d')
+            except:
+                return 0
         from pos_api.adapter import submit_error, submit_order
-        dataframe = openpyxl.load_workbook(self.xlsx_path, data_only=True)
-        data = dataframe.worksheets[0]
+        ws = xlrd.open_workbook(self.xlsx_path)
+        raw = list(ws.sheets())[0]
         orders = {}
-        for row in range(5, data.max_row + 1):
-            code = data[row][4].value
+        for i in range(4, raw.nrows):
+            code = raw.row(i)[4].value
             if not code: continue
             code = str(code).strip()
             if not len(code): continue
-            pur_date = f'{str(data[row][7].value)[:-8]}{str(data[row][8].value)}'
+            pur_date = f'{get_date(raw.row(i)[7].value)} {str(raw.row(i)[8].value)}'
+            # print(pur_date)
             try:
                 pur_date = datetime.strptime(pur_date, '%Y-%m-%d %H:%M')
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
             except:
                 continue
-            print(code)
-            discount = self.get_float(data[row][11])
-            total = self.get_float(data[row][18])
-            vat = self.get_float(data[row][15])
-            cash = self.get_float(data[row][24])
-            cash += self.get_float(data[row][25])
-            cash += self.get_float(data[row][27])
-            cash += self.get_float(data[row][28])
-            voucher = self.get_float(data[row][29])
-            voucher += self.get_float(data[row][30])
-            voucher += self.get_float(data[row][31])
-            voucher += self.get_float(data[row][32])
-            voucher += self.get_float(data[row][41])
-            voucher += self.get_float(data[row][42])
-            voucher += self.get_float(data[row][43])
-            voucher += self.get_float(data[row][44])
-            voucher += self.get_float(data[row][45])
-            voucher += self.get_float(data[row][46])
-            voucher += self.get_float(data[row][48])
-            voucher += self.get_float(data[row][49])
-            vani = self.get_float(data[row][33])
-            vnpay = self.get_float(data[row][34])
-            vnpay += self.get_float(data[row][47])
-            zalopay = self.get_float(data[row][35])
-            momo = self.get_float(data[row][36])
-            jamja = self.get_float(data[row][37])
-            metee = self.get_float(data[row][38])
-            mediaone = self.get_float(data[row][39])
-            sodexo = self.get_float(data[row][40])
+            # print(code)
+            discount = get_value(raw.row(i)[11].value)
+            total = get_value(raw.row(i)[18].value)
+            vat = get_value(raw.row(i)[15].value)
+            cash = get_value(raw.row(i)[24].value)
+            cash += get_value(raw.row(i)[25].value)
+            cash += get_value(raw.row(i)[27].value)
+            cash += get_value(raw.row(i)[28].value)
+            voucher = get_value(raw.row(i)[29].value)
+            voucher += get_value(raw.row(i)[30].value)
+            voucher += get_value(raw.row(i)[31].value)
+            voucher += get_value(raw.row(i)[32].value)
+            voucher += get_value(raw.row(i)[41].value)
+            voucher += get_value(raw.row(i)[42].value)
+            voucher += get_value(raw.row(i)[43].value)
+            voucher += get_value(raw.row(i)[44].value)
+            voucher += get_value(raw.row(i)[45].value)
+            voucher += get_value(raw.row(i)[46].value)
+            voucher += get_value(raw.row(i)[48].value)
+            voucher += get_value(raw.row(i)[49].value)
+            vani = get_value(raw.row(i)[33].value)
+            vnpay = get_value(raw.row(i)[34].value)
+            vnpay += get_value(raw.row(i)[47].value)
+            zalopay = get_value(raw.row(i)[35].value)
+            momo = get_value(raw.row(i)[36].value)
+            jamja = get_value(raw.row(i)[37].value)
+            metee = get_value(raw.row(i)[38])
+            mediaone = get_value(raw.row(i)[39].value)
+            sodexo = get_value(raw.row(i)[40].value)
             pms = [
                 {'Name': 'CASH', 'Value': cash},
                 {'Name': 'VOUCHER', 'Value': voucher},
@@ -95,8 +108,8 @@ class AM115(object):
                 {'Name': 'MEDIAONE', 'Value': mediaone},
                 {'Name': 'SODEXO', 'Value': sodexo},
                 {
-                    'Name': str(data[row][5].value).upper().strip(),
-                    'Value': self.get_float(data[row][26])
+                    'Name': str(raw.row(i)[5].value).upper().strip(),
+                    'Value': get_value(raw.row(i)[26].value)
                 },
 
             ]

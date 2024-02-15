@@ -23,7 +23,7 @@ class AM044(object):
     def scan_file(self):
         try:
             files = glob.glob(f'{self.FULL_PATH}/{self.EXT}')
-            return max(files, key=os.path.getmtime)
+            return files
         except:
             return None
 
@@ -127,17 +127,18 @@ class AM044(object):
 
     def get_data(self):
         from pos_api.adapter import submit_error
-        DATA = self.scan_file()
-        if not DATA:
+        files = self.scan_file()
+        if not files:
             submit_error(self.ADAPTER_RETAILER, 'FILE_NOT_FOUND')
             return
-        try:
-            self.GG.google_auth()
-            SHEET_ID = self.GG.create_sheet(DATA)
-            self.extract_data(SHEET_ID)
-            self.backup(DATA)
-        except Exception as e:
-            submit_error(self.ADAPTER_RETAILER, reason=str(e))
+        for DATA in files:
+            try:
+                self.GG.google_auth()
+                SHEET_ID = self.GG.create_sheet(DATA)
+                self.extract_data(SHEET_ID)
+                self.backup(DATA)
+            except Exception as e:
+                submit_error(self.ADAPTER_RETAILER, reason=str(e))
 
     def send_zero(self):
         from pos_api.adapter import submit_order

@@ -19,7 +19,7 @@ class AM175(object):
 
     def scan_file(self):
         try:
-            files = glob.glob(f'{self.FULL_PATH}/{self.FOLDER}/{self.EXT}')
+            files = glob.glob(f'{self.FULL_PATH}/{self.EXT}')
             return max(files, key=os.path.getmtime)
         except:
             return None

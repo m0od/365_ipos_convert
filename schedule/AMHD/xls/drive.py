@@ -72,9 +72,10 @@ class Google(object):
         }
         media = MediaFileUpload(
             DATA,
-            mimetype='application/vnd.ms-excel',
+            # mimetype='application/vnd.ms-excel',
             resumable=True
         )
+        # while True:
         _ = self.DRIVE.files().create(
             body=file_metadata,
             media_body=media,

@@ -1,4 +1,3 @@
-import json
 import sys
 from datetime import datetime, timedelta
 from os.path import dirname

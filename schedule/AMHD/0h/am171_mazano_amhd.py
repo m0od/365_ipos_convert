@@ -41,25 +41,32 @@ class AM171(object):
             pass
 
     def get_data(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
+
         from pos_api.adapter import submit_error, submit_order
         DATA = self.scan_file()
         if not DATA:
             submit_error(retailer=self.ADAPTER_RETAILER, reason='FILE_NOT_FOUND')
             return
         dataframe = xlrd.open_workbook(DATA)
-        sheet = dataframe[0]
+        raw = list(dataframe.sheets())[0]
         orders = {}
-        nRows = sheet.nrows
-        for row in range(1, nRows - 1):
+        nRows = raw.nrows
+        for i in range(1, nRows - 1):
             try:
                 code = f"{self.now.strftime('%d%m%y')}-{len(list(self.ORDERS.keys())) + 1}"
-                p_code = sheet[row][1].value
-                name = sheet[row][2].value
-                qty = float(sheet[row][4].value)
-                price = float(sheet[row][5].value)
-                discount = float(sheet[row][7].value) + float(sheet[row][8].value)
-                vat = float(sheet[row][9].value)
-                total = float(sheet[row][10].value)
+                p_code = raw.row(i)[1].value
+                name = raw.row(i)[2].value
+                qty = get_value(raw.row(i)[4].value)
+                price = get_value(raw.row(i)[5].value)
+                discount = get_value(raw.row(i)[7].value)
+                discount += get_value(raw.row(i)[8].value)
+                vat = get_value(raw.row(i)[9].value)
+                total = get_value(raw.row(i)[10].value)
                 self.ORDERS.update({code: {
                     'Code': code,
                     'Status': 2,

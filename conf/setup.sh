@@ -3,27 +3,28 @@
 #env Centos7.9.2009
 yum -y update
 curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
-
+mariadb-server mariadb-devel nginx redis
 yum clean all
 yum -y group install "Development Tools"
 yum -y install epel-release
 yum -y install centos-release-scl
-yum -y install nano mariadb-server mariadb-devel nginx redis gcc perl-core pcre-devel wget zlib-devel devtoolset-8
+yum -y install nano gcc perl-core pcre-devel wget zlib-devel devtoolset-8
 scl enable devtoolset-8 -- bash
-wget https://ftp.openssl.org/source/openssl-3.1.0.tar.gz
-tar -xvf openssl-3.1.0.tar.gz
-rm -rf openssl-3.1.0.tar.gz
-cd openssl-3.1.0
+wget https://ftp.openssl.org/source/openssl-3.2.0.tar.gz
+tar -xvf openssl-3.2.0.tar.gz
+rm -rf openssl-3.2.0.tar.gz
+cd openssl-3.2.0
 ./config --prefix=/usr --openssldir=/etc/ssl --libdir=lib no-shared zlib-dynamic
 make && make install
 echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64" > /etc/profile.d/openssl.sh
 source /etc/profile.d/openssl.sh
-cd .. && rm -rf openssl-3.1.0
-wget https://www.python.org/ftp/python/3.11.3/Python-3.11.3.tgz
-tar -xvf Python-3.11.3.tgz
-rm -rf Python-3.11.3.tgz
-cd Python-3.11.3
-
+cd .. && rm -rf openssl-3.2.0
+curl -O http://www.litespeedtech.com/packages/lsapi/wsgi-lsapi-2.1.tgz
+tar xf wsgi-lsapi-2.1.tgz
+cd wsgi-lsapi-2.1
+python3 ./configure.py
+make
+cp lswsgi ../bin/
 wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz
 tar -xvf Python-3.10.13.tgz
 rm -rf Python-3.10.13.tgz
@@ -32,11 +33,12 @@ cd Python-3.10.13
 make altinstall
 cd .. && rm -rf Python-3.10.13
 mkdir test
-python3.11 -m venv test
+python3.10 -m venv test
 cd test
 source bin/activate
 pip install uwsgi
-
+deactivate
+cd .. && rm -rf test
 cd /home/adapter/webtool/conf
 cp redis_6380.conf /etc/redis_6380.conf
 cp redis_6380.service /usr/lib/systemd/system/redis_6380.service

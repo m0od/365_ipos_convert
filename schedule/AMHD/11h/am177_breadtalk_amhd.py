@@ -13,7 +13,6 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from os.path import dirname
 from pathlib import Path
-
 import requests
 import xlrd
 
@@ -55,12 +54,12 @@ class AM177(object):
         # from pos_api.adapter import submit_order, submit_payment
         sys_report = self.scan_file('System*.xls')
         excel = xlrd.open_workbook(sys_report)
-        raw = excel[0]
+        raw = list(excel.sheets())[0]
         nRows = raw.nrows
         card = 0
         extract = {}
-        for row in range(1, nRows):
-            data = raw[row][2].value
+        for i in range(1, nRows):
+            data = raw.row(i)[2].value
             if not len(data.strip()): continue
             for keyword in [
                 'Rounding Total', 'Non $ Col Diff',
@@ -80,14 +79,15 @@ class AM177(object):
                         # print(keyword, _)
                         qty = int(_[-2].replace(',', ''))
                         total = int(_[-1].replace(',', ''))
-                        extract.update({
-                            keyword.upper(): {
-                                'Code': keyword.upper(),
-                                'Name': keyword.upper(),
-                                'Price': round(total / qty, 0),
-                                'Quantity': qty
-                            }
-                        })
+                        if qty > 0:
+                            extract.update({
+                                keyword.upper(): {
+                                    'Code': keyword.upper(),
+                                    'Name': keyword.upper(),
+                                    'Price': round(total / qty, 0),
+                                    'Quantity': qty
+                                }
+                            })
                     else:
                         _ = data.replace(keyword, '').strip().split()[-1]  # print(keyword, _)
                         _ = int(_.replace(',', ''))
@@ -143,10 +143,9 @@ class AM177(object):
             {'Name': 'ZALOPAY', 'Value': zalo},
         ]
         ods = []
-        ods.append(extract['BREAD'])
-        ods.append(extract['CAKE'])
-        ods.append(extract['BEVERAGE'])
-        ods.append(extract['OTHERS'])
+        for key in ['BREAD', 'CAKE', 'BEVERAGE', 'OTHERS']:
+            if extract.get(key):
+                ods.append(extract[key])
         for _ in pms.copy():
             if _['Value'] == 0:
                 pms.remove(_)
@@ -172,10 +171,10 @@ class AM177(object):
         })
 
     def get_time_report(self):
-        # from pos_api.adapter import submit_order, submit_payment
+        from pos_api.adapter import submit_order, submit_payment
         time_report = self.scan_file('Time*.xls')
         time = xlrd.open_workbook(time_report)
-        raw = time[0]
+        raw = list(time.sheets())[0]
         nRows = raw.nrows
         next = False
         ord = {
@@ -184,10 +183,10 @@ class AM177(object):
             'Hour': None
         }
         sales = []
-        for row in range(14, nRows):
+        for i in range(14, nRows):
             # if next:
 
-            code = raw[row][2].value
+            code = raw.row(i)[2].value
             if not len(code.strip()):
                 continue
             elif 'Net Sales Total' in code:
@@ -229,7 +228,7 @@ class AM177(object):
                 'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]
             })
             # submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=order)
-            for i in range(1,_['Count']):
+            for i in range(1, _['Count']):
                 self.ORDERS_COUNT.append({
                     'Code': f'TIME_{self.DATE.strftime("%Y%m%d")}_{_["Hour"]}_{i}',
                     'Status': 2,
@@ -263,57 +262,27 @@ class AM177(object):
             except:
                 pass
 
-    def check_total(self):
-        since = self.DATE - timedelta(hours=7)
-        since = since.strftime('%Y-%m-%dT17:00:00Z')
-        before = self.DATE.strftime('%Y-%m-%dT16:59:00Z')
-        self.browser.headers.update({'content-type': 'application/json'})
-        while True:
-            if self.TOTAL == 0: break
-            try:
-                filter = []
-                filter += ['Status', 'eq', '2']
-                filter += ['and']
-                filter += ['PurchaseDate', 'ge']
-                filter += [f"'datetime''{since}'''"]
-                filter += ['and']
-                filter += ['PurchaseDate', 'lt']
-                filter += [f"'datetime''{before}'''"]
-                # filter = str(*filter)
-                print(' '.join(filter))
-                params = {
-                    'Top': '1',
-                    'IncludeSummary': 'true',
-                    'Filter': ' '.join(filter)
-                }
-                r = self.browser.get(f'{self.POS}/api/orders',
-                                     params=params,
-                                     timeout=5).json()
-                print(self.TOTAL, r['results'][0]['Total'])
-                if self.TOTAL == r['results'][0]['Total']:
-                    return
-                time.sleep(30)
-            except Exception as e:
-                print(e.__class__.__name__)
-                time.sleep(5)
-
     def submit_data(self):
         from pos_api.adapter import submit_order, submit_payment
-        self.login()
+        # self.login()
+        print(self.ORDERS)
         self.TOTAL = 0
         for _ in self.ORDERS:
+            print(_)
             self.TOTAL += _['Total']
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=_)
-        self.check_total()
+        # self.check_total()
         for _ in self.TRANS:
             # print(_)
             submit_payment(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=_)
+
     def submit_count(self):
         from pos_api.adapter import submit_order, submit_payment
         for _ in self.ORDERS_COUNT:
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=_)
+
     def forward_amhd(self):
-          # Enter receiver address
+        # Enter receiver address
         message = MIMEMultipart()
         message['Subject'] = f'Breadtalk Backup {self.DATE.strftime("%d-%m-%Y")}'
         message['From'] = self.gmail_user
@@ -334,7 +303,7 @@ class AM177(object):
                 server.sendmail(self.gmail_user, toAddr, message.as_string())
                 break
             except Exception as e:
-                print(e)
+                print(337, e)
                 pass
 
     def get_data(self):
@@ -345,16 +314,21 @@ class AM177(object):
         since = before - timedelta(days=1)
         before = before.strftime('%d-%b-%Y')
         since = since.strftime('%d-%b-%Y')
+        # print(since)
         search = []
         search += ['FROM', self.breadtalk_email]
         search += ['SINCE', f"{since}"]
         tmp, data = imap.search(None, *search)
         for num in data[0].split():
+            # print(num)
+
             tmp, data = imap.fetch(num, '(RFC822)')
             msg = email.message_from_bytes(data[0][1])
             attachment = msg.get_payload()
             for item in attachment:
+                # print(item.get_content_type())
                 if item.get_content_type() == 'application/octet-stream':
+
                     self.z_path = f'{self.FULL_PATH}/{item.get_filename()}'
                     self.extract_path = f'{self.FULL_PATH}/{since}_{num.decode("utf-8")}'
                     f = open(self.z_path, 'wb')
@@ -365,12 +339,14 @@ class AM177(object):
                     self.ORDERS = []
                     self.ORDERS_COUNT = []
                     self.get_sys_report()
+                    # print(self.DATE)
+                    # print(self.DATE.strftime('%d-%b-%Y') == since)
                     if self.DATE.strftime('%d-%b-%Y') == since:
                         self.get_time_report()
                         self.submit_data()
                         self.forward_amhd()
                         self.submit_count()
-        #     p = subprocess.Popen(['rm', '-rf', f'{self.FULL_PATH}/*'], shell=False, stdout=subprocess.PIPE)
+            subprocess.Popen(['rm', '-rf', f'{self.FULL_PATH}/*'], shell=False)
         #     p = subprocess.Popen(['whoami'], shell=False, stdout=subprocess.PIPE)
         #     print(p.communicate())
         #     p = subprocess.Popen(['rm', '-rf', f'{self.FULL_PATH}/*', '-v'],

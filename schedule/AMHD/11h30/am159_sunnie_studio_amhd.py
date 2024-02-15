@@ -11,11 +11,11 @@ class AM159(object):
     def __init__(self):
         PATH = dirname(dirname(dirname(__file__)))
         sys.path.append(PATH)
-        self.ADAPTER_RETAILER = 'fitflop_amhd'
-        self.ADAPTER_TOKEN = 'f6e824d781e747eded7e1e75f2e2ddb56210d98cf55ab7f1e496db82af7998c7'
+        self.ADAPTER_RETAILER = 'sunnie_studio_amhd'
+        self.ADAPTER_TOKEN = 'c10a6d107a05410080502bb0826c9531861b9894051f23c11ff9cf052835f2a3'
         self.FOLDER = 'acfc_amhd'
         self.FULL_PATH = f'/home/{self.FOLDER}'
-        self.EXT = 'AMHD-101*CSV'
+        self.EXT = 'AMHD-283*CSV'
         self.ORDERS = {}
 
     def scan_file(self):

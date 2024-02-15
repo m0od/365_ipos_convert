@@ -39,6 +39,7 @@ def submit_payment(retailer=None, token=None, data=None):
             }
             res = requests.post(URL, headers=headers, json=data, timeout=10)
             # print(res.text)
+            print(data['Code'], res.text.strip())
             if res.json()['result_id'] is not None: return True
             return False
         # except ConnectionError as ce:

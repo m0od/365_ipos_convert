@@ -12,7 +12,7 @@ class AM043(object):
         self.ADAPTER_TOKEN = '9691940f7835e84077bc89d548fa86dc7c70e6268ada508cee2cd033e025cb37'
         self.NHANH = NHANH()
         self.NHANH.ACCOUNT = 'cht_hn10'
-        self.NHANH.PASSWORD = 'jm2468'
+        self.NHANH.PASSWORD = 'jm246810'
         self.NHANH.DATE = datetime.now() - timedelta(days=1)
         self.NHANH.METHOD = {
             'Quẹt thẻ': 'THẺ',
@@ -22,6 +22,7 @@ class AM043(object):
             'Tiền mặt trả khách': 'CASH',
             'Tiền mặt': 'CASH'
         }
+        self.NHANH.MODE = str(2)
 
     def get_data(self):
         from pos_api.adapter import submit_error, submit_order

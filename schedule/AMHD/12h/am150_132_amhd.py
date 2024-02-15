@@ -6,8 +6,6 @@ from datetime import datetime, timedelta
 from os.path import dirname
 
 
-
-
 class AM150(object):
     def __init__(self):
         PATH = dirname(dirname(dirname(__file__)))

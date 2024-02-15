@@ -16,6 +16,7 @@ class NHANH(object):
         self.CSRF = None
         self.ORDERS = {}
         self.RETURNS = {}
+        self.MODE = None
 
     def get_login_page(self):
         try:
@@ -62,6 +63,8 @@ class NHANH(object):
                 'toDate': self.DATE.strftime('%d/%m/%Y'),
                 'page': str(page)
             }
+            if self.MODE:
+                p.update({'mode': self.MODE})
             r = self.browser.get(f'{self.URL}/pos/return/index', params=p)
             html = BeautifulSoup(r.text, 'html.parser')
             tbody = html.find('tbody').findAll('tr')

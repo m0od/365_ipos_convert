@@ -112,13 +112,3 @@ class AM113(object):
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=f'[FETCH DATA] {str(e)}')
             return False
-
-
-# if __name__:
-#     import sys
-#
-#     PATH = dirname(dirname(__file__))
-#     # PATH = dirname(dirname(dirname(__file__)))
-#     sys.path.append(PATH)
-#     from schedule.pos_api.adapter import submit_error, submit_order, submit_payment
-    # MeganePrince().get_data(datetime.now()-timedelta(days=4))

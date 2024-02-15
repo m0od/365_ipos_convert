@@ -1,13 +1,23 @@
 import requests
 
-url = 'https://applestorehp1.pos365.vn'
+url = 'https://am167.pos365.vn'
 
 b = requests.session()
+# b.proxies.update({
+#     'http': 'socks5://adapter.pos365.vn:13337'
+# })
 b.headers.update({'content-type': 'application/json'})
-r = b.post(url + '/api/auth', json={'username': 'quantri@pos365.vn', 'password':'IT@P0s365kmS'})
+r = b.post(url + '/api/auth', json={
+    'username': 'admin',
+    'password':'aeonhd'
+})
 skip = 0
 while True:
-    r = b.get(url + '/api/partners', params={'Top': '50', 'Skip': str(skip), 'Type':'2'})
+    r = b.get(url + '/api/orders', params={
+        'Top': '50', 'Skip': str(skip),
+        # 'Type':'2',
+        'Filter': f"substringof('202401',Code)"
+    })
     if r.status_code != 200: continue
     # print(r.text)
     js = r.json()['results']

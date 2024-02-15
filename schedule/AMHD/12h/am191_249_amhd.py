@@ -27,25 +27,32 @@ class AM191(object):
             return None
 
     def get_newera(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
         from pos_api.adapter import submit_order, submit_error
-        DATA = self.scan_file(f'N*.xls')
+        DATA = self.scan_file(f'N*{self.DATE}.xls')
+        # print(DATA)
         if not DATA:
             submit_error(retailer=self.ADAPTER_RETAILER, reason='NEWERA_NOT_FOUND')
             return
         wb = xlrd.open_workbook(DATA)
-        sheet = wb[0]
-        nrows = sheet.nrows
+        raw = list(wb.sheets())[0]
+        nrows = raw.nrows
 
         try:
-            pur_date = sheet[1][1].value.strip()
+            pur_date = raw.row(1)[1].value
+            # print(pur_date)
             if len(pur_date) == 0: raise Exception
             pur_date = datetime.strptime(pur_date, '%d-%m-%Y')
             ods = []
-            for row in range(2, nrows):
-                code = sheet[row][0].value
+            for i in range(2, nrows):
+                code = raw.row(i)[0].value
                 if 'Total For' in code and pur_date.strftime('%d-%m-%Y') not in code:
                     code = code.replace('Total For', '').strip()[:-1].strip()
-                    total = float(sheet[row][-2].value)
+                    total = get_value(raw.row(i)[-2].value)
                     data = {
                         'Code': f'NEWERA_{code}',
                         'Status': 2,
@@ -64,11 +71,11 @@ class AM191(object):
                     ods = []
                 else:
                     try:
-                        qty = float(sheet[row][1].value)
-                        _ = sheet[row][0].value.split('/')
+                        qty = float(raw.row(i)[1].value)
+                        _ = raw.row(i)[0].value.split('/')
                         p_code = _[0].strip()
                         p_name = _[1].strip()
-                        price = float(sheet[row][1].value)
+                        price = get_value(raw.row(i)[1].value)
                         ods.append({
                             'Code': p_code,
                             'Name': p_name,
@@ -82,24 +89,29 @@ class AM191(object):
         self.backup(DATA)
 
     def get_converse(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
         from pos_api.adapter import submit_order
-        DATA = self.scan_file(f'C*.xls')
+        DATA = self.scan_file(f'C*{self.DATE}.xls')
         if not DATA:
             submit_error(retailer=self.ADAPTER_RETAILER, reason='CONVERSE_NOT_FOUND')
             return
         wb = xlrd.open_workbook(DATA)
-        sheet = wb[0]
-        nrows = sheet.nrows
+        raw = list(wb.sheets())[0]
+        nrows = raw.nrows
         try:
-            pur_date = sheet[1][1].value.strip()
+            pur_date = raw.row(1)[1].value.strip()
             if len(pur_date) == 0: raise Exception
             pur_date = datetime.strptime(pur_date, '%d-%m-%Y')
             ods = []
-            for row in range(2, nrows):
-                code = sheet[row][0].value
+            for i in range(2, nrows):
+                code = raw.row(i)[0].value
                 if 'Total For' in code and pur_date.strftime('%d-%m-%Y') not in code:
                     code = code.replace('Total For', '').strip()[:-1].strip()
-                    total = float(sheet[row][-2].value)
+                    total = get_value(raw.row(i)[-2].value)
                     data = {
                         'Code': f'CONVERSE_{code}',
                         'Status': 2,
@@ -118,11 +130,11 @@ class AM191(object):
                     ods = []
                 else:
                     try:
-                        qty = float(sheet[row][1].value)
-                        _ = sheet[row][0].value.split('/')
+                        qty = float(raw.row(i)[1].value)
+                        _ = raw.row(i)[0].value.split('/')
                         p_code = _[0].strip()
                         p_name = _[1].strip()
-                        price = float(sheet[row][1].value)
+                        price = get_value(raw.row(i)[1].value)
                         ods.append({
                             'Code': p_code,
                             'Name': p_name,

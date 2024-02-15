@@ -5,10 +5,8 @@ import smtplib
 import sys
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from os.path import dirname
-
-import openpyxl
+import xlrd
 
 
 class AM147(object):
@@ -39,22 +37,22 @@ class AM147(object):
             self.report_not_recv()
             submit_error(self.ADAPTER_RETAILER, 'FILE NOT FOUND')
             return
-        dataframe = openpyxl.load_workbook(DATA, data_only=True)
-        raw = dataframe['Danh sách đơn hàng']
+        ws = xlrd.open_workbook(DATA)
+        raw = ws.sheet_by_name('Danh sách đơn hàng')
         orders = {}
-        for row in range(2, raw.max_row + 1):
-            code = raw[row][0].value
+        for i in range(1, raw.nrows):
+            code = raw.row(i)[0].value
             if code is None: break
             code = str(code)
-            branch = str(int(raw[row][6].value))
-            status = str(raw[row][1].value).strip()
-            pur_date = str(raw[row][2].value).strip()
+            branch = str(int(raw.row(i)[6].value))
+            status = str(raw.row(i)[1].value).strip()
+            pur_date = str(raw.row(i)[2].value).strip()
             pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M')
             now = datetime.now() - timedelta(days=1)
             pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
-            discount = str(raw[row][3].value)
-            total = str(raw[row][4].value)
-            vat = str(raw[row][5].value)
+            discount = str(raw.row(i)[3].value)
+            total = str(raw.row(i)[4].value)
+            vat = str(raw.row(i)[5].value)
             if orders.get(code) is None:
                 orders[code] = {
                     'Code': code,
@@ -66,14 +64,14 @@ class AM147(object):
                     'VAT': float(vat),
                     'Discount': abs(float(discount))
                 }
-        raw = dataframe['Phương thức thanh toán']
+        raw = ws.sheet_by_name('Phương thức thanh toán')
         pms = {}
-        for row in range(2, raw.max_row + 1):
-            code = raw[row][0].value
+        for i in range(1, raw.nrows):
+            code = raw.row(i)[0].value
             if code is None: break
             code = str(code)
-            name = str(raw[row][1].value)
-            value = str(raw[row][2].value)
+            name = str(raw.row(i)[1].value)
+            value = str(raw.row(i)[2].value)
             if pms.get(code) is None:
                 pms[code] = {
                     'PaymentMethods': [
@@ -93,16 +91,16 @@ class AM147(object):
         for k, v in pms.items():
             if orders.get(k) is not None:
                 orders[k].update(v)
-        raw = dataframe['Chi tiết đơn hàng']
+        raw = ws.sheet_by_name('Chi tiết đơn hàng')
         ods = {}
-        for row in range(2, raw.max_row + 1):
-            code = raw[row][0].value
+        for i in range(2, raw.nrows):
+            code = raw.row(i)[0].value
             if code is None: continue
             code = str(code).strip()
-            p_code = str(raw[row][1].value)
-            name = str(raw[row][2].value)
-            qty = str(raw[row][3].value)
-            price = str(raw[row][4].value)
+            p_code = str(raw.row(i)[1].value)
+            name = str(raw.row(i)[2].value)
+            qty = str(raw.row(i)[3].value)
+            price = str(raw.row(i)[4].value)
             if ods.get(code) is None:
                 ods[code] = {
                     'OrderDetails': [{
@@ -146,8 +144,6 @@ class AM147(object):
                 send.pop('PurchaseDate')
                 send.pop('OrderDetails')
                 submit_order(retailer=retailer, token=self.ADAPTER_TOKEN, data=send)
-        if len(orders.items()) == 0:
-            self.send_zero()
         self.backup(DATA)
 
     def backup(self, DATA):
@@ -186,17 +182,3 @@ class AM147(object):
             except:
                 pass
 
-    def send_zero(self):
-        from pos_api.adapter import submit_order
-        order = {
-            'Code': f'NOBILL_{self.DATE.strftime("%d%m%Y")}',
-            'Status': 2,
-            'PurchaseDate': self.DATE.strftime('%Y-%m-%d 07:00:00'),
-            'Total': 0,
-            'TotalPayment': 0,
-            'VAT': 0,
-            'Discount': 0,
-            'OrderDetails': [{'ProductId': 0}],
-            'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]
-        }
-        submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)

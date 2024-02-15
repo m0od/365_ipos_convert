@@ -26,7 +26,7 @@ class AM167(object):
             return None
 
     def get_data(self):
-        from pos_api.adapter import submit_order, submit_error
+        from pos_api.adapter import submit_order, submit_error, submit_payment
         try:
             DATA = self.scan_file()
             if not DATA:
@@ -50,9 +50,9 @@ class AM167(object):
                 voucher = float(raw[15])
                 point = float(raw[16])
                 pms = [
-                    {'Name': 'CASH', 'Value': cash},
-                    {'Name': 'CARD', 'Value': card},
-                    {'Name': 'VOUCHER', 'Value': voucher},
+                    {'Name': 'CASH', 'Value': cash * 1.08},
+                    {'Name': 'CARD', 'Value': card * 1.08},
+                    {'Name': 'VOUCHER', 'Value': voucher * 1.08},
                     {'Name': 'POINT', 'Value': point}
                 ]
                 for _ in pms.copy():
@@ -83,8 +83,19 @@ class AM167(object):
                         })
             for _ in self.ORDERS:
                 submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=_)
+                for pm in _['PaymentMethods']:
+                    if pm['Value'] < 0:
+                        data = {
+                            'Code': f'{_["Code"]}-{pm["Name"]}',
+                            'OrderCode': _["Code"],
+                            'Amount': pm['Value'],
+                            'TransDate': _["PurchaseDate"],
+                            'AccountId': pm['Name']
+                        }
+                        submit_payment(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, data)
             self.backup(DATA)
-        except:
+        except Exception as e:
+            print(e)
             pass
 
     def backup(self, DATA):

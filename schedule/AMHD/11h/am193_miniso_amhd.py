@@ -3,7 +3,7 @@ import os
 import random
 import shutil
 import sys
-import openpyxl
+import xlrd
 from datetime import datetime, timedelta
 from os.path import dirname
 
@@ -40,44 +40,32 @@ class AM193(object):
         except:
             pass
 
-    def send_zero(self):
-        from pos_api.adapter import submit_order
-        order = {
-            'Code': f'NOBILL_{self.DATE.strftime("%d%m%Y")}',
-            'Status': 2,
-            'PurchaseDate': self.DATE.strftime('%Y-%m-%d 07:00:00'),
-            'Total': 0,
-            'TotalPayment': 0,
-            'VAT': 0,
-            'Discount': 0,
-            'OrderDetails': [{'ProductId': 0}],
-            'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]
-        }
-        submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)
-
     def get_data(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
         from pos_api.adapter import submit_error, submit_order
         DATA = self.scan_file()
         if not DATA:
             submit_error(self.ADAPTER_RETAILER, 'FILE_NOT_FOUND')
             return
-        dataframe = openpyxl.load_workbook(DATA, data_only=True)
-        sheet = dataframe[dataframe.sheetnames[0]]
-        nRows = sheet.max_row + 1
+        ws = xlrd.open_workbook(DATA)
+        raw = list(ws.sheets())[0]
         count = 0
         orders = []
-        for row in range(3, nRows):
-            pur_date = sheet[row][0].value
+        for i in range(2, raw.nrows):
             try:
-                pur_date = datetime.strptime(pur_date, '%Y-%m-%d')
+                pur_date = datetime.strptime(raw.row(i)[0].value, '%Y-%m-%d')
             except:
                 continue
             count += 1
-            qty = float(sheet[row][24].value)
-            price = float(sheet[row][31].value)
+            qty = get_value(raw.row(i)[24].value)
+            price = get_value(raw.row(i)[31].value)
             ods = [{
-                'Code': sheet[row][11].value,
-                'Name': sheet[row][13].value,
+                'Code': raw.row(i)[11].value,
+                'Name': raw.row(i)[13].value,
                 'Price': price / qty,
                 'Quantity': qty
 
@@ -106,6 +94,4 @@ class AM193(object):
         for idx, t in enumerate(time):
             orders[idx].update({'PurchaseDate': t})
             submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, orders[idx])
-        if not count:
-            self.send_zero()
         self.backup(DATA)

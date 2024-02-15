@@ -16,6 +16,7 @@ class AM070(object):
         self.KIOT.ACCOUNT = 'amhdapi'
         self.KIOT.PASSWORD = 'Aeonmall123'
         self.KIOT.DOMAIN = 'b4y'
+        self.KIOT.SALE_SRC = ['null', '168110', '178662', '53764', '166848', '166694', '206446', '166773']
         self.KIOT.METHOD = {
             'CARD': 'THẺ',
             'TRANSFER': 'PAYOO',

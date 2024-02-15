@@ -17,6 +17,6 @@ if __name__ == '__main__':
                 obj = eval(f'{_.split("_")[0].upper()}()')
                 obj.get_data()
             except Exception as e:
-                print(f'{_} {e}')
+                print(f'20 {_} {e}')
             break
 

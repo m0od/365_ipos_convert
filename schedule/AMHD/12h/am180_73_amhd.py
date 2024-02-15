@@ -6,8 +6,6 @@ from datetime import datetime, timedelta
 from os.path import dirname
 
 
-
-
 class AM180(object):
     def __init__(self):
         PATH = dirname(dirname(dirname(__file__)))
@@ -26,6 +24,7 @@ class AM180(object):
         g.google_auth()
         files = glob.glob(f'{self.FULL_PATH}/*.xls')
         for _ in files:
+            # print(_)
             SHEET_ID = g.create_sheet(_)
             if type(SHEET_ID) == dict:
                 submit_error(self.ADAPTER_RETAILER, str(SHEET_ID))

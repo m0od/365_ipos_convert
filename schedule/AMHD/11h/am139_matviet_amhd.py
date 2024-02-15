@@ -28,6 +28,7 @@ class AM139(object):
             res = self.browser.post(self.URL, json=js)
             if res.status_code != 200: return False
             js = res.json()
+            print(js)
             if len(js['Error']):
                 # submit_error(retailer=self.ADAPTER_RETAILER, reason=res.json()['Error'])
                 return False
@@ -97,5 +98,3 @@ class AM139(object):
                     submit_error(retailer=self.ADAPTER_RETAILER, reason=str(_))
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
-
-

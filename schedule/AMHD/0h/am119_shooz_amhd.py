@@ -4,7 +4,7 @@ import shutil
 import sys
 from datetime import datetime, timedelta
 from os.path import dirname
-import openpyxl
+import xlrd
 
 
 class AM119(object):
@@ -40,33 +40,37 @@ class AM119(object):
             return None
 
     def get_data(self):
+        def get_value(value):
+            try:
+                return float(value)
+            except:
+                return 0
         from pos_api.adapter import submit_error, submit_order
         self.rename_file()
         DATA = self.scan_file()
         if not DATA:
             submit_error(retailer=self.ADAPTER_RETAILER, reason='FILE_NOT_FOUND')
             return
-        dataframe = openpyxl.load_workbook(DATA, data_only=True)
-        raw = dataframe['Danh sách đơn hàng']
+        ws = xlrd.open_workbook(DATA)
+        raw = ws.sheet_by_name('Danh sách đơn hàng')
+        nrows = raw.nrows
         orders = {}
-        for row in range(2, raw.max_row + 1):
+        for i in range(1, nrows):
             try:
                 pm = []
-                code = raw[row][0].value
+                code = raw.row(i)[0].value
                 if code is None: continue
                 code = str(code).strip()
                 code = code.replace("'", '').strip()
                 if len(code) == 0: continue
-                pur_date = raw[row][2].value
+                pur_date = raw.row(i)[2].value
                 pur_date = datetime.strptime(pur_date, '%d%m%Y%H%M')
+                # print(pur_date)
                 now = datetime.now() - timedelta(days=1)
                 if pur_date.replace(hour=0, minute=0) < now.replace(hour=0, minute=0, second=0, microsecond=0): continue
                 pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
-                try:
-                    total = float(raw[row][3].value)
-                except:
-                    total = 0
-                vat = raw[row][4].value
+                total = get_value(raw.row(i)[3].value)
+                vat = get_value(raw.row(i)[4].value)
                 if orders.get(code) is None:
                     orders.update({code: {
                         'Code': code,
@@ -89,17 +93,18 @@ class AM119(object):
                     })
             except:
                 pass
-        raw = dataframe['Phương thức thanh toán']
+        raw = ws.sheet_by_name('Phương thức thanh toán')
+        nrows = raw.nrows
         pms = {}
-        for row in range(2, raw.max_row + 1):
-            code = raw[row][0].value
+        for i in range(1, nrows):
+            code = raw.row(i)[0].value
             if code is None: continue
             code = str(code).strip()
             code = code.replace("'", '').strip()
             if len(code) == 0: continue
-            name = str(raw[row][1].value).strip().upper()
+            name = str(raw.row(i)[1].value).strip().upper()
             if name == 'NONE' or name == 'TIỀN MẶT': name = 'CASH'
-            value = raw[row][2].value
+            value = get_value(raw.row(i)[2].value)
             if pms.get(code) is None:
                 pms.update({code: [{'Name': name, 'Value': value}]})
             else:
@@ -107,25 +112,20 @@ class AM119(object):
         for k, v in pms.items():
             if orders.get(k) is not None:
                 orders[k].update({'PaymentMethods': v})
-        raw = dataframe['Chi tiết đơn hàng']
+        raw = ws.sheet_by_name('Chi tiết đơn hàng')
+        nrows = raw.nrows
         ods = {}
-        for row in range(2, raw.max_row + 1):
-            code = raw[row][0].value
+        for i in range(1, nrows):
+            code = raw.row(i)[0].value
             if code is None: continue
             code = str(code).strip()
             code = code.replace("'", '').strip()
             if len(code) == 0: continue
-            p_code = raw[row][1].value
+            p_code = raw.row(i)[1].value
             p_code = p_code.replace("'", '')
-            p_name = raw[row][2].value
-            try:
-                qty = float(raw[row][3].value)
-            except:
-                qty = 0
-            try:
-                price = raw[row][5].value
-            except:
-                price = 0
+            p_name = raw.row(i)[2].value
+            qty = get_value(raw.row(i)[3].value)
+            price = get_value(raw.row(i)[5].value)
             if ods.get(code) is None:
                 ods[code] = [{
                     'Code': p_code,
@@ -150,8 +150,6 @@ class AM119(object):
                 v.update({'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]})
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
         self.backup(DATA)
-        if not len(list(orders.keys())):
-            self.send_zero()
 
     def backup(self, DATA):
         idx = DATA.rindex('/')
@@ -167,17 +165,17 @@ class AM119(object):
         except:
             pass
 
-    def send_zero(self):
-        from pos_api.adapter import submit_order
-        order = {
-            'Code': f'NOBILL_{self.DATE.strftime("%d%m%Y")}',
-            'Status': 2,
-            'PurchaseDate': self.DATE.strftime('%Y-%m-%d 07:00:00'),
-            'Total': 0,
-            'TotalPayment': 0,
-            'VAT': 0,
-            'Discount': 0,
-            'OrderDetails': [{'ProductId': 0}],
-            'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]
-        }
-        submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)
+    # def send_zero(self):
+    #     from pos_api.adapter import submit_order
+    #     order = {
+    #         'Code': f'NOBILL_{self.DATE.strftime("%d%m%Y")}',
+    #         'Status': 2,
+    #         'PurchaseDate': self.DATE.strftime('%Y-%m-%d 07:00:00'),
+    #         'Total': 0,
+    #         'TotalPayment': 0,
+    #         'VAT': 0,
+    #         'Discount': 0,
+    #         'OrderDetails': [{'ProductId': 0}],
+    #         'PaymentMethods': [{'Name': 'CASH', 'Value': 0}]
+    #     }
+    #     submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)
