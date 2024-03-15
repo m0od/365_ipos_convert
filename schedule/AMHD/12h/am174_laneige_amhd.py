@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from os.path import dirname
 
 class AM174(object):
@@ -35,6 +35,7 @@ class AM174(object):
                     if not len(date): continue
                     try:
                         pur_date = datetime.strptime(date, '%d/%m/%Y')
+                        pur_date = pur_date + timedelta(hours=10)
                     except:
                         continue
                     code = pur_date.strftime("%Y%m%d")
@@ -66,7 +67,7 @@ class AM174(object):
                         ord.append({
                             'Code': f'{code}_{i}',
                             'Status': 2,
-                            'PurchaseDate': f"{pur_date.strftime('%Y-%m-%d')} 14:00:00",
+                            'PurchaseDate': pur_date,
                             'Total': 0,
                             'TotalPayment': 0,
                             'VAT': 0,
@@ -77,7 +78,7 @@ class AM174(object):
                     ord.append({
                         'Code': f'{code}_{count}',
                         'Status': 2,
-                        'PurchaseDate': f"{pur_date.strftime('%Y-%m-%d')} 14:00:00",
+                        'PurchaseDate': pur_date,
                         'Total': total,
                         'TotalPayment': total,
                         'VAT': vat,
@@ -98,6 +99,10 @@ class AM174(object):
                     submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
         except Exception as e:
             submit_error(retailer=self.ADAPTER_RETAILER, reason=str(e))
-        for _ in ord:
-            submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=_)
+        total_bill = len(ord)
+        for i in range(len(ord)):
+            pur_date = ord[i]['PurchaseDate']
+            pur_date = pur_date + timedelta(seconds=i * int(43200 / total_bill))
+            ord[i]['PurchaseDate'] = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+            submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=ord[i])
 

@@ -59,7 +59,7 @@ class AM072(object):
             headers = []
             for _ in raw.row(0):
                 headers.append(unidecode(str(_.value).upper()))
-            orders = []
+            orders = {}
             for i in range(1, nRows):
                 rec = dict(zip(headers, raw.row(i)))
                 try:
@@ -68,20 +68,35 @@ class AM072(object):
                     code = str(code)
                 except:
                     continue
+                # print(code)
                 try:
-                    pur_date = rec.get('TRANSACTION TIME').value
-                    pur_date = datetime.strptime(pur_date, '%m/%d/%Y %I:%M:%S %p')
-                    pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+                    if not rec.get('BRAND'):
+                        pur_date = rec.get('TRANSACTION TIME').value
+                        # print(pur_date)
+                        pur_date = datetime.strptime(pur_date, '%m/%d/%Y %I:%M:%S %p')
+                        pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+                    else:
+                        pur_time = rec.get('TRANSACTION TIME').value
+                        pur_time = datetime.strptime(pur_time, '%H:%M:%S')
+                        pur_time = pur_time.strftime('%H:%M:%S')
+                        pur_date = rec.get('TRANSACTION DATE').value
+                        pur_date = datetime.strptime(pur_date, '%d/%m/%Y')
+                        pur_date = pur_date.strftime('%Y-%m-%d')
+                        pur_date = f'{pur_date} {pur_time}'
                 except:
                     continue
                 total = get_value(rec.get('TRANSACTION AMOUNT').value)
                 discount = abs(get_value(rec.get('DISCOUNT').value))
                 vat = get_value(rec.get('TRANSACTION TAX').value)
+
                 try:
                     pm = rec.get('PAYMENT METHOD').value
                     pm = pm.upper().replace('VND', '').strip()
                     if len(pm):
-                        pms = [{'Name': pm, 'Value': total}]
+                        if 'CASH VOUCHER' in pm:
+                            pms = [{'Name': pm, 'Value': 0}]
+                        else:
+                            pms = [{'Name': pm, 'Value': total}]
                     else:
                         pms = [{'Name': 'CASH', 'Value': 0}]
                 except:
@@ -97,14 +112,43 @@ class AM072(object):
                     'OrderDetails': [{'ProductId': 0}],
                     'PaymentMethods': pms
                 }
-                branch = rec.get('RESTAURANT').value
+                branch = unidecode(str(rec.get('RESTAURANT').value)).upper()
                 if branch == 'DQ_050_AHD_HAN':
-                    submit_order(self.DQ_RETAILER, self.DQ_TOKEN, order)
+                    order.update({'Brand': 'DQ'})
+                    # submit_order(self.DQ_RETAILER, self.DQ_TOKEN, order)
                 elif branch == 'SW_021_AHD_HAN':
-                    submit_order(self.SW_RETAILER, self.SW_TOKEN, order)
+                    order.update({'Brand': 'SW'})
+                    # submit_order(self.SW_RETAILER, self.SW_TOKEN, order)
                 elif branch == 'TPC_074_AHD_HAN':
+                    order.update({'Brand': 'TPC'})
+                    # submit_order(self.TPC_RETAILER, self.TPC_TOKEN, order)
+                elif branch == 'AEON HA DONG':
+                    branch = rec.get('BRAND').value
+                    if branch == 'DQ':
+                        order.update({'Brand': 'DQ'})
+                        # submit_order(self.DQ_RETAILER, self.DQ_TOKEN, order)
+                    elif branch == 'SW':
+                        order.update({'Brand': 'SW'})
+                        # submit_order(self.SW_RETAILER, self.SW_TOKEN, order)
+                    elif branch == 'TPC':
+                        order.update({'Brand': 'TPC'})
+                        # submit_order(self.TPC_RETAILER, self.TPC_TOKEN, order)
+                if orders.get(f"{order['Brand']}_{order['Code']}") is None:
+                    orders.update({
+                        f"{order['Brand']}_{order['Code']}": order
+                    })
+                else:
+                    orders[f"{order['Brand']}_{order['Code']}"]['PaymentMethods'].extend(order['PaymentMethods'])
+            for _, order in orders.items():
+                branch = order['Brand']
+                order.pop('Brand')
+                if branch == 'DQ':
+                    submit_order(self.DQ_RETAILER, self.DQ_TOKEN, order)
+                elif branch == 'SW':
+                    submit_order(self.SW_RETAILER, self.SW_TOKEN, order)
+                elif branch == 'TPC':
                     submit_order(self.TPC_RETAILER, self.TPC_TOKEN, order)
-            self.backup(DATA)
+            # self.backup(DATA)
 
     def backup(self, DATA):
         idx = DATA.rindex('/')

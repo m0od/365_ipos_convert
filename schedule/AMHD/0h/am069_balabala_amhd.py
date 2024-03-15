@@ -57,7 +57,7 @@ class AM069(object):
         self.QUERY += ['WHERE', 'dbo.SlBlD.ID_Hang', 'IS', 'NOT', 'NULL']
         self.QUERY += ['AND', 'dbo.SlBlM.SNgay', '=', f"'{self.DATE.strftime('%y%m%d')}'"]
         self.QUERY += ['AND', 'ISNULL', '(', 'dbo.SlBlD.ID_Kho', ',', 'dbo.SlBlM.ID_Kho', ')']
-        self.QUERY += ['=', '61']
+        self.QUERY += ['=', '64']
         self.QUERY += ['ORDER', 'BY', 'dbo.SlBlM.ID']
 
     def get_data(self):
@@ -68,7 +68,7 @@ class AM069(object):
         self.orders = {}
         if not self.login(): return False
         try:
-            # print(self.SQL_QUERY.format(date_from.strftime('%y%m%d')))
+            # print(' '.join(self.QUERY))
             # self.CURSOR.execute(self.SQL_QUERY.format(date_from.strftime('%y%m%d')))
             self.CURSOR.execute(' '.join(self.QUERY))
             row = self.CURSOR.fetchone()

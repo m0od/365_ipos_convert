@@ -47,7 +47,7 @@ class AM181(object):
                 'start_date': (self.DATE - timedelta(days=1)).strftime('%Y-%m-%dT17:00:00Z'),
                 'end_date': self.DATE.strftime('%Y-%m-%dT16:59:59Z'),
                 'order_status': 'completed',
-                'return_status': 'unreturned',
+                # 'return_status': 'unreturned',
                 'type': 'by_completed',
                 'page': str(page),
                 'limit': '100',
@@ -61,6 +61,9 @@ class AM181(object):
             items = r.json()['items']
             if not len(items): break
             for _ in r.json()['items']:
+                # print(_['order_code'])
+                # if _['order_code'] == 'SON253779':
+                #     print(_)
                 cash = _['cash_payments']
                 transfer = _['transfer_payments']
                 card = _['mpos_payments']

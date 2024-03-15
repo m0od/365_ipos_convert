@@ -46,9 +46,10 @@ class AM173(object):
                 # if code != 'CA_230829_10000002623349': continue
                 pur_date = _[2].strip()
                 pur_date = datetime.strptime(pur_date, '%d%m%Y')
+                pur_date = pur_date + timedelta(hours=int(_[3].strip()))
                 # pur_date = data[row][2].value.strip()
                 # pur_date = datetime.strptime(pur_date, '%d/%m/%Y %H:%M')
-                pur_date = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+                # pur_date = pur_date
                 total_bill = int(_[4].strip())
                 if not total_bill: continue
                 # print(line)
@@ -76,7 +77,7 @@ class AM173(object):
                 self.ORDERS.append({
                     'Code': f'{code}_{total_bill}',
                     'Status': 2,
-                    'PurchaseDate': pur_date,
+                    'PurchaseDate': pur_date.strftime(f'%Y-%m-%d %H:%M:%S'),
                     'Total': total,
                     'TotalPayment': total,
                     'VAT': vat,
@@ -85,10 +86,11 @@ class AM173(object):
                     'PaymentMethods': pms
                 })
                 for _ in range(1, total_bill):
+                    p_date = pur_date + timedelta(seconds=_*int(3600/total_bill))
                     self.ORDERS.append({
                         'Code': f'{code}_{_}',
                         'Status': 2,
-                        'PurchaseDate': pur_date,
+                        'PurchaseDate': p_date.strftime(f'%Y-%m-%d %H:%M:%S'),
                         'Total': 0,
                         'TotalPayment': 0,
                         'VAT': 0,

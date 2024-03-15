@@ -50,6 +50,8 @@ class AM003(object):
             pur_date = raw.row(i)[2].value
             pur_date = (pur_date - 25569) * 86400
             pur_date = datetime.utcfromtimestamp(pur_date)
+            # print(pur_date)
+            pur_date = pur_date + timedelta(hours=10)
             discount = abs(get_value(raw.row(i)[9].value))
             vat = abs(get_value(raw.row(i)[8].value))
             total = abs(get_value(raw.row(i)[7].value)) + vat
@@ -64,7 +66,7 @@ class AM003(object):
                     code: {
                         'Code': code,
                         'Status': 2,
-                        'PurchaseDate': pur_date.strftime('%Y-%m-%d 07:00:00'),
+                        'PurchaseDate': pur_date,
                         'Total': total,
                         'TotalPayment': total,
                         'VAT': vat,
@@ -82,7 +84,12 @@ class AM003(object):
                     'Discount': discount + orders[code]['Discount'],
                     'PaymentMethods': [{'Name': 'CASH', 'Value': total + orders[code]['Total']}]
                 })
-        for k, v in orders.items():
+        total_bill = len(orders.keys())
+        for i, (k, v) in enumerate(orders.items()):
+            pur_date = v['PurchaseDate']
+            pur_date = pur_date + timedelta(seconds=i*int(43200/total_bill))
+            v['PurchaseDate'] = pur_date.strftime('%Y-%m-%d %H:%M:%S')
+            # print(v)
             if not len(v['PaymentMethods']):
                 v['PaymentMethods'] = [{'Name': 'CASH', 'Value': 0}]
             submit_order(retailer=self.ADAPTER_RETAILER, token=self.ADAPTER_TOKEN, data=v)
@@ -134,4 +141,4 @@ class AM003(object):
                     f.write(item.get_payload(decode=True))
                     f.close()
                     self.extract_data()
-                    self.forward_amhd()
+                    # self.forward_amhd()

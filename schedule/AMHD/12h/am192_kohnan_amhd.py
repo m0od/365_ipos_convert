@@ -97,6 +97,9 @@ class AM192(object):
                 cash = get_value(raw[row][13])
                 credit = get_value(raw[row][14])
                 receivable = get_value(raw[row][15])
+                voucher = get_value(raw[row][16])
+                bank = get_value(raw[row][17])
+                momo = get_value(raw[row][18])
                 pms = []
                 # if cash > 0:
                 pms.append({'Name': 'CASH', 'Value': cash})
@@ -104,6 +107,9 @@ class AM192(object):
                 pms.append({'Name': 'CREDIT', 'Value': credit})
                 # if receivable > 0:
                 pms.append({'Name': 'RECEIVABLE', 'Value': receivable})
+                pms.append({'Name': 'VOUCHER', 'Value': voucher})
+                pms.append({'Name': 'BANK', 'Value': bank})
+                pms.append({'Name': 'MOMO', 'Value': momo})
                 for _ in pms.copy():
                     if _['Value'] == 0:
                         pms.remove(_)

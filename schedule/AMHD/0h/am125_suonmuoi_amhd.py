@@ -69,6 +69,7 @@ class AM125(object):
                     if _['PaymentStatus'] == 4:continue
                     code = _['RefNo']
                     pur_date = datetime.strptime(_['RefDate'].split('.')[0], '%Y-%m-%dT%H:%M:%S')
+                    pur_date = pur_date + timedelta(hours=7)
                     vat = _['VATAmount']
                     discount = _['DiscountAmount']
                     total = _['TotalAmount']

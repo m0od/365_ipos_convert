@@ -62,7 +62,8 @@ class AM057(object):
                     code = raw.row(i)[1].value
                     pur_date = raw.row(i)[3].value
                     pur_date = datetime.strptime(pur_date, '%Y-%m-%d')
-                    pur_date = pur_date.strftime('%Y-%m-%d 07:00:00')
+                    pur_date = pur_date + timedelta(hours=10)
+                    # pur_date = pur_date.strftime('%Y-%m-%d 07:00:00')
                     total = float(raw.row(i)[6].value)
                     discount = float(raw.row(i)[5].value)
                     p_name = raw.row(i)[7].value.upper()
@@ -100,8 +101,12 @@ class AM057(object):
                         'Price': price,
                         'Quantity': qty
                     })
-            self.TOTAL = len(list(orders.keys()))
-            for _, order in orders.items():
+            # self.TOTAL = len(list(orders.keys()))
+            total_bill = len(orders.keys())
+            for i, (k, order) in orders.items():
+                pur_date = order['PurchaseDate']
+                pur_date = pur_date + timedelta(seconds=i*int(43200/total_bill))
+                order['PurchaseDate'] = pur_date.strftime('%Y-%m-%d %H:%M:%S')
                 submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)
             self.backup(DATA)
 
@@ -137,7 +142,8 @@ class AM057(object):
                 else:
                     try:
                         pur_date = datetime.strptime(rec['Date'], '%d/%m/%Y')
-                        pur_date = pur_date.strftime('%Y-%m-%d 07:00:00')
+                        pur_date = pur_date + timedelta(hours=10)
+                        # pur_date = pur_date.strftime('%Y-%m-%d 07:00:00')
                     except:
                         continue
                     code = rec.get('Ref Num').strip()
@@ -162,11 +168,15 @@ class AM057(object):
                         orders[code]['PaymentMethods'].append({
                             'Name': pm, 'Value': value
                         })
-            if self.TOTAL is None:
-                self.TOTAL = len(list(orders.keys()))
-            else:
-                self.TOTAL += len(list(orders.keys()))
-            for _, order in orders.items():
+            # if self.TOTAL is None:
+            #     self.TOTAL = len(list(orders.keys()))
+            # else:
+            #     self.TOTAL += len(list(orders.keys()))
+            total_bill = len(orders.keys())
+            for i, (k, order) in orders.items():
+                pur_date = order['PurchaseDate']
+                pur_date = pur_date + timedelta(seconds=i * int(43200 / total_bill))
+                order['PurchaseDate'] = pur_date.strftime('%Y-%m-%d %H:%M:%S')
                 submit_order(self.ADAPTER_RETAILER, self.ADAPTER_TOKEN, order)
             self.GG.delete(SHEET_ID)
             self.backup(DATA)

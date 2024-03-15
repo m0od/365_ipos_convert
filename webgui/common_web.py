@@ -385,7 +385,7 @@ def orders():
             raise MissingInformationException('Thiếu thông tin ngày bán (ReturnDate)')
         if content.get('PaymentMethods') is None or type(content.get('PaymentMethods')) != list:
             return MissingInformationException('Thiếu thông tin PTTT (PaymentMethods)')
-        if store and int(store) in [15548]:
+        if store and int(store) in [15548, 26451, 14928]:
             if content.get('Voucher') != 0:
                 content['PaymentMethods'].append({
                     'Name': 'VOUCHER', 'Value': content.get('Voucher')
